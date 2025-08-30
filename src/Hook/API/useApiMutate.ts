@@ -1,49 +1,94 @@
 
 
+// useApiMutate.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { UseMutationResult } from '@tanstack/react-query';
 import api from './api';
-import { useState } from 'react';
+import Swal from 'sweetalert2';
 
-interface UseMutateOptions<T = any> {
+interface UseMutateOptions<TData> {
   endpoint: string;
-  method: 'post' | 'put' | 'patch';
-  onSuccess?: (data: T) => void;
-  invalidate?: any[];
+  method: 'post' | 'put' | 'patch' | 'delete';
+  onSuccess?: (data: TData) => void;
+  invalidate?: unknown[];
   logoutOn401?: boolean;
 }
 
-export function useMutate<T = any>({
+export function useMutate<TData = unknown, TVariables = Record<string, unknown>>({
   endpoint,
   method,
   onSuccess,
   invalidate,
-}: UseMutateOptions<T>) {
+}: UseMutateOptions<TData>): UseMutationResult<TData, Error, TVariables> {
   const queryClient = useQueryClient();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const mutation = useMutation<T, Error, any>({
-    mutationFn: async (data: any) => {
+  return useMutation<TData, Error, TVariables>({
+    mutationFn: async (variables: TVariables) => {
       try {
-        const response = await api[method](endpoint, data);
+        let payload: unknown = variables;
+        let headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+
+        if (variables && typeof variables === 'object') {
+          const hasFile = Object.values(variables).some(
+            (val) => val instanceof File || val instanceof Blob
+          );
+
+          if (hasFile) {
+            const formData = new FormData();
+
+            Object.entries(variables as Record<string, unknown>).forEach(([key, value]) => {
+              if (value instanceof File || value instanceof Blob) {
+                formData.append(key, value);
+              } else if (typeof value === 'object' && value !== null) {
+                formData.append(key, JSON.stringify(value));
+              } else if (value !== undefined && value !== null) {
+                formData.append(key, String(value));
+              }
+            });
+
+            payload = formData;
+            headers = {};
+          }
+        }
+
+        const response = await api.request<TData>({
+          method,
+          url: endpoint,
+          data: payload,
+          headers,
+        });
+
         return response.data;
-      } catch (error: any) {
-        const errorMsg = error.response?.data?.message || error.message || 'Unexpected Error';
-        setErrorMessage(errorMsg);
+      } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } }; message?: string };
+        const errorMsg = err.response?.data?.message || err.message || 'Unexpected Error';
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMsg,
+        });
+
+        console.log(error);
+        
         throw new Error(errorMsg);
       }
     },
     onSuccess: (data) => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Operation completed successfully!',
+      });
+
       if (invalidate) {
         queryClient.invalidateQueries({ queryKey: invalidate });
       }
       if (onSuccess) onSuccess(data);
     },
   });
-
-  return {
-    ...mutation,
-    isLoading: mutation.isPending,
-    errorMessage,
-    clearError: () => setErrorMessage(null),
-  };
 }
+
+

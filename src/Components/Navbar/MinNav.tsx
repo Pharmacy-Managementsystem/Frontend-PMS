@@ -1,6 +1,6 @@
 
 const dropdownContent = {
-  management: ['User Management', 'Branches Management', 'Package Management'],
+  management: ['Business Management','User Management', 'Branches Management', 'Package Management'],
   settings: ['Business', 'Branches', 'Payment Methods', 'Tax Rates', 'Currencies'],
   contacts: ['Customers', 'Suppliers']
 } as const;
@@ -24,7 +24,7 @@ export default function MinNav({
     <div>
         <div className='top-16 left-0 sticky right-0 z-40 mt-8'>
           <div className="max-w-screen-xl mx-auto">
-            <div className='flex items-center justify-center space-x-12 h-16 border-b border-gray-200'> 
+            <div className='flex flex-wrap md-nowrap items-center justify-center space-x-12 h-16 border-b border-gray-200'> 
             {items.map((item, index) => (
               <div 
                 key={index}

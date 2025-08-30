@@ -1,42 +1,41 @@
 import { useQuery } from '@tanstack/react-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 import api from './api';
-import { useState } from 'react';
+import Swal from 'sweetalert2';
 
-interface UseGetOptions {
+interface UseGetOptions{
   endpoint: string;
-  queryKey: any[];
-  params?: Record<string, any>;
+  queryKey: unknown[];
+  params?: Record<string, unknown>;
   enabled?: boolean;
   logoutOn401?: boolean;
 }
 
-export function useGet<T = any>({
+export function useGet<T = unknown>({
   endpoint,
   queryKey,
   params,
   enabled = true,
-}: UseGetOptions) {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const query = useQuery<T>({
+}: UseGetOptions): UseQueryResult<T, Error> {
+  return useQuery<T, Error>({
     queryKey,
     queryFn: async () => {
       try {
-        const response = await api.get(endpoint, { params });
+        const response = await api.get<T>(endpoint, { params });
         return response.data;
-      } catch (error: any) {
-        const errorMsg = error.response?.data?.message || error.message || 'Unexpected Error';
-        setErrorMessage(errorMsg);
+      } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } }; message?: string };
+        const errorMsg = err.response?.data?.message || err.message || 'Unexpected Error';
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMsg,
+        });
+
         throw new Error(errorMsg);
       }
     },
     enabled,
   });
-
-  return {
-    ...query,
-    isLoading: query.isLoading,
-    errorMessage,
-    clearError: () => setErrorMessage(null),
-  };
 }

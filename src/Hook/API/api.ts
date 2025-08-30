@@ -1,3 +1,6 @@
+
+
+// src/Hook/API/api.ts
 import axios from 'axios';
 import { tokenService } from '../../services/utils/tokenService';
 
@@ -9,13 +12,13 @@ const api = axios.create({
 // Define proper types for the queue items
 interface QueueItem {
   resolve: (value: string | PromiseLike<string>) => void;
-  reject: (reason?: any) => void;
+  reject: (reason?: unknown) => void;
 }
 
 let isRefreshing = false;
 let failedQueue: QueueItem[] = []; // Fixed: Added proper type annotation
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) prom.reject(error);
     else prom.resolve(token as string);
@@ -24,7 +27,6 @@ const processQueue = (error: any, token: string | null = null) => {
 };
 
 
-// Function to check if token is about to expire (within 5 minutes)
 const isTokenExpiringSoon = (token: string | null): boolean => {
   if (!token) return true;
   

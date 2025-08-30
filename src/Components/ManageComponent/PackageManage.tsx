@@ -6,9 +6,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { TableHeader } from "../Table/TableHeader";
 import ReusableForm from "../Forms/ReusableForm";
 import {
+  CircularProgress,
   Dialog,
   IconButton
 } from '@mui/material';
+import Box from '@mui/material/Box';
 import { X } from 'lucide-react';
 import api from "../../Hook/API/api";
 
@@ -32,11 +34,12 @@ interface PackageResponse {
 
 export default function PackageManage() {
   const [page, setPage] = useState(1);
+  const [pageSize] = useState(4);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
   const { data: packageResponse, isLoading, error, refetch } = useGet<PackageResponse>({
-    endpoint: `/api/superadmin/packages/?page=${page}`,
+    endpoint: `/api/superadmin/packages/?page=${page}&page_size=${pageSize}`,
     queryKey: ['packages', page],
   });
 
@@ -65,7 +68,7 @@ export default function PackageManage() {
     try {
       const response = await api.delete(`/api/superadmin/packages/${id}/`);
       if (response.status === 204) {
-        refetch(); // Refresh the list after deletion
+        refetch(); 
       }
     } catch (error) {
       console.error('Error deleting package:', error);
@@ -73,13 +76,16 @@ export default function PackageManage() {
   };
 
   const handleEditClick = (pkg: Package) => {
-    // Create a copy of the package to avoid direct state mutation
     const packageCopy = { ...pkg };
     setEditingPackage(packageCopy);
     setIsEditModalOpen(true);
   };
 
-  if (isLoading) return <div className="p-6">Loading packages...</div>;
+  if (isLoading) return <div className="p-6">
+     <Box className="flex justify-center items-center w-full h-screen">
+      <CircularProgress />
+    </Box>
+  </div>;
   if (error) return <div className="p-6">Error loading packages: {error.message}</div>;
 
   const hasPackages = packageResponse && packageResponse.results && packageResponse.results.length > 0;
@@ -172,9 +178,6 @@ export default function PackageManage() {
 
         {/* Create Package Modal */}
         {isCreateModalOpen && (
-        <Dialog open={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} maxWidth="sm" fullWidth>
-          
-          
             <ReusableForm
               fields={formFields}
               endpoint="/api/superadmin/packages/"
@@ -184,7 +187,6 @@ export default function PackageManage() {
               submitButtonText="Create Package"
               key="create-form"
             />
-        </Dialog>
       )}
 
       {isEditModalOpen && editingPackage && (
