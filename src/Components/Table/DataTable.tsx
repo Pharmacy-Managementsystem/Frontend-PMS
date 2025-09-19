@@ -2,7 +2,9 @@ import React from 'react';
 
 interface DataTableProps {
   columns: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any>[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   RowComponent: React.FC<any>;
   onEdit?: (id: string) => void;
   onToggleStatus?: (id: string) => void;
@@ -20,7 +22,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   renderDropdown
 }) => {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto relative">
       <table className="w-full">
         <thead className="bg-gray-200 rounded-lg">
           <tr>
@@ -29,7 +31,7 @@ export const DataTable: React.FC<DataTableProps> = ({
                 {column}
               </th>
             ))}
-            <th className="py-4 px-6 text-left text-sm font-medium text-gray-700 last:rounded-r-lg">Actions</th>
+            <th className="py-4 px-6 text-left text-sm font-medium text-gray-700 last:rounded-r-lg relative z-10">Actions</th>
           </tr>
         </thead>
         <tbody>

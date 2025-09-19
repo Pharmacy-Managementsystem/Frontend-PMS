@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useForm } from "react-hook-form";
 import type { SubmitHandler, Resolver } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,21 +6,30 @@ import * as z from 'zod';
 import { Image } from 'lucide-react';
 import { useMutate } from '../../Hook/API/useApiMutate';
 import { useGet } from '../../Hook/API/useApiGet';
+import { jwtDecode } from 'jwt-decode';
 
-interface Package {
+
+
+interface BusinessDetailsResponse {
   id: number;
   name: string;
-}
-
-interface PackageResponse {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: Package[];
+  logo?: string;
+  website?: string;
+  contact_number?: string;
+  alternate_contact_number?: string;
+  package?: number;
+  package_name?: string;
+  subscription_status?: 'active' | 'expired' | 'cancelled' | 'suspended' | 'pending';
+  owner_user_id?: number;
+  owner_user_email?: string;
+  owner_user_username?: string;
+  owner_user_phone_number?: string;
+  owner_user_address?: string;
 }
 
 // Schema with proper type inference
 const businessSchema = z.object({
+  user_id: z.number().optional(),
   name: z.string().min(1, "Business name is required"),
   contact_number: z.string().min(1, "Contact number is required"),
   alternate_contact_number: z.string().optional(),
@@ -49,9 +58,23 @@ type BusinessFormValues = z.infer<typeof businessSchema>;
 const Business = () => {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
+  // Read current user_id from access token
+  const currentUserId = useMemo(() => {
+    try {
+      const token = localStorage.getItem('access');
+      if (!token) return undefined;
+      const decoded = jwtDecode<{ user_id?: string | number }>(token);
+      const id = decoded?.user_id;
+      return typeof id === 'string' ? Number(id) : id;
+    } catch {
+      return undefined;
+    }
+  }, []);
+
   const form = useForm<BusinessFormValues>({
     resolver: zodResolver(businessSchema) as unknown as Resolver<BusinessFormValues, unknown>,
     defaultValues: {
+      user_id: currentUserId,
       name: '',
       contact_number: '',
       package: 0,
@@ -71,22 +94,64 @@ const Business = () => {
     }
   });
 
-  const { data: packageResponse } = useGet<PackageResponse>({
-    endpoint: `/api/superadmin/packages/`,
-    queryKey: ['packages'],
+  // Business details for current user
+  const { data: businessDetails } = useGet<BusinessDetailsResponse>({
+    endpoint: `/api/superadmin/all-businesses/${currentUserId ?? ''}/`,
+    queryKey: ['business-details', currentUserId],
+    enabled: Boolean(currentUserId),
   });
+
+  // Packages list for the select
+  // const { data: packagesList } = useGet<PackageResponse>({
+  //   endpoint: '/api/superadmin/packages/',
+  //   queryKey: ['packages'],
+  // });
 
   // ✅ specify النوع
   const { mutate } = useMutate<BusinessFormValues>({
-    endpoint: '/api/superadmin/all-businesses/',
-    method: 'post',
+    endpoint: `/api/business/settings/business/${currentUserId ?? ''}/`,
+    method: 'patch',
   });
 
   const { register, handleSubmit, formState: { errors }, setValue, reset } = form;
 
+  // Populate form when details arrive
+  React.useEffect(() => {
+    if (!businessDetails) return;
+    reset({
+      user_id: currentUserId,
+      name: businessDetails.name || '',
+      contact_number: businessDetails.contact_number || '',
+      alternate_contact_number: businessDetails.alternate_contact_number || '',
+      website: businessDetails.website || '',
+      package: businessDetails.package ?? 0,
+      currency: 0,
+      subscription_status: businessDetails.subscription_status,
+      owner: {
+        email: businessDetails.owner_user_email || '',
+        username: businessDetails.owner_user_username || '',
+        password: '',
+        phone_number: businessDetails.owner_user_phone_number || '',
+        address: businessDetails.owner_user_address || '',
+      },
+      branch: {
+        name: '',
+        address: '',
+        contact_number: '',
+      },
+    })
+    if (businessDetails.logo) {
+      setLogoPreview(businessDetails.logo)
+    }
+  }, [businessDetails, currentUserId, reset])
+
   const onSubmit: SubmitHandler<BusinessFormValues> = (data) => {
-    console.log("Form submitted:", data);
-    mutate(data);
+    if (!currentUserId) {
+      console.error('Missing user id in token');
+      return;
+    }
+    const payload = { ...data, user_id: currentUserId } as BusinessFormValues & { user_id?: number };
+    mutate(payload as unknown as Record<string, unknown>);
   };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,7 +180,7 @@ const Business = () => {
       
        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Business Information Section */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-6 ">
           <h2 className="text-xl font-semibold mb-4 text-gray-800">Business Information</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -201,11 +266,11 @@ const Business = () => {
                 }`}
               >
                 <option value="">Select a package</option>
-                {packageResponse?.results?.map((pak) => (
+                {/* {packagesList?.results?.map((pak) => (
                   <option key={pak.id} value={pak.id}>
                     {pak.name}
                   </option>
-                ))}
+                ))} */}
               </select>
               {errors.package && (
                 <p className="text-red-500 text-xs mt-1">{errors.package.message}</p>

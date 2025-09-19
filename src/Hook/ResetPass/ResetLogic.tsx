@@ -90,12 +90,13 @@ export const useResetPassword = () => {
       setMessage("");
 
       const { data: checkEmailResponse } = await checkEmail();
-      await sendCode({ email: checkEmailResponse.email });
+      await sendCode({ email: (checkEmailResponse as { email?: string })?.email || email });
 
       setMessage("Email sent successfully! Please check your inbox.");
       setActiveStep(1);
-    } catch (error: any) {
-      setError(error.message || "Failed to send verification code");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to send verification code";
+      setError(errorMessage);
     }
   };
 
@@ -113,8 +114,9 @@ export const useResetPassword = () => {
       await verifyCode({ email, code: verificationCode });
       setMessage("Code verified successfully!");
       setActiveStep(2);
-    } catch (error: any) {
-      setError(error.message || "Invalid verification code");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Invalid verification code";
+      setError(errorMessage);
     }
   };
 
@@ -127,8 +129,9 @@ export const useResetPassword = () => {
       setMessage("");
 
       await resetPassword({ email, new_password: newPassword });
-    } catch (error: any) {
-      setError(error.message || "Failed to reset password");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to reset password";
+      setError(errorMessage);
     }
   };
 
