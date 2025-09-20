@@ -11,7 +11,7 @@ const data = [
 
 export default function ChartTrend() {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
       <div className='bg-white rounded-lg p-4 shadow-lg'>
         <h2 className="text-header  font-light mb-4">Sales Trend</h2>
         <ResponsiveContainer width="100%" height={300}>

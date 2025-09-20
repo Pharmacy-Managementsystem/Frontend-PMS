@@ -5,7 +5,6 @@ import Login from './Pages/Login/Login';
 import NotFoundPage from './Pages/NotFound/NotFoundPage';
 import Setting from './Pages/Setting/Setting';
 import Management from './Pages/Management/Management';
-import POS from './Pages/POS/POS';
 import Inventory from './Pages/Inventory/Inventory';
 import Purchase from './Pages/Purchase/Purchase';
 import Sales from './Pages/Sales/Sales';
@@ -25,7 +24,6 @@ const routers = createBrowserRouter([
         { path: 'home', element: <Dashboard /> },
       {path: 'setting', element: <Setting /> },
       { path: 'management', element: <Management /> },
-      { path: 'pos', element: <POS /> },
       { path: 'inventory', element: <Inventory /> },
       { path: 'purchase', element: <Purchase /> },
       { path: 'sales', element: <Sales /> },

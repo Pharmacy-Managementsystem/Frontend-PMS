@@ -7,6 +7,7 @@ import UserManage from '../../Components/ManageComponent/UserManage';
 import PackageManage from '../../Components/ManageComponent/PackageManage';
 import BusinessManage from '../../Components/ManageComponent/BusinessManage';
 import SubscriptionsManagement from '../../Components/ManageComponent/SubscriptionsManagement';
+import Roles from '../../Components/ManageComponent/Roles';
 
 interface DecodedToken {
   token_type: string;
@@ -65,6 +66,7 @@ function Management() {
         case 'Business Management': return <BusinessManage />;
         case 'Package Management': return <PackageManage />;
         case 'Subscriptions Management': return <SubscriptionsManagement />;
+
         case 'User info': return <UserInfo 
           userId={selectedUserId} 
           onBack={handleBackFromUserInfo} 
@@ -72,10 +74,10 @@ function Management() {
         default: return <BusinessManage />;
       }
     } else {
-      // For regular users, allow User Management and Branches Management
       switch(activeTab) {
         case 'User Management': return <UserManage />;
         case 'Branches Management': return <BranchesManage />;
+        case 'Roles': return < Roles/>;
         case 'User info': return <UserInfo 
           userId={selectedUserId} 
           onBack={handleBackFromUserInfo} 
@@ -92,7 +94,8 @@ function Management() {
         onTabChange={setActiveTab} 
         activeTab={activeTab}
       />
-      <div className='w-full h-full py-2'>
+      {/* استخدم custom-card-shadow هنا */}
+      <div className="max-w-screen-2xl px-14 py-8 mb-10 bg-white custom-card-shadow rounded-xl mx-auto">
         {renderActiveComponent()}
       </div>
     </>

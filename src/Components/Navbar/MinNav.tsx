@@ -13,7 +13,7 @@ interface DecodedToken {
 }
 
 const dropdownContent = {
-  management: ['Business Management','User Management', 'Subscriptions Management' , 'Branches Management', 'Package Management'],
+  management: ['Business Management','User Management', 'Subscriptions Management' , 'Branches Management', 'Package Management' , "Roles"],
   settings: ['Business', 'Branches', 'Payment Methods', 'Tax Rates', 'Currencies'],
   contacts: ['Customers', 'Suppliers']
 } as const;
@@ -52,7 +52,7 @@ export default function MinNav({
       if (decodedToken?.is_superuser) {
         return item === 'Business Management' || item === 'Package Management' || item === 'Subscriptions Management';
       }
-      return item === 'User Management' || item === 'Branches Management';
+      return item === 'User Management' || item === 'Branches Management' || item === 'Roles';
     }
     return true;
   });
@@ -86,7 +86,6 @@ export default function MinNav({
     }
   }, [currentActiveTab, activeTab, onTabChange]);
 
-  // Prevent unauthorized access by checking if user is trying to access restricted tabs
   useEffect(() => {
     if (decodedToken && navItems === 'management') {
       const isSuperuser = decodedToken.is_superuser;
@@ -95,7 +94,6 @@ export default function MinNav({
         : (activeTab === 'Business Management' || activeTab === 'Package Management');
       
       if (isAccessingRestrictedTab) {
-        // Redirect to appropriate tab based on user role
         const appropriateTab = isSuperuser ? 'Business Management' : 'User Management';
         onTabChange(appropriateTab);
       }
@@ -106,7 +104,7 @@ export default function MinNav({
     <div>
         <div className='top-16 left-0 sticky right-0 z-40 mt-8'>
           <div className="max-w-screen-xl mx-auto">
-            <div className='flex flex-wrap md-nowrap items-center justify-center space-x-12 h-16 border-b border-gray-200'> 
+            <div className='flex flex-wrap md-nowrap items-center justify-center space-x-12 h-16 '> 
             {filteredItems.map((item, index) => (
               <div 
                 key={index}

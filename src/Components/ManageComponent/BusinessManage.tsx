@@ -107,7 +107,7 @@ export default function BusinessManage() {
   return (
     <>
       {businessAction ? (
-        <div className="max-w-screen-2xl px-14 py-8 mb-5 bg-white shadow-xl rounded-xl mx-auto mt-5">
+<div >
           <FormBusiness 
             mode={businessAction === "Add New Business" ? "add" : "edit"}
             businessId={businessAction === "Add New Business" ? null : businessAction}
@@ -115,7 +115,7 @@ export default function BusinessManage() {
           />
         </div>
       ) : (
-        <div className="max-w-screen-2xl px-14 py-8 mb-5 bg-white shadow-xl rounded-xl mx-auto mt-5">
+<div >
           <TableHeaderSearch 
             title="Business Management"
             buttonText="Add New Business"

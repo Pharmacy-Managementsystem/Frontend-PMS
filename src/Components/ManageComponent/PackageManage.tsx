@@ -92,7 +92,7 @@ export default function PackageManage() {
 
   return (
     <div>
-      <div className="max-w-screen-2xl px-14 py-8 mb-5 bg-white shadow-xl rounded-xl mx-auto mt-5">
+      <div >
         {!hasPackages && (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
             <div className="bg-gray-100 p-6 rounded-full mb-4">

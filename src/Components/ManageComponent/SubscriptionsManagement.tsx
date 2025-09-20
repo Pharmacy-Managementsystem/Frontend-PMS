@@ -73,7 +73,6 @@ export default function SubscriptionsManagement() {
     }))
   }, [list])
 
-  // Improved design for Update subscription modal
   const handleEdit = async (id: string) => {
     const item = list.find((x) => String(x.id) === id)
     const currentStatus = item?.subscription_status || 'active'
@@ -110,7 +109,7 @@ export default function SubscriptionsManagement() {
       cancelButtonText: 'Cancel',
       customClass: {
         popup: 'rounded-xl shadow-2xl p-4',
-        confirmButton: 'bg-emerald-600 hover:bg-emerald-700',
+        confirmButton: 'bg-blue-600 hover:bg-emerald-700',
         cancelButton: 'bg-gray-200 hover:bg-gray-300 text-black',
       },
       preConfirm: () => {
@@ -137,7 +136,6 @@ export default function SubscriptionsManagement() {
 
     try {
       await api.patch(`/api/superadmin/subscription-packages/${id}/`, value)
-      // Invalidate with same params key so list refreshes with current filters
       await queryClient.invalidateQueries({ queryKey: ['subscription-packages', params] })
       Swal.close()
       Swal.fire({ icon: 'success', title: 'Updated', text: 'Subscription updated successfully' })
@@ -149,7 +147,7 @@ export default function SubscriptionsManagement() {
   }
 
   return (
-    <div className="max-w-screen-2xl px-14 py-8 mb-5 bg-white shadow-xl rounded-xl mx-auto mt-5">
+    <div >
       <div className="px-5 pt-5 pb-5 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-title">Subscriptions</h1>
       </div>
