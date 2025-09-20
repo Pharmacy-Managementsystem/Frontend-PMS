@@ -122,7 +122,7 @@ export default function BranchesManage() {
       {showInfo ? (
         <UserInfo userId={showInfo} onBack={handleBack} />
       ) : (
-        <div className="max-w-screen-2xl px-14 py-8 mb-5 bg-white shadow-xl rounded-xl mx-auto mt-5">
+        <div >
           <TableHeaderSearch 
             title="Branch Management"
             buttonText="Add New Branch"

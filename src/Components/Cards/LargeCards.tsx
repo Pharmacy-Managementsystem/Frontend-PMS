@@ -1,4 +1,4 @@
-import { Check, Edit, Copy, Trash2 } from 'lucide-react'
+import { Check, Edit, Trash2 } from 'lucide-react'
 
 interface LargeCardProps {
   name: string;
@@ -13,7 +13,6 @@ interface LargeCardProps {
   description: string;
   billing_cycle_days: number;
   onEditClick?: () => void;
-  onDuplicateClick?: () => void;
   onDeleteClick?: () => void;
 }
 
@@ -28,7 +27,6 @@ export default function LargeCard({
   description,
   billing_cycle_days,
   onEditClick,
-  onDuplicateClick,
   onDeleteClick
 }: LargeCardProps) {
   
@@ -38,8 +36,6 @@ export default function LargeCard({
     switch(btnText.toLowerCase()) {
       case 'edit':
         return <Edit size={16} />;
-      case 'duplicate':
-        return <Copy size={16} />;
       case 'delete':
         return <Trash2 size={16} />;
       default:
@@ -58,9 +54,6 @@ export default function LargeCard({
     switch(btnText.toLowerCase()) {
       case 'edit':
         onEditClick?.();
-        break;
-      case 'duplicate':
-        onDuplicateClick?.();
         break;
       case 'delete':
         onDeleteClick?.();

@@ -14,15 +14,20 @@ interface UseMutateOptions<TData> {
   logoutOn401?: boolean;
 }
 
+// Custom return type that includes isLoading for backward compatibility
+type CustomMutationResult<TData, TVariables> = UseMutationResult<TData, Error, TVariables> & {
+  isLoading: boolean;
+};
+
 export function useMutate<TData = unknown, TVariables = Record<string, unknown>>({
   endpoint,
   method,
   onSuccess,
   invalidate,
-}: UseMutateOptions<TData>): UseMutationResult<TData, Error, TVariables> {
+}: UseMutateOptions<TData>): CustomMutationResult<TData, TVariables> {
   const queryClient = useQueryClient();
 
-  return useMutation<TData, Error, TVariables>({
+  const mutation = useMutation<TData, Error, TVariables>({
     mutationFn: async (variables: TVariables) => {
       try {
         let payload: unknown = variables;
@@ -53,7 +58,7 @@ export function useMutate<TData = unknown, TVariables = Record<string, unknown>>
           }
         }
 
-        const response = await api.request<TData>({
+        const response = await api<TData>({
           method,
           url: endpoint,
           data: payload,
@@ -76,7 +81,7 @@ export function useMutate<TData = unknown, TVariables = Record<string, unknown>>
         throw new Error(errorMsg);
       }
     },
-    onSuccess: (data) => {
+    onSuccess: (data: TData) => {
       Swal.fire({
         icon: 'success',
         title: 'Success',
@@ -86,9 +91,18 @@ export function useMutate<TData = unknown, TVariables = Record<string, unknown>>
       if (invalidate) {
         queryClient.invalidateQueries({ queryKey: invalidate });
       }
-      if (onSuccess) onSuccess(data);
+      
+      if (onSuccess && typeof onSuccess === 'function') {
+        onSuccess(data);
+      }
     },
   });
+
+  // Return the mutation with isLoading property for backward compatibility
+  return {
+    ...mutation,
+    isLoading: mutation.isPending,
+  };
 }
 
 

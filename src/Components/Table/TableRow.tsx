@@ -20,6 +20,8 @@ export const TableRow: React.FC<TableRowProps> = ({
     console.log('Delete item:', id);
   };
 
+  
+
   return (
     <tr className="hover:bg-gray-50 transition-colors duration-150">
       {columns.map((col) => (

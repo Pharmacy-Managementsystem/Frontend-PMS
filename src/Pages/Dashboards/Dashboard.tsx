@@ -51,8 +51,8 @@ function Dashboard() {
   ];
 
   return (
-    <div className="flex flex-col gap-6 py-6 px-4">
-      <div className="flex justify-between gap-6">
+    <div className="flex flex-col gap-8 py-6 px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  xl:grid-cols-4 gap-6">
         {cardData.map((card, index) => (
           <SmallCards 
             key={index}
@@ -65,11 +65,13 @@ function Dashboard() {
         ))}
       </div>
 
+
       <Financial />
       <ChartTrend />
-
-    </div>
+        </div>
   );
 }
 
 export default Dashboard;
+
+      

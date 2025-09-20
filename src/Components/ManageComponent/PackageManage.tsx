@@ -2,9 +2,9 @@ import LargeCard from "../Cards/LargeCards";
 import { useGet } from "../../Hook/API/useApiGet";
 import { useState } from "react";
 import { PackagePlus } from "lucide-react"; 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { TableHeader } from "../Table/TableHeader";
 import ReusableForm from "../Forms/ReusableForm";
+import Pagination from "../Pagination";
 import {
   CircularProgress,
   Dialog,
@@ -92,7 +92,7 @@ export default function PackageManage() {
 
   return (
     <div>
-      <div className="max-w-screen-2xl px-14 py-8 mb-5 bg-white shadow-xl rounded-xl mx-auto mt-5">
+      <div >
         {!hasPackages && (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
             <div className="bg-gray-100 p-6 rounded-full mb-4">
@@ -128,7 +128,7 @@ export default function PackageManage() {
                       tag=""
                       tagType="available"
                       price={pkg.price}
-                      button={['Edit', 'Duplicate', 'Delete']}
+                      button={['Edit', 'Delete']}
                       max_branches={pkg.max_branches}
                       max_owners={pkg.max_owners}
                       max_users={pkg.max_users}
@@ -142,37 +142,14 @@ export default function PackageManage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-8 px-4">
-              <div className="text-sm text-gray-600">
-                Showing {packageResponse.results.length} of {packageResponse.count} packages
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <button
-                  type="button" 
-                  className="px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100"
-                  onClick={() => setPage((prevPage) => prevPage - 1)}
-                  disabled={!packageResponse.previous}
-                  aria-label="Previous page" 
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                
-                <span className="px-3 py-1.5 text-sm font-medium">
-                  {page}
-                </span>
-                
-                <button
-                  type="button" 
-                  className="px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100"
-                  onClick={() => setPage((prevPage) => prevPage + 1)}
-                  disabled={!packageResponse.next}
-                  aria-label="Next page" 
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-            </div>
+            <Pagination
+              currentPage={page}
+              totalItems={packageResponse.count}
+              itemsPerPage={pageSize}
+              onPageChange={(newPage) => setPage(newPage)}
+              hasNext={!!packageResponse.next}
+              hasPrevious={!!packageResponse.previous}
+            />
           </div>
         )}
 

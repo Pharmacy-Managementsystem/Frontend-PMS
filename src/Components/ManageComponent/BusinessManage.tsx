@@ -3,8 +3,9 @@ import { DataTable } from "../Table/DataTable";
 import TableRowUser from "../Table/TableRowUser";
 import DeactivateUser from "./DeactivateUser";
 import  { useState } from "react";
-import UserInfo from "./UserInfo";
 import { useGet } from "../../Hook/API/useApiGet";
+import Pagination from "../Pagination";
+import FormBusiness from "../Forms/FormBusiness";
 
 const columns = [
   "Business Name",
@@ -39,28 +40,18 @@ interface DataResponse {
 export default function BusinessManage() {
   const [page, setPage] = useState(1);
   const [deactivateId, setDeactivateId] = useState<string | null>(null);
-  const [showInfo, setShowInfo] = useState<string | null>(null);
-  
+  const [pageSize] = useState(10);
+  const [businessAction , setBusinessAction] = useState<string | null>(null);
   const { data: businessResponse, isLoading } = useGet<DataResponse>({
-    endpoint: `/api/superadmin/all-businesses/?page=${page}`,
+    endpoint: `/api/superadmin/all-businesses/?page=${page}&page_size=${pageSize}`,
     queryKey: ['all-businesses', page],
   });
 
   const handleBack = () => {
-    setShowInfo(null);
+    setBusinessAction(null);
   };
 
-  const handleNextPage = () => {
-    if (businessResponse?.next) {
-      setPage(prev => prev + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (businessResponse?.previous) {
-      setPage(prev => prev - 1);
-    }
-  };
+  
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
@@ -115,14 +106,20 @@ export default function BusinessManage() {
 
   return (
     <>
-      {showInfo ? (
-        <UserInfo userId={showInfo} onBack={handleBack} />
+      {businessAction ? (
+<div >
+          <FormBusiness 
+            mode={businessAction === "Add New Business" ? "add" : "edit"}
+            businessId={businessAction === "Add New Business" ? null : businessAction}
+            onBack={handleBack}
+          />
+        </div>
       ) : (
-        <div className="max-w-screen-2xl px-14 py-8 mb-5 bg-white shadow-xl rounded-xl mx-auto mt-5">
+<div >
           <TableHeaderSearch 
             title="Business Management"
             buttonText="Add New Business"
-            onAddClick={() => console.log('Add Business Clicked')}
+            onAddClick={() => setBusinessAction("Add New Business")}
           />
           
           <DataTable
@@ -130,16 +127,11 @@ export default function BusinessManage() {
             data={tableData}
             RowComponent={TableRowUser}
             renderDropdown={(id: string) => (
-              <div className="bg-white shadow-lg rounded-md p-1">
-                <button 
-                  onClick={() => setShowInfo(id)} 
-                  className="block w-full text-left text-label text-base px-4 py-2 hover:bg-gray-50 rounded-md"
-                >
-                  Show Business Info
-                </button>
+              <div className="p-2">
+                
                 <button 
                   onClick={() => setDeactivateId(id)} 
-                  className="block w-full text-left text-label text-base px-4 py-2 hover:bg-gray-50 rounded-md"
+                  className="block w-full text-left text-gray-700 text-sm px-3 py-2 hover:bg-gray-50 rounded-md transition-colors"
                 >
                   Deactivate Business
                 </button>
@@ -147,40 +139,21 @@ export default function BusinessManage() {
             )}
           />
           
-          <div className="flex justify-between items-center px-2 py-4 text-sm text-gray-500">
-            <span>Total Number of Businesses: <b>{businessResponse?.count || 0}</b></span>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={handlePrevPage}
-                disabled={!businessResponse?.previous}
-                className={`px-3 py-1 rounded ${
-                  !businessResponse?.previous 
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                    : 'bg-blue-500 text-white hover:bg-blue-600'
-                }`}
-              >
-                Previous
-              </button>
-              <span>Page <b>{page}</b></span>
-              <button
-                onClick={handleNextPage}
-                disabled={!businessResponse?.next}
-                className={`px-3 py-1 rounded ${
-                  !businessResponse?.next 
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                    : 'bg-blue-500 text-white hover:bg-blue-600'
-                }`}
-              >
-                Next
-              </button>
-            </div>
-          </div>
+          {businessResponse && (
+            <Pagination
+              currentPage={page}
+              totalItems={businessResponse.count}
+              itemsPerPage={pageSize}
+              onPageChange={(newPage) => setPage(newPage)}
+              hasNext={!!businessResponse.next}
+              hasPrevious={!!businessResponse.previous}
+            />
+          )}
           
           {deactivateId && (
             <DeactivateUser
               onClose={() => setDeactivateId(null)}
               id={deactivateId}
-              // onSuccess={() => refetch()}
             />
           )}
         </div>

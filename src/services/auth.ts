@@ -12,7 +12,6 @@ type LoginBody = {
 export const login = async (body: LoginBody) => {
   const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/user-auth/login/`, body);
 
-  // حفظ التوكنات
   tokenService.setAccessToken(data.access);
   tokenService.setRefreshToken(data.refresh);
 

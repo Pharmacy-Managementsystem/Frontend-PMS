@@ -60,7 +60,11 @@ export default function TableRowUser({ data, columns, renderDropdown }: TableRow
         {open && (
           <div
             ref={dropdownRef}
-            className="absolute right-16 mt-2 w-48 px-2 py-5 bg-white border border-gray-200 rounded-lg shadow-lg z-20"
+            className="fixed w-48 bg-white border border-gray-200 rounded-lg shadow-2xl z-[9999]"
+            style={{
+              top: btnRef.current ? btnRef.current.getBoundingClientRect().bottom + 5 : 0,
+              left: btnRef.current ? btnRef.current.getBoundingClientRect().right - 192 : 0, // 192px = w-48 (48 * 4)
+            }}
           >
             {renderDropdown ? renderDropdown(data.id) : null}
           </div>
