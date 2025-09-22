@@ -1,7 +1,7 @@
 import  { useState, useEffect } from 'react';
 import { jwtDecode } from "jwt-decode";
 import MinNav from '../../Components/Navbar/MinNav';
-import UserInfo from '../../Components/ManageComponent/UserInfo';
+import UserInfo from '../../Components/Info/UserInfo';
 import BranchesManage from '../../Components/ManageComponent/BranchesManage';
 import UserManage from '../../Components/ManageComponent/UserManage';
 import PackageManage from '../../Components/ManageComponent/PackageManage';

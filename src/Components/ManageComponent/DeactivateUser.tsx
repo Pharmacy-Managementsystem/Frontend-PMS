@@ -1,7 +1,9 @@
 import  { useState } from 'react';
 
-export default function DeactivateUser({ onClose, id }: { onClose?: () => void ; id: string }) {
+export default function DeactivateUser({ onClose, id ,type}: { onClose?: () => void ; id: string ; type: string }) {
   const [showPassword, setShowPassword] = useState(false);
+  
+
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl  relative z-50">
@@ -17,7 +19,7 @@ export default function DeactivateUser({ onClose, id }: { onClose?: () => void ;
         <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded mb-6 flex items-start gap-3">
           <svg className="w-6 h-6 mt-1 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12A9 9 0 113 12a9 9 0 0118 0z" /></svg>
           <span className="text-sm leading-6">
-            This user will be deactivated. Being deactivated means the user would not be able to access their account.
+            This {type} will be deactivated. Being deactivated means the user would not be able to access their account.
           </span>
         </div>
         <label className="block mb-2 text-gray-700 text-sm">Please type your password to confirm</label>
@@ -50,7 +52,7 @@ export default function DeactivateUser({ onClose, id }: { onClose?: () => void ;
             Cancel
           </button>
           <button className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm">
-            I understand the consequences, deactivate this user
+            I understand the consequences, deactivate this {type}
           </button>
         </div>
               </div> 

@@ -13,6 +13,7 @@ import {
 import Box from '@mui/material/Box';
 import { X } from 'lucide-react';
 import api from "../../Hook/API/api";
+import Swal from "sweetalert2";
 
 interface Package {
   id: number;
@@ -64,16 +65,40 @@ export default function PackageManage() {
     refetch();
   };
 
-  const handleDelete = async (id: number) => {
+ 
+
+  const handleDelete = async (id: string) => {
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  });
+
+  if (result.isConfirmed) {
     try {
       const response = await api.delete(`/api/superadmin/packages/${id}/`);
       if (response.status === 204) {
-        refetch(); 
+        Swal.fire(
+          'Deleted!',
+          'Your payment method has been deleted.',
+          'success'
+        );
+        refetch();
       }
     } catch (error) {
-      console.error('Error deleting package:', error);
+      console.error('Error deleting payment method:', error);
+      Swal.fire(
+        'Error!',
+        'There was an error deleting the payment method.',
+        'error'
+      );
     }
-  };
+  }
+};
 
   const handleEditClick = (pkg: Package) => {
     const packageCopy = { ...pkg };
@@ -135,7 +160,7 @@ export default function PackageManage() {
                       description={pkg.description}
                       billing_cycle_days={pkg.billing_cycle_days}
                       onEditClick={() => handleEditClick(pkg)}
-                      onDeleteClick={() => handleDelete(pkg.id)}
+                      onDeleteClick={() => handleDelete(pkg.id.toString())}
                     />
                   </div>
                 ))}

@@ -16,10 +16,8 @@ const Business = () => {
     }
   }, []);
 
-  // Handle back action (could navigate or close modal)
   const handleBack = () => {
-    // You can implement navigation logic here
-    // For example: navigate('/businesses') or close modal
+   
     console.log('Back clicked');
   };
 
