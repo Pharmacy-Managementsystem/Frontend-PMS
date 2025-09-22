@@ -9,16 +9,17 @@ interface TableRowProps {
   columns: string[];
   onEdit: (id: string) => void;
   onToggleStatus: (id: string) => void;
+    onDelete: (id: string) => void; 
+
 }
 
 export const TableRow: React.FC<TableRowProps> = ({ 
   data, 
   columns, 
   onEdit,
+  onDelete 
 }) => {
-  const handleDelete = (id: string) => {
-    console.log('Delete item:', id);
-  };
+  
 
   
 
@@ -55,7 +56,7 @@ export const TableRow: React.FC<TableRowProps> = ({
            <GrEdit className="text-md" />
           </button>
           <button 
-            onClick={() => handleDelete(data.id)}
+            onClick={() => onDelete(data.id)} // Use the prop here
             className="text-red-600 hover:text-red-800 transition-colors duration-150"
             title="Delete"
           >

@@ -10,6 +10,8 @@ interface DataTableProps {
   onToggleStatus?: (id: string) => void;
   onActionsClick?: (id: string) => void;
   renderDropdown?: (id: string) => React.ReactNode;
+    onDelete?: (id: string) => void; // Add this line
+
 }
 
 export const DataTable: React.FC<DataTableProps> = ({
@@ -19,7 +21,9 @@ export const DataTable: React.FC<DataTableProps> = ({
   onEdit,
   onToggleStatus,
   onActionsClick,
-  renderDropdown
+  renderDropdown,
+  onDelete, 
+
 }) => {
   return (
     <div className="overflow-x-auto relative">
@@ -41,6 +45,7 @@ export const DataTable: React.FC<DataTableProps> = ({
               data={row}
               columns={columns}
               onEdit={onEdit}
+               onDelete={onDelete} 
               onToggleStatus={onToggleStatus}
               onActionsClick={onActionsClick}
               renderDropdown={renderDropdown}

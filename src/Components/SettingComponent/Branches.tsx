@@ -6,8 +6,7 @@ const branches = [
 ];
 
 function Branches() {
-  // const [autoCode, setAutoCode] = useState(true);
-  // const [prefix, setPrefix] = useState('BR-');
+
 
   return (
       <div className='flex flex-col gap-6'>

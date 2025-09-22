@@ -115,7 +115,7 @@ export default function BusinessManage() {
           />
         </div>
       ) : (
-<div >
+      <div>
           <TableHeaderSearch 
             title="Business Management"
             buttonText="Add New Business"
@@ -153,7 +153,8 @@ export default function BusinessManage() {
           {deactivateId && (
             <DeactivateUser
               onClose={() => setDeactivateId(null)}
-              id={deactivateId}
+                id={deactivateId}
+                type="Business"
             />
           )}
         </div>

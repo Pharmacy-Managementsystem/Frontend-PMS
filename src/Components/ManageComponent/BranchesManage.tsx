@@ -3,12 +3,11 @@ import { DataTable } from "../Table/DataTable";
 import TableRowUser from "../Table/TableRowUser";
 import DeactivateUser from "./DeactivateUser";
 import  { useState } from "react";
-import UserInfo from "./UserInfo";
+import UserInfo from "../Info/UserInfo";
 import { useGet } from "../../Hook/API/useApiGet";
 
 const columns = [
   "Branch Name",
-  "Email",
   "Country",
   "Contact Number",
   "Created Date",
@@ -47,7 +46,6 @@ interface Branch {
   country: string;
   mobile: string;
   landline: string;
-  email: string;
   created_at: string;
   vat_number: string;
   cr_number: string;
@@ -73,7 +71,7 @@ export default function BranchesManage() {
   
   const { data: businessResponse, isLoading } = useGet<DataResponse>({
     endpoint: `/api/branch/?page=${page}`,
-    queryKey: ['all-businesses', page],
+    queryKey: ['all-branches', page],
   });
 
   const handleBack = () => {
@@ -100,7 +98,6 @@ export default function BranchesManage() {
   const tableData = businessResponse?.results?.map(branch => ({
     id: branch.id.toString(),
     "Branch Name": branch.name,
-    "Email": branch.email,
     "Country": branch.country || 'N/A',
     "Contact Number": branch.mobile || branch.landline || 'N/A',
     "Created Date": formatDate(branch.created_at),
@@ -183,8 +180,8 @@ export default function BranchesManage() {
           {deactivateId && (
             <DeactivateUser
               onClose={() => setDeactivateId(null)}
-              id={deactivateId}
-              // onSuccess={() => refetch()}
+                id={deactivateId}
+                type="Branch"
             />
           )}
         </div>

@@ -5,14 +5,13 @@ import Branches from '../../Components/SettingComponent/Branches';
 import PaymentMethods from '../../Components/SettingComponent/PaymentMethods';
 import TaxRate from '../../Components/SettingComponent/TaxRate';
 import Currencies from '../../Components/SettingComponent/Currencies'
-import UserManage from '../../Components/ManageComponent/UserManage';
 
 function Setting() {
   const [activeTab, setActiveTab] = useState<string>('Business');
   
   const renderActiveComponent = () => {
     switch(activeTab) {
-      case 'Business': return <UserManage />;
+      case 'Business': return <Business />;
       case 'Branches': return <Branches />;
       case 'Payment Methods': return <PaymentMethods />;
       case 'Tax Rates': return <TaxRate />;
