@@ -2,12 +2,14 @@
 import React, { useState } from 'react';
 import { FaPen, FaSave, FaTimes } from 'react-icons/fa';
 import { useGet } from '../../Hook/API/useApiGet';
+import { ArrowLeft } from 'lucide-react';
 
 // Type definitions based on your JSON structure
 interface UserData {
   id: string;
   email: string;
-  name: string;
+  name?: string; // Make optional since API returns username instead
+  username?: string; // Add username field
   phone_number: string;
   address: string;
   branches_id: string[];
@@ -15,11 +17,17 @@ interface UserData {
   // Add other fields as needed
 }
 
+// Update interface to match actual API response
 interface DataResponse {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: UserData[];
+  id: string;
+  email: string;
+  name?: string; // Make optional since API returns username instead
+  username?: string; // Add username field
+  phone_number: string;
+  address: string;
+  branches_id: string[];
+  role_name: string;
+  // Add other fields as needed
 }
 
 interface UserInfoProps {
@@ -30,15 +38,12 @@ interface UserInfoProps {
 const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<Partial<UserData>>({});
-  const [page] = useState(1); // Add page state if needed
 
-  const { data: UserResponse, isLoading, error } = useGet<DataResponse>({
-    endpoint: `/api/user/${userId}/?page=${page}`,
-    queryKey: ['User', userId, page],
+  // Remove page parameter since API doesn't seem to use it for single user
+  const { data: userData, isLoading, error } = useGet<DataResponse>({
+    endpoint: `/api/user/${userId}/`,
+    queryKey: ['User', userId],
   });
-
-  // Get user data from API response
-  const userData = UserResponse?.results?.[0];
 
   // Handle loading state
   if (isLoading) {
@@ -65,6 +70,9 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
       </div>
     );
   }
+
+  // Get display name (username or name)
+  const displayName = userData.name || userData.username || 'Unknown User';
 
   // Get initials from name
   const getInitials = (name: string) => {
@@ -131,23 +139,22 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
   );
 
   return (
-    <div className="max-w-7xl py-10 mx-auto flex flex-col md:flex-row gap-6 h-full relative">
-      {/* Back Button */}
-      <button
-        onClick={onBack}
-        className="absolute top-4 left-4 flex items-center gap-2 text-blue-500 hover:text-blue-700"
-      >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className="h-5 w-5" 
-          viewBox="0 0 20 20" 
-          fill="currentColor"
+    <div className="max-w-7xl  mx-auto flex flex-col  gap-6 h-full relative">
+      
+      <div className="flex items-center gap-4">
+    <button
+          onClick={onBack}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          aria-label="Go back"
         >
-          <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-        </svg>
-        <span>Back to Users</span>
-      </button>
-
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <h1 className='text-2xl font-bold text-gray-900'>
+          Back to Users
+        </h1>
+      </div>
+      <div className='flex flex-col md:flex-row gap-6 h-full'>
+        
       {/* Left Column - Profile Card */}
       <div className="w-full md:max-w-xs flex flex-col h-full">
         <div className="bg-white rounded-lg shadow-2xl p-6 flex-1">
@@ -156,14 +163,14 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
             
             <div className="relative flex flex-col items-center pt-2">
               {/* Avatar */}
-              <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mb-4 z-10">
+              <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center  z-10">
                 <span className="text-white text-2xl font-medium">
-                  {getInitials(userData.name)}
+                  {getInitials(displayName)}
                 </span>
               </div>
               
               {/* Name and Role */}
-              <h2 className="text-lg font-bold text-gray-900">{userData.name}</h2>
+              <h2 className="text-lg font-bold text-gray-900">{displayName}</h2>
               <p className="text-xs text-gray-500 mt-1">
                 ID: {userData.role_name} #{userData.id}
               </p>
@@ -244,6 +251,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
                 <p className="text-sm text-gray-700">{userData.id}</p>
               </div>
               <div className='ps-3 pb-3'>
+                <label className="block text-base text-gray-500 mb-2">Username</label>
+                <p className="text-sm text-gray-700">{userData.username || displayName}</p>
+              </div>
+              <div className='ps-3 pb-3'>
                 <label className="block text-base text-gray-500 mb-2">Email</label>
                 {isEditing ? (
                   <input
@@ -275,21 +286,21 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
                   {userData.role_name}
                 </span>
               </div>
-              <div className='ps-3 pb-3'>
+              
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex justify-between items-center pb-4 mb-5 bg-gray-100 rounded-lg border-gray-200">
+              <h3 className="text-base font-semibold text-gray-800 p-3">Additional Information</h3>
+            </div>
+              <div className="flex flex-col">
+                <div className='ps-3 pb-3'>
                 <label className="block text-base text-gray-500 mb-2">Branches</label>
                 <p className="text-sm text-gray-700">
                   {userData.branches_id?.length ? userData.branches_id.join(', ') : 'No branches assigned'}
                 </p>
               </div>
-            </div>
-          </div>
-
-          {/* Additional section - you can add more details here */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex justify-between items-center pb-4 mb-5 bg-gray-100 rounded-lg border-gray-200">
-              <h3 className="text-base font-semibold text-gray-800 p-3">Additional Information</h3>
-            </div>
-            <div className="flex flex-col">
               <div className='ps-3 pb-3'>
                 <label className="block text-base text-gray-500 mb-2">Address</label>
                 {isEditing ? (
@@ -303,11 +314,11 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
                   <p className="text-sm text-gray-700">{userData.address}</p>
                 )}
               </div>
-              {/* Add more fields as needed */}
             </div>
           </div>
         </div>
       </div>
+</div>
     </div>
   );
 };

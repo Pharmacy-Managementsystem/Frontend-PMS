@@ -88,7 +88,7 @@ export default function UserManage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-screen-2xl px-14 py-8 mb-5 bg-white shadow-xl rounded-xl mx-auto mt-5">
+      <div className="max-w-7xl px-14 py-8 mb-5 bg-white shadow-xl rounded-xl mx-auto mt-5">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>

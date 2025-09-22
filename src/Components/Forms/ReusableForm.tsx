@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { useMutate } from '../../Hook/API/useApiMutate';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Loader2, X } from 'lucide-react';
 
 interface SelectOption {
@@ -13,11 +13,12 @@ interface FormField {
   label: string;
   type?: string;
   required?: boolean;
-  options?: SelectOption[]; // Add options for select
+  options?: SelectOption[];
 }
 
 interface ReusableFormProps {
   fields: FormField[];
+  title: string;
   endpoint: string;
   method: 'post' | 'put' | 'patch';
   onSuccess?: <T = unknown>(data: T) => void;
@@ -28,6 +29,7 @@ interface ReusableFormProps {
 
 export default function ReusableForm({
   fields,
+  title,
   endpoint,
   method,
   onSuccess,
@@ -35,6 +37,9 @@ export default function ReusableForm({
   submitButtonText = 'Submit',
   initialValues = {}
 }: ReusableFormProps) {
+  
+  // الحل الأول: استخدام useRef لتتبع التغييرات
+  const prevInitialValues = useRef(initialValues);
   
   const {
     register,
@@ -46,11 +51,18 @@ export default function ReusableForm({
     defaultValues: initialValues
   });
 
-  // Reset form when initialValues change
+  // الحل الأول: مقارنة القيم قبل إعادة التعيين
   useEffect(() => {
-    reset(initialValues);
+    // التحقق من وجود تغيير فعلي في القيم
+    const hasChanged = JSON.stringify(prevInitialValues.current) !== JSON.stringify(initialValues);
+    
+    if (hasChanged) {
+      reset(initialValues);
+      prevInitialValues.current = initialValues;
+    }
   }, [initialValues, reset]);
 
+  
   const { mutate, isLoading, error } = useMutate({
     endpoint,
     method,
@@ -64,13 +76,11 @@ export default function ReusableForm({
       const value = data[field.name];
       
       if (field.type === 'checkbox') {
-        // Handle checkbox - convert to boolean
         formData[field.name] = Boolean(value);
       } else if (value !== undefined && value !== null) {
         if (field.type === 'number') {
           formData[field.name] = typeof value === 'number' ? value : Number(value);
         } else if (field.type === 'file') {
-          // Handle file uploads if needed
           if (value instanceof FileList && value.length > 0) {
             formData[field.name] = value[0];
           }
@@ -116,6 +126,7 @@ export default function ReusableForm({
         </select>
       );
     }
+    
     if (field.name === 'description') {
       return (
         <textarea
@@ -185,7 +196,7 @@ export default function ReusableForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
       <div className="p-6 relative bg-white rounded-lg shadow-lg max-w-2xl w-full mx-4">
         <h2 className="text-2xl font-semibold text-gray-800 mb-6 pb-4 border-b border-gray-100">
-          {submitButtonText.includes('Create') ? 'Create New Item' : 'Edit Item'}
+          {submitButtonText.includes('Create') ? ` Create ${title}` : `Update ${title}`}
         </h2>
         <X onClick={onClose} className="absolute top-4 right-4 cursor-pointer hover:text-gray-700" />
         
