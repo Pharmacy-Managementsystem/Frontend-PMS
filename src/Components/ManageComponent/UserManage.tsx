@@ -6,6 +6,7 @@ import { useState } from "react";
 import UserInfo from "../Info/UserInfo";
 import Pagination from "../Pagination";
 import { useGet } from "../../Hook/API/useApiGet";
+import ReusableForm from "../Forms/ReusableForm";
 
 const columns = [
   "User Name",
@@ -46,21 +47,62 @@ interface BranchResponse {
 
 export default function UserManage() {
   const [page, setPage] = useState(1);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [deactivateId, setDeactivateId] = useState<string | null>(null);
   const [showInfo, setShowInfo] = useState<string | null>(null);
   const [pageSize] = useState(10);
 
-  // ✅ الـ user API
-  const { data: userResponse, isLoading } = useGet<DataResponse>({
+  const { data: userResponse, isLoading ,refetch} = useGet<DataResponse>({
     endpoint: `/api/user/?page=${page}`,
     queryKey: ["all-users", page],
   });
 
-  // ✅ الـ branch API
+  const { data: rolesResponse } = useGet<BranchResponse>({
+    endpoint: `/api/business/roles/`,
+    queryKey: ["all-roles"],
+  });
+
+  const rolesOptions = rolesResponse?.results.map(role => ({
+    value: role.id,
+    label: `${role.name}`
+  })) || [];
+  
   const { data: branchResponse } = useGet<BranchResponse>({
     endpoint: `/api/branch/?minimal=true`,
     queryKey: ["all-branches"],
   });
+
+   const branchesOptions = branchResponse?.results.map(branch => ({
+    value: branch.id,
+    label: `${branch.name}`
+   })) || [];
+  
+const formFields = [
+  { name: 'username', label: 'User Name', required: true },
+  { name: 'email', label: 'Email Address', required: true },
+  { name: 'phone_number', label: 'Phone Number', required: true },
+  { name: 'address', label: 'Address', required: true },
+  { 
+    name: 'role', 
+    label: 'Role', 
+    type: 'select', 
+    required: true,
+    options: rolesOptions,
+  },
+  { name: 'password', label: 'Password', type: 'password', required: true },
+  { 
+    name: 'branches', 
+    label: 'Branches', 
+    type: 'multiselect', 
+    required: true,
+    options: branchesOptions,
+  },
+];
+
+  const handleCreateSuccess = () => {
+    setIsCreateModalOpen(false);
+    refetch();
+  };
 
   const handleBack = () => {
     setShowInfo(null);
@@ -105,7 +147,7 @@ export default function UserManage() {
           <TableHeaderSearch
             title="User Management"
             buttonText="Add New User"
-            onAddClick={() => console.log("Add User Clicked")}
+            onAddClick={() => setIsCreateModalOpen(true)} 
           />
           <DataTable
             columns={columns}
@@ -139,11 +181,22 @@ export default function UserManage() {
             />
           )}
 
+             {isCreateModalOpen && (
+                      <ReusableForm
+                          title="User"
+                          fields={formFields}
+                          endpoint="/api/user/"
+                          method="post"
+                          onClose={() => setIsCreateModalOpen(false)}
+                          onSuccess={handleCreateSuccess}
+                          submitButtonText="Create User"
+                          key="create-form"
+                        />
+                  )}
           {deactivateId && (
             <DeactivateUser
               onClose={() => setDeactivateId(null)}
                 id={deactivateId}
-                type="user"
             />
           )}
         </div>

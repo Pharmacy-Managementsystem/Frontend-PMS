@@ -58,8 +58,8 @@ const PaymentMethods = () => {
     type: 'number',  // Change to number type
     required: false,
     // Add conversion to handle string/number conversion
-    formatValue: (value: any) => value ? Number(value) : null,
-    parseValue: (value: any) => value?.toString()
+    formatValue: (value: string | number | null) => value ? Number(value) : null,
+    parseValue: (value: number | string | null) => value?.toString()
   }
 ];
 

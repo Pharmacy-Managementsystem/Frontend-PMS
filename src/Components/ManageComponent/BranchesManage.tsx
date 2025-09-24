@@ -181,7 +181,6 @@ export default function BranchesManage() {
             <DeactivateUser
               onClose={() => setDeactivateId(null)}
                 id={deactivateId}
-                type="Branch"
             />
           )}
         </div>
