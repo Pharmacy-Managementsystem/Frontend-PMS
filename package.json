@@ -13,6 +13,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^5.1.1",
+    "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.2.0",
     "@sweetalert2/theme-material-ui": "^5.0.27",
     "@tailwindcss/vite": "^4.1.11",

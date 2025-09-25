@@ -4,6 +4,9 @@ import { FaPen, FaSave, FaTimes } from 'react-icons/fa';
 import { useGet } from '../../Hook/API/useApiGet';
 import { useMutate } from '../../Hook/API/useApiMutate';
 import { ArrowLeft } from 'lucide-react';
+import { FaCheckSquare ,FaWindowClose} from "react-icons/fa";
+
+
 
 // Type definitions based on your JSON structure
 interface DataResponse {
@@ -203,13 +206,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
     );
   }
 
-  // Get display name (username or name)
   const displayName = userData.name || userData.username || 'Unknown User';
 
-  // Get branch names for display
   const branchNames = getBranchNames(userData.branches_id);
 
-  // Get initials from name
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -291,6 +291,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
                   {permissions.map(permission => {
                     const permissionLabel = getPermissionLabel(permission.name);
                     const checkboxId = `permission-${permission.id}`;
+                    const isSelected = selectedPermissionIds.includes(permission.id);
+
                     
                     return (
                       <div key={permission.id} className="flex items-center space-x-2">
@@ -299,7 +301,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
                             <input
                               id={checkboxId}
                               type="checkbox"
-                              checked={selectedPermissionIds.includes(permission.id)}
+                              checked={isSelected}
                               onChange={() => handlePermissionChange(permission.id)}
                               className="h-4 w-4 text-blue-600 rounded"
                               aria-label={`Permission: ${permissionLabel}`}
@@ -313,21 +315,17 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
                           </>
                         ) : (
                           <>
-                            <input
-                              id={`readonly-${checkboxId}`}
-                              type="checkbox"
-                              disabled
-                              checked={selectedPermissionIds.includes(permission.id)}
-                              className="h-4 w-4 text-blue-600 rounded"
-                              aria-label={`Permission: ${permissionLabel} (read-only)`}
-                            />
-                            <label 
-                              htmlFor={`readonly-${checkboxId}`}
-                              className="text-sm text-gray-700 capitalize"
-                            >
-                              {permissionLabel}
-                            </label>
-                          </>
+                        {isSelected ? (
+                          <FaCheckSquare className="text-lg  text-sky-600" aria-label="Permission granted" />
+                        ) : (
+                          <FaWindowClose className="text-lg  text-red-600" aria-label="Permission not granted" />
+                        )}
+                        <label 
+                          className="text-sm text-gray-700 capitalize"
+                        >
+                          {permissionLabel}
+                        </label>
+                      </>
                         )}
                       </div>
                     );

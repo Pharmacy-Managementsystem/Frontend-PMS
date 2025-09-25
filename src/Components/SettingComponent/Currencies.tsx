@@ -60,7 +60,7 @@ const Currencies = () => {
       label: 'Currency', 
       type: 'select', 
       required: true,
-      options: currencyOptions // Add options here
+      options: currencyOptions 
     },
     { name: 'is_default', label: 'Is Default', type: 'checkbox', required: false }
   ];
