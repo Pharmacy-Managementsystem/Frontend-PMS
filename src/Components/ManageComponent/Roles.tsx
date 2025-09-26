@@ -12,7 +12,7 @@ import AddRole from '../Forms/AddRole';
 interface role {
   id: number;
   name: string;
-  decimal_point: [];
+  permissions: [];
 }
 
 interface DataResponse {
@@ -156,7 +156,7 @@ const Roles = () => {
                       <div className="flex justify-between text-sm text-gray-500">
                         <span>Permissions:</span>
                         <span className="font-medium text-blue-600">
-                          {role.decimal_point?.length || 0}
+                          {role.permissions?.length || 0}
                         </span>
                       </div>
                     </div>

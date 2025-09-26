@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import  { useState, useMemo } from 'react'
 import { useGet } from '../../Hook/API/useApiGet';
 import { useMutate } from '../../Hook/API/useApiMutate';
 import { 
@@ -30,10 +30,6 @@ interface PermissionSection {
   }[];
 }
 
-interface RolePermission {
-  role_name: string;
-  role_permissions: number[];  // Array of permission IDs
-}
 
 export default function AddRole({ onBack }: { onBack: () => void }) {
   const [roleName, setRoleName] = useState('');
@@ -52,7 +48,7 @@ export default function AddRole({ onBack }: { onBack: () => void }) {
     endpoint: '/api/business/roles/',
     method: 'post',
     onSuccess: () => {
-      onBack(); // Go back after successful creation
+      onBack(); 
     },
   });
 

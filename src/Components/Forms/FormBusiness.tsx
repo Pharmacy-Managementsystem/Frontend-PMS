@@ -88,7 +88,7 @@ const { data: packageResponse } = useGet<PackageResponse>({
 
   // Get business data if editing
   const { data: businessData, isLoading: isLoadingBusiness } = useGet<BusinessResponse>({
-    endpoint: businessId ? `/api/superadmin/all-businesses/${businessId}/` : '',
+    endpoint: businessId ? `/api/business/settings/business/` : '',
     queryKey: ['business', businessId],
     enabled: !!businessId && mode === 'edit',
   });
@@ -104,7 +104,7 @@ const { data: packageResponse } = useGet<PackageResponse>({
 
   // Update business mutation
   const { mutate: updateBusiness, isLoading: isUpdating } = useMutate<BusinessFormValues>({
-    endpoint: businessId ? `/api/business/settings/business/${businessId}/` : '',
+    endpoint: businessId ? `/api/business/settings/business/` : '',
     method: 'patch',
     onSuccess: () => {
       onBack();
