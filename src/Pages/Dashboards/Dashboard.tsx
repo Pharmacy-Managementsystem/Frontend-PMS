@@ -6,20 +6,7 @@ import ChartTrend from '../../Components/ChartTrend/ChartTrend';
 function Dashboard() {
 
 
-//   const {
-//     data: data,
-//     isLoading,
-//     isError,
-//     error,
-  
-// } = useGet({
-//   endpoint: '/competition/list/',
-//   queryKey: ['competition'],
-// });
-  
-  // console.log(data);
-  // 
-  
+
   const cardData = [
     {
       title: "Daily Sales",
