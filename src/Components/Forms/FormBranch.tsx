@@ -58,7 +58,7 @@ interface Currency {
 interface PaymentMethod {
   id: number;
   name: string;
-  code: string;
+  country: string;
 }
 
 interface CurrencyResponse {
@@ -155,8 +155,8 @@ const FormBranch: React.FC<FormBranchProps> = ({ branchId, onBack, mode }) => {
 
     const { data: paymentMethodsData, refetch: refetchPaymentMethods } = useGet<PaymentMethodResponse>({
     endpoint: `/api/business/settings/payment-methods/?country__icontains=${selectedCountry}`,
-    queryKey: ['payment-methods', selectedCountry],
-    enabled: !!selectedCountry && (mode === 'add' || mode === 'edit'),
+    queryKey: ['payment-methods'],
+    enabled: mode === 'add' || mode === 'edit',
     });
   
    useEffect(() => {
@@ -166,20 +166,13 @@ const FormBranch: React.FC<FormBranchProps> = ({ branchId, onBack, mode }) => {
   }, [selectedCountry, refetchPaymentMethods]);
 
 
-  // Get branch data if editing
   const { data: branchData, isLoading: isLoadingBranch } = useGet<BranchResponse>({
     endpoint: branchId ? `/api/branch/${branchId}/` : '',
     queryKey: ['branch', branchId],
     enabled: !!branchId && mode === 'edit',
   });
 
-  const convertFormDataToObject = (formData: FormData): Record<string, unknown> => {
-    const object: Record<string, unknown> = {};
-    for (const [key, value] of formData.entries()) {
-      object[key] = value;
-    }
-    return object;
-  };
+  
 
   const { mutate: createBranch, isLoading: isCreating } = useMutate<Record<string, unknown>>({
     endpoint: '/api/branch/',
@@ -214,116 +207,125 @@ const FormBranch: React.FC<FormBranchProps> = ({ branchId, onBack, mode }) => {
     name: "customer_fields"
   });
 
-  // Load branch data when editing
-  useEffect(() => {
-    if (branchData && mode === 'edit') {
-      setValue('name', branchData.name);
-      setValue('mobile', branchData.mobile);
-      setValue('address_line', branchData.address_line);
-      setValue('tax_rate', branchData.tax_rate || 0);
-      setValue('email', branchData.email || '');
-      setValue('website', branchData.website || '');
-      setValue('country', branchData.country);
-      setValue('landline', branchData.landline || '');
-      setValue('vat_number', branchData.vat_number || '');
-      setValue('cr_number', branchData.cr_number || '');
-      setSelectedCountry(branchData.country);
-      
-      // Set currencies
-      if (branchData.currencies) {
-        setValue('currencies', branchData.currencies.map(curr => ({
-          currency: curr.currency,
-          exchange_rate: curr.exchange_rate,
-          default: curr.default
-        })));
-      }
-      
-      // Set payment methods
-      if (branchData.payment_methods) {
-        setValue('payment_methods', branchData.payment_methods.map(pm => ({
-          payment_method: pm.payment_method
-        })));
-      }
-      
-      // Set customer fields
-      if (branchData.customer_fields) {
-        setValue('customer_fields', branchData.customer_fields);
-      }
-      
-      // Set logo preview if exists
-      if (branchData.logo) {
-        setLogoPreview(branchData.logo);
-      }
-    }
-  }, [branchData, mode, setValue]);
 
-  const onSubmit: SubmitHandler<BranchFormValues> = (data) => {
-    const formData = new FormData();
+// Load branch data when editing
+useEffect(() => {
+  if (branchData && mode === 'edit') {
+    setValue('name', branchData.name);
+    setValue('mobile', branchData.mobile);
+    setValue('address_line', branchData.address_line);
     
-    formData.append('name', data.name);
-    formData.append('mobile', data.mobile);
-    formData.append('address_line', data.address_line);
-    formData.append('country', data.country);
+    // هنا المشكلة - يجب تعيين الـ ID وليس القيمة النصية
+    setValue('tax_rate', branchData.tax_rate || 0);
     
-    if (data.tax_rate) formData.append('tax_rate', data.tax_rate.toString());
-    if (data.email) formData.append('email', data.email);
-    if (data.website) formData.append('website', data.website);
-    if (data.landline) formData.append('landline', data.landline);
-    if (data.vat_number) formData.append('vat_number', data.vat_number);
-    if (data.cr_number) formData.append('cr_number', data.cr_number);
-    if (data.logo instanceof File) formData.append('logo', data.logo);
+    setValue('email', branchData.email || '');
+    setValue('website', branchData.website || '');
+    setValue('country', branchData.country);
+    setValue('landline', branchData.landline || '');
+    setValue('vat_number', branchData.vat_number || '');
+    setValue('cr_number', branchData.cr_number || '');
+    setSelectedCountry(branchData.country);
     
-   if (data.currencies && data.currencies.length > 0) {
+    // Set currencies
+    if (branchData.currencies) {
+      setValue('currencies', branchData.currencies.map(curr => ({
+        currency: curr.currency,
+        exchange_rate: curr.exchange_rate,
+        default: curr.default
+      })));
+    }
+    
+    // Set payment methods
+    if (branchData.payment_methods) {
+      setValue('payment_methods', branchData.payment_methods.map(pm => ({
+        payment_method: pm.payment_method
+      })));
+    }
+    
+    // Set customer fields
+    if (branchData.customer_fields) {
+      setValue('customer_fields', branchData.customer_fields);
+    }
+    
+    // Set logo preview if exists
+    if (branchData.logo) {
+      setLogoPreview(branchData.logo);
+    }
+  }
+}, [branchData, mode, setValue]);
+
+const onSubmit: SubmitHandler<BranchFormValues> = (data) => {
+  const formData = new FormData();
+  
+  formData.append('name', data.name);
+  formData.append('mobile', data.mobile);
+  formData.append('address_line', data.address_line);
+  formData.append('country', data.country);
+  
+  if (data.tax_rate) formData.append('tax_rate', data.tax_rate.toString());
+  if (data.email) formData.append('email', data.email);
+  if (data.website) formData.append('website', data.website);
+  if (data.landline) formData.append('landline', data.landline);
+  if (data.vat_number) formData.append('vat_number', data.vat_number);
+  if (data.cr_number) formData.append('cr_number', data.cr_number);
+  if (data.logo instanceof File) formData.append('logo', data.logo);
+  
+if (data.currencies && data.currencies.length > 0) {
   data.currencies.forEach((currency, index) => {
     formData.append(`currencies[${index}]currency`, currency.currency.toString());
     formData.append(`currencies[${index}]exchange_rate`, currency.exchange_rate.toString());
-    // استبدال toString() بقيمة boolean مباشرة
     formData.append(`currencies[${index}]default`, currency.default ? "true" : "false");
   });
 }
-    
-    if (data.payment_methods && data.payment_methods.length > 0) {
-      data.payment_methods.forEach((method, index) => {
-        formData.append(`payment_methods[${index}]payment_method`, method.payment_method.toString());
-      });
-    }
-    
-    if (data.customer_fields && data.customer_fields.length > 0) {
-      data.customer_fields.forEach((field, index) => {
-        formData.append(`custom_fields[${index}]field_key`, field.field_key);
-        formData.append(`custom_fields[${index}]value`, field.value);
-      });
-    }
 
-    // Convert FormData to object
-    const requestData: Record<string, unknown> = {};
-    for (const [key, value] of formData.entries()) {
-      // Handle array fields
-      if (key.includes('[') && key.includes(']')) {
-        const match = key.match(/(\w+)\[(\d+)\](\w+)/);
-        if (match) {
-          const [, arrayName, index, fieldName] = match;
-          if (!requestData[arrayName]) {
-            requestData[arrayName] = [];
-          }
-          if (!(requestData[arrayName] as any[])[Number(index)]) {
-            (requestData[arrayName] as any[])[Number(index)] = {};
-          }
-          (requestData[arrayName] as any[])[Number(index)][fieldName] = value;
+if (data.payment_methods && data.payment_methods.length > 0) {
+  data.payment_methods.forEach((method, index) => {
+    formData.append(`payment_methods[${index}]payment_method`, method.payment_method.toString());
+  });
+}
+  
+  if (data.customer_fields && data.customer_fields.length > 0) {
+    data.customer_fields.forEach((field, index) => {
+      formData.append(`custom_fields[${index}]field_key`, field.field_key);
+      formData.append(`custom_fields[${index}]value`, field.value);
+    });
+  }
+
+  // Convert FormData to object
+  const requestData: Record<string, unknown> = {};
+  for (const [key, value] of formData.entries()) {
+    // Handle array fields
+    if (key.includes('[') && key.includes(']')) {
+      const match = key.match(/(\w+)\[(\d+)\](\w+)/);
+      if (match) {
+        const [, arrayName, index, fieldName] = match;
+        if (!requestData[arrayName]) {
+          requestData[arrayName] = [];
         }
-      } else {
-        requestData[key] = value;
+        
+        // Type the array properly
+        const array = requestData[arrayName] as Array<Record<string, unknown>>;
+        
+        if (!array[Number(index)]) {
+          array[Number(index)] = {};
+        }
+        array[Number(index)][fieldName] = value;
       }
-    }
-
-    console.log('Request Data:', requestData);
-
-    if (mode === 'edit') {
-      updateBranch(requestData);
     } else {
-      createBranch(requestData);
+      requestData[key] = value;
     }
-  };
+  }
+
+  console.log('Request Data:', requestData);
+
+  if (mode === 'edit') {
+    updateBranch(requestData);
+  } else {
+    createBranch(requestData);
+  }
+};
+
+// ... rest of the code ...
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -430,23 +432,31 @@ const FormBranch: React.FC<FormBranchProps> = ({ branchId, onBack, mode }) => {
             </div>
             
             <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Country *
-        </label>
-        <input
-          {...register('country')}
-          type="text"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Enter country"
-          onChange={(e) => {
-            setSelectedCountry(e.target.value);
-            setValue('payment_methods', []);
-          }}
-        />
-        {errors.country && (
-          <p className="text-red-500 text-xs mt-1">{errors.country.message}</p>
-        )}
-      </div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Country *
+                </label>
+                <select
+                    {...register('country')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    onChange={(e) => {
+                        setSelectedCountry(e.target.value);
+                        setValue('payment_methods', []);
+                    }}
+                >
+                    <option value="">Select Country</option>
+                    {paymentMethodsData?.results?.map((method) => (
+                        <option key={method.id} value={method.country}>
+                            {method.country}
+                        </option>
+                    ))}
+                </select>
+                {errors.country && (
+                  <p className="text-red-500 text-xs mt-1">{errors.country.message}</p>
+                )}
+            </div>
+            
+            
+           
             
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -464,24 +474,24 @@ const FormBranch: React.FC<FormBranchProps> = ({ branchId, onBack, mode }) => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tax Rate
-              </label>
-              <select
-                {...register('tax_rate', { valueAsNumber: true })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="0">Select tax rate</option>
-                {taxData?.results?.map((tax) => (
-                  <option key={tax.id} value={tax.id}>
-                    {tax.country_tax_rate}
-                  </option>
-                ))}
-              </select>
-              {errors.tax_rate && (
-                <p className="text-red-500 text-xs mt-1">{errors.tax_rate.message}</p>
-              )}
-            </div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Tax Rate
+  </label>
+  <select
+    {...register('tax_rate', { valueAsNumber: true })}
+    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+  >
+    <option value="0">Select tax rate</option>
+    {taxData?.results?.map((tax) => (
+      <option key={tax.id} value={tax.id}>
+        {tax.country_tax_rate}
+      </option>
+    ))}
+  </select>
+  {errors.tax_rate && (
+    <p className="text-red-500 text-xs mt-1">{errors.tax_rate.message}</p>
+  )}
+</div>
           </div>
         </div>
 

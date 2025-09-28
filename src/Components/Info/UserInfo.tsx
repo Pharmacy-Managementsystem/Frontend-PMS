@@ -1,12 +1,9 @@
-// UserInfo.tsx
 import React, { useState, useEffect } from 'react';
 import { useGet } from '../../Hook/API/useApiGet';
-import { ArrowLeft } from 'lucide-react';
-import { FaCheckSquare ,FaWindowClose} from "react-icons/fa";
+import { ArrowLeft, Edit } from 'lucide-react';
+import { FaCheckSquare, FaWindowClose } from "react-icons/fa";
+import { useMutate } from '../../Hook/API/useApiMutate'; // أضف هذا الاستيراد
 
-
-
-// Type definitions based on your JSON structure
 interface DataResponse {
   id: string;
   email: string;
@@ -20,7 +17,9 @@ interface DataResponse {
 
 interface UserInfoProps {
   userId: string;
-  onBack: () => void; 
+  onBack?: () => void;
+  currentUserRole: string;
+  editMode?: 'limited' | 'full'; // أضف هذه الخاصية الجديدة
 }
 
 interface Branch {
@@ -53,12 +52,24 @@ interface RolePermissionsResponse {
   results: RolePermission[];
 }
 
-
-
-const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
+const UserInfo: React.FC<UserInfoProps> = ({ 
+  userId, 
+  onBack, 
+  currentUserRole,
+  editMode = 'limited' // القيمة الافتراضية
+}) => {
   const [selectedPermissionIds, setSelectedPermissionIds] = useState<number[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    username: '',
+    email: '',
+    phone_number: '',
+    address: '',
+    branches_id: [] as string[],
+    role_name: ''
+  });
 
-  const { data: userData, isLoading, error } = useGet<DataResponse>({
+  const { data: userData, isLoading, error, refetch } = useGet<DataResponse>({
     endpoint: `/api/user/${userId}/`,
     queryKey: ['User', userId],
   });
@@ -74,13 +85,37 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
     enabled: !!userData?.role_name,
   });
 
-  // جلب كل الصلاحيات المتاحة
   const { data: allPermissionsResponse } = useGet<Permission[]>({
     endpoint: `/api/role-permissions/permissions/`,
     queryKey: ["all-permissions"],
   });
 
-  
+  // أضف الهوك الخاص بـ API mutation
+  const { mutate: updateUser,  isLoading: isUpdating } = useMutate({
+    endpoint: `/api/user/${userId}/`,
+    method: 'put',
+    onSuccess: () => {
+      setIsEditing(false);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error updating user:', error);
+    }
+  });
+
+  // تهيئة بيانات التعديل
+  useEffect(() => {
+    if (userData) {
+      setEditData({
+        username: userData.username || '',
+        email: userData.email,
+        phone_number: userData.phone_number,
+        address: userData.address,
+        branches_id: userData.branches_id,
+        role_name: userData.role_name
+      });
+    }
+  }, [userData]);
 
   useEffect(() => {
     if (roleResponse?.results?.[0]?.permissions && allPermissionsResponse) {
@@ -93,6 +128,17 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
     }
   }, [roleResponse, allPermissionsResponse]);
 
+  // دالة للتحقق من إمكانية تعديل حقل معين
+  const canEditField = (fieldName: string): boolean => {
+    if (editMode === 'full') {
+      return true; // من UserManagement: يمكن تعديل كل الحقول
+    }
+    
+    // من Settings: يمكن تعديل هذه الحقول فقط
+    const allowedFields = ['username', 'phone_number', 'email', 'address'];
+    return allowedFields.includes(fieldName);
+  };
+
   const getBranchNames = (branchIds: string[]): string[] => {
     if (!branchResponse?.results || !branchIds) return [];
     
@@ -101,10 +147,6 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
       return branch?.name || `Unknown Branch (ID: ${branchId})`;
     });
   };
-
-  // Handle permission checkbox change
- 
-
 
   const groupPermissionsBySection = (permissions: Permission[]) => {
     const grouped: { [key: string]: Permission[] } = {};
@@ -123,6 +165,77 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
     return grouped;
   };
 
+  // دالة بدء التعديل
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  // دالة حفظ التعديلات
+  const handleSave = async () => {
+    try {
+      // تحقق من صحة البيانات الأساسية
+      if (!editData.email || !editData.phone_number) {
+        alert('Email and phone number are required');
+        return;
+      }
+
+      // تحضير البيانات للإرسال بناءً على وضع التعديل
+      let updateData: any = {};
+      
+      if (editMode === 'limited') {
+        updateData = {
+          username: editData.username,
+          email: editData.email,
+          phone_number: editData.phone_number,
+          address: editData.address,
+          role_name: editData.role_name
+        };
+      } else {
+        // من UserManagement: تحديث كل الحقول
+        updateData = {
+          username: editData.username,
+          email: editData.email,
+          phone_number: editData.phone_number,
+          address: editData.address,
+          branches_id: editData.branches_id,
+          role_name: editData.role_name
+        };
+      }
+
+      // إرسال البيانات إلى الخادم
+      updateUser(updateData);
+      
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
+  };
+
+  // دالة إلغاء التعديل
+  const handleCancel = () => {
+    if (userData) {
+      setEditData({
+        username: userData.username || '',
+        email: userData.email,
+        phone_number: userData.phone_number,
+        address: userData.address,
+        branches_id: userData.branches_id,
+        role_name: userData.role_name
+      });
+    }
+    setIsEditing(false);
+  };
+
+  // دالة تحديث بيانات التعديل
+  const handleInputChange = (field: string, value: string) => {
+    setEditData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // التحقق مما إذا كان المستخدم الحالي admin
+  const isAdmin = currentUserRole === 'admin';
+
   // Handle loading state
   if (isLoading) {
     return (
@@ -138,12 +251,14 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
       <div className="max-w-7xl py-10 mx-auto flex justify-center items-center h-64">
         <div className="text-center">
           <p className="text-red-500 mb-4">Error loading user data</p>
-          <button
-            onClick={onBack}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Back to Users
-          </button>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Back to Users
+            </button>
+          )}
         </div>
       </div>
     );
@@ -164,21 +279,39 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
 
   const ProfileDetailItem = ({ 
     label, 
-    value, 
+    value,
+    field,
+    isEditing: editing,
+    onChange
   }: { 
     label: string; 
-    value: string; 
-  }) => (
-    <div>
-      <label className="block text-xs text-gray-500 mb-1">{label}</label>
-      <p className="text-sm text-gray-700 break-words">{value}</p>
-    </div>
-  );
+    value: string;
+    field?: string;
+    isEditing?: boolean;
+    onChange?: (field: string, value: string) => void;
+  }) => {
+    const canEdit = field ? canEditField(field) : false;
+    
+    return (
+      <div>
+        <label className="block text-xs text-gray-500 mb-1">{label}</label>
+        {editing && field && canEdit ? (
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => onChange?.(field, e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded text-sm"
+          />
+        ) : (
+          <p className="text-sm text-gray-700 break-words">{value}</p>
+        )}
+      </div>
+    );
+  };
 
   const PermissionsDisplay = () => {
     const groupedAllPermissions = groupPermissionsBySection(allPermissionsResponse || []);
 
-   
     // Function to generate accessible permission label
     const getPermissionLabel = (permissionName: string) => {
       return permissionName.split('.').slice(1).join(' → ').replace(/_/g, ' ');
@@ -188,14 +321,12 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
       <div className="space-y-4">
         <div className="space-y-3 max-h-80 overflow-y-auto">
           {Object.entries(groupedAllPermissions).map(([section, permissions]) => {
-            
             return (
               <div key={section} className="p-2">
                 <div className="flex items-center justify-between mb-2">
                   <h5 className="font-medium text-gray-800 capitalize">
                     {section.replace(/_/g, ' ')}
                   </h5>
-                
                 </div>
                 
                 <div className="grid grid-cols-2 gap-2">
@@ -203,11 +334,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
                     const permissionLabel = getPermissionLabel(permission.name);
                     const isSelected = selectedPermissionIds.includes(permission.id);
 
-                    
                     return (
                       <div key={permission.id} className="flex items-center space-x-2">
-                       
-                          <>
                         {isSelected ? (
                           <FaCheckSquare className="text-lg  text-sky-600" aria-label="Permission granted" />
                         ) : (
@@ -218,8 +346,6 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
                         >
                           {permissionLabel}
                         </label>
-                      </>
-                        
                       </div>
                     );
                   })}
@@ -233,20 +359,21 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto flex flex-col gap-6 h-full relative">
-      
-      <div className="flex items-center gap-4">
-        <button
-          onClick={onBack}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          aria-label="Go back to users list"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className='text-2xl font-bold text-gray-900'>
-          Back to Users
-        </h1>
-      </div>
+      <div className="max-w-7xl mx-auto flex flex-col gap-6 h-full relative">
+  {onBack && (
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onBack}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label="Go back to users list"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className='text-2xl font-bold text-gray-900'>
+            Back to Users
+          </h1>
+        </div>
+      )}
       
       <div className='flex flex-col lg:flex-row gap-6 h-full'>
         
@@ -279,24 +406,42 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
             <div className="space-y-4 text-center">
               <ProfileDetailItem 
                 label="Email Address" 
-                value={userData.email} 
+                value={isEditing ? editData.email : userData.email}
+                field="email"
+                isEditing={isEditing}
+                onChange={handleInputChange}
               />
               <ProfileDetailItem 
                 label="Phone Number" 
-                value={userData.phone_number} 
+                value={isEditing ? editData.phone_number : userData.phone_number}
+                field="phone_number"
+                isEditing={isEditing}
+                onChange={handleInputChange}
               />
               <ProfileDetailItem 
                 label="Address" 
-                value={userData.address} 
+                value={isEditing ? editData.address : userData.address}
+                field="address"
+                isEditing={isEditing}
+                onChange={handleInputChange}
               />
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex gap-3 mt-6">
-            
+            {!isEditing ? (
               <>
-                
+                {isAdmin && (
+                  <button 
+                    onClick={handleEdit}
+                    className="flex-1 py-2.5 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                    aria-label="Edit user information"
+                  >
+                    <Edit className="w-4 h-4" />
+                    Edit User
+                  </button>
+                )}
                 <button 
                   className="flex-1 py-2.5 px-4 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors text-sm font-medium"
                   aria-label="Deactivate user account"
@@ -304,6 +449,24 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
                   Deactivate User
                 </button>
               </>
+            ) : (
+              <>
+                <button 
+                  onClick={handleSave}
+                  disabled={isUpdating}
+                  className={`flex-1 py-2.5 px-4 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm font-medium ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {isUpdating ? 'Saving...' : 'Save'}
+                </button>
+                <button 
+                  onClick={handleCancel}
+                  disabled={isUpdating}
+                  className={`flex-1 py-2.5 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors text-sm font-medium ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  Cancel
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -318,7 +481,24 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
                 <div className="flex flex-col">
                   <div className='ps-3 pb-3'>
                     <label className="block text-base text-gray-500 mb-2">Branch Assigned</label>
-                    <p className="text-sm text-gray-700 capitalize">
+                    {isEditing && isAdmin && canEditField('branches_id') ? (
+                      <select 
+                        multiple
+                        value={editData.branches_id}
+                        onChange={(e) => {
+                          const selected = Array.from(e.target.selectedOptions, option => option.value);
+                          setEditData(prev => ({ ...prev, branches_id: selected }));
+                        }}
+                        className="w-full p-2 border border-gray-300 rounded text-sm"
+                      >
+                        {branchResponse?.results.map(branch => (
+                          <option key={branch.id} value={branch.id.toString()}>
+                            {branch.name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <p className="text-sm text-gray-700 capitalize">
                         {branchNames.length ? (
                           branchNames.map((name, index) => (
                             <span key={index}>
@@ -330,10 +510,20 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack }) => {
                           'No branches assigned'
                         )}
                       </p>
+                    )}
                   </div>
                   <div className='ps-3 pb-3'>
                     <label className="block text-base text-gray-500 mb-2">Address</label>
-                    <p className="text-sm text-gray-700">{userData.address}</p>
+                    {isEditing && canEditField('address') ? (
+                      <textarea
+                        value={editData.address}
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded text-sm"
+                        rows={3}
+                      />
+                    ) : (
+                      <p className="text-sm text-gray-700">{userData.address}</p>
+                    )}
                   </div>
                 </div>
               </div>

@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useMutate } from '../../Hook/API/useApiMutate';
-import { useEffect, useRef } from 'react';
-import { Loader2, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Loader2, X, Eye, EyeOff } from 'lucide-react';
 
 interface SelectOption {
   value: string | number;
@@ -38,8 +38,8 @@ export default function ReusableForm({
   initialValues = {}
 }: ReusableFormProps) {
   
-  // الحل الأول: استخدام useRef لتتبع التغييرات
   const prevInitialValues = useRef(initialValues);
+  const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
   
   const {
     register,
@@ -51,9 +51,7 @@ export default function ReusableForm({
     defaultValues: initialValues
   });
 
-  // الحل الأول: مقارنة القيم قبل إعادة التعيين
   useEffect(() => {
-    // التحقق من وجود تغيير فعلي في القيم
     const hasChanged = JSON.stringify(prevInitialValues.current) !== JSON.stringify(initialValues);
     
     if (hasChanged) {
@@ -69,50 +67,69 @@ export default function ReusableForm({
     onSuccess
   });
 
-const onSubmit = (data: Record<string, unknown>) => {
-  const formData: Record<string, string | number | boolean | File | string[]> = {};
-  
-  fields.forEach(field => {
-    const value = data[field.name];
+  const onSubmit = (data: Record<string, unknown>) => {
+    const formData: Record<string, string | number | boolean | File | string[]> = {};
     
-    // ✅ معالجة multi-select
-    if (field.type === 'multiselect') {
-      if (Array.isArray(value)) {
-        formData[field.name] = value;
-      } else if (value) {
-        formData[field.name] = [value.toString()];
-      } else {
-        formData[field.name] = [];
+    // ✅ معالجة خاصة لإنشاء الـ permission
+    if (title.toLowerCase().includes('permission')) {
+      // جمع section و subsection و action في قيمة واحدة
+      const section = data.section as string;
+      const subsection = data.subsection as string;
+      const action = data.action as string;
+      
+      if (section && subsection && action) {
+        formData['name'] = `${section}.${subsection}.${action}`;
       }
-    }
-    // باقي المعالجات...
-    else if (field.type === 'checkbox') {
-      formData[field.name] = Boolean(value);
-    } else if (value !== undefined && value !== null) {
-      if (field.type === 'number') {
-        formData[field.name] = typeof value === 'number' ? value : Number(value);
-      } else if (field.type === 'file') {
-        if (value instanceof FileList && value.length > 0) {
-          formData[field.name] = value[0];
+    } else {
+      // المعالجة العادية لباقي الحقول
+      fields.forEach(field => {
+        const value = data[field.name];
+        
+        if (field.type === 'multiselect') {
+          if (Array.isArray(value)) {
+            formData[field.name] = value;
+          } else if (value) {
+            formData[field.name] = [value.toString()];
+          } else {
+            formData[field.name] = [];
+          }
         }
-      } else if (typeof value === 'string' || typeof value === 'number') {
-        formData[field.name] = value;
-      } else if (field.required) {
-        formData[field.name] = field.type === 'number' ? 0 : '';
-      }
-    } else if (field.required) {
-      formData[field.name] = field.type === 'number' ? 0 : '';
+        else if (field.type === 'checkbox') {
+          formData[field.name] = Boolean(value);
+        } else if (value !== undefined && value !== null) {
+          if (field.type === 'number') {
+            formData[field.name] = typeof value === 'number' ? value : Number(value);
+          } else if (field.type === 'file') {
+            if (value instanceof FileList && value.length > 0) {
+              formData[field.name] = value[0];
+            }
+          } else if (typeof value === 'string' || typeof value === 'number') {
+            formData[field.name] = value;
+          } else if (field.required) {
+            formData[field.name] = field.type === 'number' ? 0 : '';
+          }
+        } else if (field.required) {
+          formData[field.name] = field.type === 'number' ? 0 : '';
+        }
+      });
     }
-  });
-  
-  console.log('Submitting form data:', formData);
-  mutate(formData);
-};
+    
+    console.log('Submitting form data:', formData);
+    mutate(formData);
+  };
+
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const value = e.target.value;
     if (value === '' || !isNaN(Number(value))) {
       setValue(fieldName, value, { shouldValidate: true });
     }
+  };
+
+  const togglePasswordVisibility = (fieldName: string) => {
+    setShowPassword(prev => ({
+      ...prev,
+      [fieldName]: !prev[fieldName]
+    }));
   };
 
   const renderField = (field: FormField) => {
@@ -137,26 +154,26 @@ const onSubmit = (data: Record<string, unknown>) => {
       );
     }
     if (field.type === 'multiselect') {
-  return (
-    <select
-      id={field.name}
-      multiple
-      className={`block w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-        errors[field.name] ? 'border-red-300' : 'border-gray-300'
-      }`}
-      {...register(field.name, { 
-        required: field.required ? `${field.label} is required` : false
-      })}
-      size={3} 
-    >
-      {field.options?.map(option => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-  );
-}
+      return (
+        <select
+          id={field.name}
+          multiple
+          className={`block w-full  rounded-md border-gray-300 p-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
+            errors[field.name] ? 'border-red-300' : 'border-gray-300'
+          }`}
+          {...register(field.name, { 
+            required: field.required ? `${field.label} is required` : false
+          })}
+          size={3} 
+        >
+          {field.options?.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      );
+    }
     if (field.name === 'description') {
       return (
         <textarea
@@ -191,6 +208,41 @@ const onSubmit = (data: Record<string, unknown>) => {
       );
     }
 
+    if (field.type === 'password') {
+      return (
+        <div className="relative">
+          <input
+            id={field.name}
+            type={showPassword[field.name] ? 'text' : 'password'}
+            className={`block w-full rounded-md shadow-sm sm:text-sm p-3 pr-10 ${
+              errors[field.name] 
+                ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+                : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+            }`}
+            {...register(field.name, { 
+              required: field.required ? `${field.label} is required` : false,
+              minLength: field.required ? {
+                value: 6,
+                message: 'Password must be at least 6 characters'
+              } : undefined
+            })}
+          />
+          <button
+            type="button"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            onClick={() => togglePasswordVisibility(field.name)}
+          >
+            {showPassword[field.name] ? (
+              <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+            ) : (
+              <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+            )}
+          </button>
+        </div>
+      );
+    }
+
+    // ✅ باقي أنواع الحقول
     return (
       <input
         id={field.name}
@@ -237,7 +289,8 @@ const onSubmit = (data: Record<string, unknown>) => {
                 key={field.name} 
                 className={`${
                   field.name === 'description' ? 'md:col-span-2' : 
-                  field.type === 'checkbox' ? 'md:col-span-2' : ''
+                  field.type === 'checkbox' ? 'md:col-span-2' : 
+                  field.type === 'password' ? 'md:col-span-2' : ''
                 }`}
               >
                 <div className="space-y-2">

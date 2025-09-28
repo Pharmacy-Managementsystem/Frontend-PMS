@@ -3,7 +3,6 @@ import { useGet } from '../../Hook/API/useApiGet';
 import { useMutate } from '../../Hook/API/useApiMutate';
 import { 
   ArrowLeft, 
-  Shield, 
   User, 
   Save, 
   X, 
@@ -14,8 +13,10 @@ import {
   Square,
   MinusSquare,
   Search,
-  Filter
+  Filter,
+  Plus
 } from 'lucide-react';
+import ReusableForm from './ReusableForm';
 
 interface Permission {
   id: number;
@@ -38,7 +39,7 @@ export default function AddRole({ onBack }: { onBack: () => void }) {
   const [showAlert, setShowAlert] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSection, setFilterSection] = useState<string>('');
-
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { data: permissionsResponse, isLoading, error, refetch } = useGet<Permission[]>({
     endpoint: `/api/role-permissions/permissions/`,
     queryKey: ['all-permissions'],
@@ -52,6 +53,18 @@ export default function AddRole({ onBack }: { onBack: () => void }) {
     },
   });
 
+  // تحديث حقول الفورم لتشمل section و subsection و action
+  const formFields = [
+    { name: 'section', label: 'Section', required: true, type: 'text' },
+    { name: 'subsection', label: 'Subsection', required: true, type: 'text' },
+    { name: 'action', label: 'Action', required: true, type: 'text' },
+  ];
+
+  const handleCreateSuccess = () => {
+    setIsCreateModalOpen(false);
+    refetch();
+  };
+
   // Organize permissions in structured format
   const organizedPermissions = useMemo((): PermissionSection[] => {
     if (!permissionsResponse) return [];
@@ -59,7 +72,7 @@ export default function AddRole({ onBack }: { onBack: () => void }) {
     const sectionsMap = new Map<string, Map<string, Permission[]>>();
 
     permissionsResponse.forEach(permission => {
-      const [section, subsection, action] = permission.name.split('.');
+      const [section, subsection] = permission.name.split('.');
       
       if (!sectionsMap.has(section)) {
         sectionsMap.set(section, new Map());
@@ -224,22 +237,32 @@ export default function AddRole({ onBack }: { onBack: () => void }) {
   }
 
   const isFormValid = roleName.trim() !== '' && selectedPermissions.length > 0;
-  const progressPercentage = (selectedPermissions.length / (permissionsResponse?.length || 1)) * 100;
 
   return (
     <div className="space-y-6">
       {/* Header Card */}
-      <div className="flex items-center gap-4">
-                <button
-                  onClick={onBack}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  aria-label="Go back"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <h1 className='text-2xl font-bold text-gray-900'>
-                  Add Role
-                </h1>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+
+        <button
+          onClick={onBack}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <h1 className='text-2xl font-bold text-gray-900'>
+          Add Role
+        </h1>
+        </div>
+
+        <button 
+          onClick={() => setIsCreateModalOpen(true)}
+        className="bg-primary cursor-pointer hover:bg-blue-900 text-white px-8 py-4 rounded-lg flex items-center gap-3 transition-colors duration-200 text-sm font-medium"
+      >
+        <Plus  className='text-md'/>
+        Add permission
+      </button>
               </div>
       <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
         {showAlert && (
@@ -248,6 +271,7 @@ export default function AddRole({ onBack }: { onBack: () => void }) {
             <button 
               onClick={() => setShowAlert(false)}
               className="text-yellow-600 hover:text-yellow-800"
+              aria-label="Close alert"
             >
               <X className="h-4 w-4" />
             </button>
@@ -283,21 +307,7 @@ export default function AddRole({ onBack }: { onBack: () => void }) {
           </div>
         </div>
 
-        {/* Progress indicator */}
-        {selectedPermissions.length > 0 && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <div className="flex justify-between items-center mb-2">
-              <p className="text-sm font-medium text-gray-700">Selection Progress</p>
-              <span className="text-sm text-gray-600">{Math.round(progressPercentage)}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progressPercentage}%` }}
-              ></div>
-            </div>
-          </div>
-        )}
+      
 
         {/* Search and Filter Section */}
         <div className="mb-6 p-4 bg-gray-50 rounded-lg">
@@ -319,6 +329,7 @@ export default function AddRole({ onBack }: { onBack: () => void }) {
                 value={filterSection}
                 onChange={(e) => setFilterSection(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                aria-label="Filter by section"
               >
                 <option value="">All Sections</option>
                 {uniqueSections.map(section => (
@@ -533,6 +544,19 @@ export default function AddRole({ onBack }: { onBack: () => void }) {
           )}
         </button>
       </div>
+
+      {isCreateModalOpen && (
+        <ReusableForm
+          title="Permission"
+          fields={formFields}
+          endpoint="/api/role-permissions/permissions/"
+          method="post"
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={handleCreateSuccess}
+          submitButtonText="Create Permission"
+          key="create-form"
+        />
+      )}
     </div>
   );
 }

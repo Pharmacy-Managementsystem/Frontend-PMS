@@ -5,13 +5,23 @@ import Branches from '../../Components/SettingComponent/Branches';
 import PaymentMethods from '../../Components/SettingComponent/PaymentMethods';
 import TaxRate from '../../Components/SettingComponent/TaxRate';
 import Currencies from '../../Components/SettingComponent/Currencies'
+import UserInfo from '../../Components/Info/UserInfo';
+import { useDecodedToken } from '../../Hook/useDecodedToken';
 
 function Setting() {
+  const decodedToken = useDecodedToken();
   const [activeTab, setActiveTab] = useState<string>('Business');
   
   const renderActiveComponent = () => {
     switch(activeTab) {
       case 'Business': return <Business />;
+      case 'User': return (
+        <UserInfo 
+          userId={decodedToken?.user_id || ''} 
+          currentUserRole={decodedToken?.is_superuser ? 'admin' : 'user'}
+          editMode="limited" // أضف هذا
+        />
+      );
       case 'Branches': return <Branches />;
       case 'Payment Methods': return <PaymentMethods />;
       case 'Tax Rates': return <TaxRate />;
@@ -34,4 +44,8 @@ function Setting() {
   )
 }
 
+
 export default Setting;
+
+
+// hjvjhv

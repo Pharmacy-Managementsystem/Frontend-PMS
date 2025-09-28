@@ -14,7 +14,7 @@ interface DecodedToken {
 
 const dropdownContent = {
   management: ['Business Management','User Management', 'Subscriptions Management' ,"Roles", 'Branches Management', 'Package Management'],
-  settings: ['Business', 'Branches', 'Payment Methods', 'Tax Rates', 'Currencies'],
+  settings: ['Business','User', 'Payment Methods', 'Tax Rates', 'Currencies'],
   contacts: ['Customers', 'Suppliers']
 } as const;
 

@@ -82,20 +82,21 @@ const formFields = [
   { name: 'email', label: 'Email Address', required: true },
   { name: 'phone_number', label: 'Phone Number', required: true },
   { name: 'address', label: 'Address', required: true },
-  { 
-    name: 'role', 
-    label: 'Role', 
-    type: 'select', 
-    required: true,
-    options: rolesOptions,
-  },
-  { name: 'password', label: 'Password', type: 'password', required: true },
+  { name: 'password', label: 'Password', required: true, type: 'password' },
+  { name: 'confirmPassword', label: 'Confirm Password', required: true, type: 'password' },
   { 
     name: 'branches', 
     label: 'Branches', 
     type: 'multiselect', 
     required: true,
     options: branchesOptions,
+  },
+  { 
+    name: 'role', 
+    label: 'Role', 
+    type: 'select', 
+    required: true,
+    options: rolesOptions,
   },
 ];
 
@@ -141,7 +142,13 @@ const formFields = [
   return (
     <>
       {showInfo ? (
-        <UserInfo userId={showInfo} onBack={handleBack} />
+        // في جزء استدعاء UserInfo في UserManage.tsx، عدّل السطر ليصبح:
+<UserInfo 
+  userId={showInfo}  
+  currentUserRole={"admin"} 
+  onBack={handleBack}
+  editMode="full" // أضف هذا
+/>
       ) : (
         <div>
           <TableHeaderSearch

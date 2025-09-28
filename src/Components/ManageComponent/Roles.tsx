@@ -6,8 +6,9 @@ import { CircularProgress } from '@mui/material';
 import Box from '@mui/material/Box';
 import api from "../../Hook/API/api";
 import Swal from 'sweetalert2';
-import { PackagePlus, Edit, Trash2, SquareChartGantt, Users } from 'lucide-react';
+import { PackagePlus, Trash2, SquareChartGantt, Users } from 'lucide-react';
 import AddRole from '../Forms/AddRole';
+import EditRoleView from '../Forms/EditRoleView'; // Import the permission management component
 
 interface role {
   id: number;
@@ -22,12 +23,14 @@ interface DataResponse {
   results: role[];
 }
 
+
 const Roles = () => {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(8);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingrole, setEditingrole] = useState<role | null>(null);
+
+  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
+  const [selectedRoleForPermissions, setSelectedRoleForPermissions] = useState<string>('');
   
   const { data: roleResponse, isLoading, error, refetch } = useGet<DataResponse>({
     endpoint: `/api/business/roles/?page=${page}&page_size=${pageSize}`,
@@ -70,6 +73,17 @@ const Roles = () => {
   const handleBackFromAddRole = () => {
     setIsCreateModalOpen(false);
     refetch();
+  };
+  
+  const handleBackFromPermissions = () => {
+    setIsPermissionsModalOpen(false);
+    setSelectedRoleForPermissions('');
+    refetch(); 
+  };
+
+  const handleManagePermissions = (roleName: string) => {
+    setSelectedRoleForPermissions(roleName);
+    setIsPermissionsModalOpen(true);
   };
 
   if (isLoading) {
@@ -131,21 +145,18 @@ const Roles = () => {
                       </div>
                       
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <button  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        onClick={() => handleManagePermissions(role.name)}
+                          title="Manage Permissions"
+                        >
+                          
                           <SquareChartGantt size={18} />
                         </button>
-                        <button 
-                          className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                          onClick={() => {
-                            setIsEditModalOpen(true);
-                            setEditingrole(role);
-                          }}
-                        >
-                          <Edit size={18} />
-                        </button>
+                        
                         <button 
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           onClick={() => handleDelete(role.id)}
+                          title="Delete Role"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -175,7 +186,12 @@ const Roles = () => {
               hasNext={!!roleResponse.next}
               hasPrevious={!!roleResponse.previous}
             />
-          </div>
+              </div>
+
+              { isPermissionsModalOpen && selectedRoleForPermissions && (<EditRoleView 
+        role_name={selectedRoleForPermissions}
+        onBack={handleBackFromPermissions}
+      />)}
         </>
       )}
     </div>
@@ -183,3 +199,5 @@ const Roles = () => {
 };
 
 export default Roles;
+
+

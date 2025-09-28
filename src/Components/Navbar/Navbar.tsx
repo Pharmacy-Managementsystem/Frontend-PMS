@@ -44,7 +44,6 @@ function Navbar() {
     setToday(formattedDate);
   }, []);
 
-  // ✅ غلق dropdown / mobile menu لو كلكت بره
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
