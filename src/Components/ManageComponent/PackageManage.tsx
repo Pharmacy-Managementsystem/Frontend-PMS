@@ -180,7 +180,8 @@ export default function PackageManage() {
 
         {/* Create Package Modal */}
         {isCreateModalOpen && (
-            <ReusableForm
+          <ReusableForm
+              title="Package"
               fields={formFields}
               endpoint="/api/superadmin/packages/"
               method="post"
@@ -217,6 +218,7 @@ export default function PackageManage() {
             <X />
           </IconButton>
             <ReusableForm
+              title="Package"
               fields={formFields}
               endpoint={`/api/superadmin/packages/${editingPackage.id}/`}
               method="put"

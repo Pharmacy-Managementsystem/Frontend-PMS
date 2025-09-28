@@ -154,7 +154,6 @@ export default function BusinessManage() {
             <DeactivateUser
               onClose={() => setDeactivateId(null)}
                 id={deactivateId}
-                type="Business"
             />
           )}
         </div>

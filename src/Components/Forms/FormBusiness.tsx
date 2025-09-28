@@ -88,7 +88,7 @@ const { data: packageResponse } = useGet<PackageResponse>({
 
   // Get business data if editing
   const { data: businessData, isLoading: isLoadingBusiness } = useGet<BusinessResponse>({
-    endpoint: businessId ? `/api/superadmin/all-businesses/${businessId}/` : '',
+    endpoint: businessId ? `/api/business/settings/business/` : '',
     queryKey: ['business', businessId],
     enabled: !!businessId && mode === 'edit',
   });
@@ -104,7 +104,7 @@ const { data: packageResponse } = useGet<PackageResponse>({
 
   // Update business mutation
   const { mutate: updateBusiness, isLoading: isUpdating } = useMutate<BusinessFormValues>({
-    endpoint: businessId ? `/api/business/settings/business/${businessId}/` : '',
+    endpoint: businessId ? `/api/business/settings/business/` : '',
     method: 'patch',
     onSuccess: () => {
       onBack();
@@ -148,6 +148,7 @@ const { data: packageResponse } = useGet<PackageResponse>({
   
   if (mode === 'edit') {
     // For edit mode, exclude owner data entirely
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { owners, ...businessData } = data;
     updateBusiness(businessData);
   } else {
@@ -156,8 +157,10 @@ const { data: packageResponse } = useGet<PackageResponse>({
       ...data,
       owner: data.owners[0], // Take first owner
     };
-    delete (apiData as any).owners;
-    createBusiness(apiData);
+    // Remove owners property safely
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { owners, ...finalData } = apiData;
+    createBusiness(finalData);
   }
 };
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -348,7 +351,6 @@ const { data: packageResponse } = useGet<PackageResponse>({
               </button>
               <input
                 id="logoUploadInput"
-                
                 type="file"
                 accept="image/*"
                 onChange={handleLogoChange}

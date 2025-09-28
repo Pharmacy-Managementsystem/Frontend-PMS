@@ -58,8 +58,8 @@ const PaymentMethods = () => {
     type: 'number',  // Change to number type
     required: false,
     // Add conversion to handle string/number conversion
-    formatValue: (value: any) => value ? Number(value) : null,
-    parseValue: (value: any) => value?.toString()
+    formatValue: (value: string | number | null) => value ? Number(value) : null,
+    parseValue: (value: number | string | null) => value?.toString()
   }
 ];
 
@@ -182,6 +182,7 @@ const PaymentMethods = () => {
       {/* Create Modal */}
       {isCreateModalOpen && (
         <ReusableForm
+          title="Payment Method"
           fields={formFields}
           endpoint="/api/business/settings/payment-methods/"
           method="post"
@@ -219,12 +220,13 @@ const PaymentMethods = () => {
             <X />
           </IconButton>
           <ReusableForm
+            title="Payment Method"
             fields={formFields}
             endpoint={`/api/business/settings/payment-methods/${editingPayment.id}/`}
             method="patch"
             initialValues={{
             ...editingPayment,
-            tax_rate: editingPayment.tax_rate?.toString() // Ensure tax_rate is string
+            tax_rate: editingPayment.tax_rate?.toString() 
             }}
             onClose={() => {
               setIsEditModalOpen(false);

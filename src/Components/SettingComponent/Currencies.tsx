@@ -60,7 +60,7 @@ const Currencies = () => {
       label: 'Currency', 
       type: 'select', 
       required: true,
-      options: currencyOptions // Add options here
+      options: currencyOptions 
     },
     { name: 'is_default', label: 'Is Default', type: 'checkbox', required: false }
   ];
@@ -125,7 +125,7 @@ const Currencies = () => {
     'Currency Code': currency.code,
     'Symbol': currency.symbol,
     'Decimal Point': currency.decimal_point,
-    'Is Default': currency.is_default === true ? 'Yes' : 'No'
+    'Is Default': currency.is_default 
   })) || [];
 
   if (isLoading) {
@@ -188,6 +188,7 @@ const Currencies = () => {
       {/* Create Modal */}
         {isCreateModalOpen && (
         <ReusableForm
+          title="Currency"
           fields={formFields}
           endpoint="/api/business/settings/currencies/"
           method="post"
@@ -225,11 +226,12 @@ const Currencies = () => {
             <X />
           </IconButton>
           <ReusableForm
+            title=" Currency"
             fields={formFields}
             endpoint={`/api/business/settings/currencies/${editingCurrency.id}/`}
             method="patch"
             initialValues={{
-              currency: editingCurrency.id, // Set the initial value for the select
+              currency: editingCurrency.id, 
               is_default: editingCurrency.is_default
             }}
             onClose={() => {

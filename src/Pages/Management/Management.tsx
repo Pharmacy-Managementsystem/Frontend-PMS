@@ -94,7 +94,6 @@ function Management() {
         onTabChange={setActiveTab} 
         activeTab={activeTab}
       />
-      {/* استخدم custom-card-shadow هنا */}
       <div className="max-w-screen-2xl px-14 py-8 mb-10 bg-white custom-card-shadow rounded-xl mx-auto">
         {renderActiveComponent()}
       </div>
