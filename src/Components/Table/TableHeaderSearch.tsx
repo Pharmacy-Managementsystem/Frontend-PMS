@@ -7,6 +7,7 @@ interface TableHeaderProps {
   onAddClick: () => void;
   onSearchChange?: (value: string) => void;
   searchPlaceholder?: string;
+  value?: string; // allow controlled usage to persist across remounts
 }
 
 export const TableHeaderSearch: React.FC<TableHeaderProps> = ({ 
@@ -14,7 +15,8 @@ export const TableHeaderSearch: React.FC<TableHeaderProps> = ({
   buttonText,
   onAddClick,
   onSearchChange,
-  searchPlaceholder = "Search..."
+  searchPlaceholder = "Search...",
+  value
 }) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -34,7 +36,7 @@ export const TableHeaderSearch: React.FC<TableHeaderProps> = ({
           <input
             type="text"
             placeholder={searchPlaceholder}
-            value={searchValue}
+            value={typeof value === 'string' ? value : searchValue}
             onChange={handleSearchChange}
             onFocus={() => setIsSearchFocused(true)}
             onBlur={() => setIsSearchFocused(false)}

@@ -18,8 +18,7 @@ function Setting() {
       case 'User': return (
         <UserInfo 
           userId={decodedToken?.user_id || ''} 
-          currentUserRole={decodedToken?.is_superuser ? 'admin' : 'user'}
-          editMode="limited" // أضف هذا
+          editMode="full" 
         />
       );
       case 'Branches': return <Branches />;
@@ -48,4 +47,3 @@ function Setting() {
 export default Setting;
 
 
-// hjvjhv
