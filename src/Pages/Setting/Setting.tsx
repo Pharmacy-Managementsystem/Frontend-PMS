@@ -1,7 +1,6 @@
 import  { useState } from 'react';
 import MinNav from '../../Components/Navbar/MinNav';
 import Business from '../../Components/SettingComponent/Business';
-import Branches from '../../Components/SettingComponent/Branches';
 import PaymentMethods from '../../Components/SettingComponent/PaymentMethods';
 import TaxRate from '../../Components/SettingComponent/TaxRate';
 import Currencies from '../../Components/SettingComponent/Currencies'
@@ -21,7 +20,6 @@ function Setting() {
           editMode="full" 
         />
       );
-      case 'Branches': return <Branches />;
       case 'Payment Methods': return <PaymentMethods />;
       case 'Tax Rates': return <TaxRate />;
       case 'Currencies': return <Currencies />;

@@ -8,7 +8,7 @@ import api from "../../Hook/API/api";
 import Swal from 'sweetalert2';
 import { PackagePlus, Trash2, SquareChartGantt, Users } from 'lucide-react';
 import AddRole from '../Forms/AddRole';
-import EditRoleView from '../Forms/EditRoleView'; // Import the permission management component
+import EditRoleView from '../Forms/EditRoleView'; 
 
 interface role {
   id: number;

@@ -1,8 +1,35 @@
+import  { useState } from 'react';
+import MinNav from '../../Components/Navbar/MinNav';
+// import { useDecodedToken } from '../../Hook/useDecodedToken';
+import Customers from '../../Components/Contacts/Customers';
+import Suppliers from '../../Components/Contacts/Suppliers';
 
 export default function Contacts() {
+  // const decodedToken = useDecodedToken();
+  const [activeTab, setActiveTab] = useState<string>('Customers');
+  
+  const renderActiveComponent = () => {
+    switch(activeTab) {
+      case 'Customers': return <Customers />;
+      case 'Suppliers': return <Suppliers />;
+      default: return <Customers />;
+    }
+  }
+
   return (
-    <div>
-      
-    </div>
+    <>
+      <MinNav 
+        navItems="contacts" 
+        onTabChange={setActiveTab} 
+        activeTab={activeTab}
+      />
+      <div className="custom-card-shadow max-w-screen-2xl px-14 py-8 mb-10 bg-white shadow rounded-xl mx-auto ">
+        {renderActiveComponent()}
+      </div>
+    </>
   )
 }
+
+
+
+

@@ -1,6 +1,3 @@
-
-
-// src/Hook/API/api.ts
 import axios from 'axios';
 import { tokenService } from '../../services/utils/tokenService';
 
@@ -16,7 +13,7 @@ interface QueueItem {
 }
 
 let isRefreshing = false;
-let failedQueue: QueueItem[] = []; // Fixed: Added proper type annotation
+let failedQueue: QueueItem[] = [];
 
 const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
@@ -25,7 +22,6 @@ const processQueue = (error: unknown, token: string | null = null) => {
   });
   failedQueue = [];
 };
-
 
 const isTokenExpiringSoon = (token: string | null): boolean => {
   if (!token) return true;
@@ -42,7 +38,7 @@ const isTokenExpiringSoon = (token: string | null): boolean => {
   }
 };
 
-// Request interceptor
+// Request interceptor - يرجع زي ما كان
 api.interceptors.request.use(async (config) => {
   const token = tokenService.getAccessToken();
   
