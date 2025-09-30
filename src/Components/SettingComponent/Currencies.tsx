@@ -1,5 +1,5 @@
 import { DataTable } from '../Table/DataTable';
-import { TableHeader } from '../Table/TableHeader';
+import { TableHeaderSearch } from '../Table/TableHeaderSearch';
 import { TableRow } from '../Table/TableRow';
 import  { useState } from 'react';
 import { useGet } from '../../Hook/API/useApiGet';
@@ -162,11 +162,12 @@ const Currencies = () => {
         </div>
       ) : (
         <>
-          <TableHeader
-            title="Currencies"
-            buttonText="Add New Currency" 
-            onAddClick={() => setIsCreateModalOpen(true)}
-          />
+          
+            <TableHeaderSearch
+              title='Currencies'
+              buttonText='Add New Currency' 
+              onAddClick={() => setIsCreateModalOpen(true)}
+            />
           <DataTable
             columns={columns}
             data={transformedData}

@@ -3,7 +3,6 @@ import { jwtDecode } from 'jwt-decode';
 import FormBusiness from '../Forms/FormBusiness'; 
 
 const Business = () => {
-  // Read current user_id from access token
   const currentUserId = useMemo(() => {
     try {
       const token = localStorage.getItem('access');

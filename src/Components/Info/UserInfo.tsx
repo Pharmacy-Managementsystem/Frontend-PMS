@@ -146,8 +146,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack, editMode = 'limited
       )}
       
       <div className='flex flex-col lg:flex-row gap-6 h-full'>
-        {/* Left Column - Profile Card */}
-        <div className="w-full md:max-w-xs flex flex-col h-full">
+        <div className="w-full lg:max-w-xs flex flex-col h-full">
           <div className="bg-white rounded-lg shadow-2xl p-6 flex-1">
             <div className="relative mb-8">
               <div className="absolute inset-x-0 top-16 h-24 bg-blue-50 bg-opacity-10 rounded-xl" />

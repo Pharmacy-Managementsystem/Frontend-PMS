@@ -7,6 +7,8 @@ import { ArrowLeft, Image } from 'lucide-react';
 import { useMutate } from '../../Hook/API/useApiMutate';
 import { useGet } from '../../Hook/API/useApiGet';
 import { useFieldArray } from "react-hook-form";
+import { tokenService } from '../../services/utils/tokenService';
+import axios from 'axios';
 
 const branchSchema = z.object({
   name: z.string().min(1, "Branch name is required"),
@@ -110,6 +112,34 @@ interface FormBranchProps {
   mode: 'add' | 'edit';
 }
 
+const refreshToken = async (): Promise<boolean> => {
+  try {
+    const refreshToken = tokenService.getRefreshToken();
+    if (!refreshToken) {
+      console.warn('No refresh token available');
+      return false;
+    }
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/api/tokens/refresh/`,
+      { refresh: refreshToken }
+    );
+
+    if (response.data.access) {
+      tokenService.setAccessToken(response.data.access);
+      if (response.data.refresh) {
+        tokenService.setRefreshToken(response.data.refresh);
+      }
+      console.log('Token refreshed successfully after branch operation');
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Failed to refresh token after branch operation:', error);
+    return false;
+  }
+};
+
 const FormBranch: React.FC<FormBranchProps> = ({ branchId, onBack, mode }) => {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const [selectedCountry, setSelectedCountry] = useState<string>('');
@@ -174,14 +204,14 @@ const FormBranch: React.FC<FormBranchProps> = ({ branchId, onBack, mode }) => {
 
   
 
-  const { mutate: createBranch, isLoading: isCreating } = useMutate<Record<string, unknown>>({
+   const { mutate: createBranch, isLoading: isCreating } = useMutate<Record<string, unknown>>({
     endpoint: '/api/branch/',
     method: 'post',
-    onSuccess: () => {
+    onSuccess: async () => {
+      await refreshToken();
       onBack();
     },
   });
-
   // Update branch mutation  
   const { mutate: updateBranch, isLoading: isUpdating } = useMutate<Record<string, unknown>>({
     endpoint: branchId ? `/api/branch/${branchId}/` : '',

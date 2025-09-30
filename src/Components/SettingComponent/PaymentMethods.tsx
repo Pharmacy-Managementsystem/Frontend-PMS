@@ -1,6 +1,6 @@
 import  { useState } from 'react';
 import { DataTable } from '../Table/DataTable';
-import { TableHeader } from '../Table/TableHeader';
+import { TableHeaderSearch } from '../Table/TableHeaderSearch';
 import { TableRow } from '../Table/TableRow';
 import { useGet } from '../../Hook/API/useApiGet';
 import ReusableForm from "../Forms/ReusableForm";
@@ -156,7 +156,7 @@ const PaymentMethods = () => {
         </div>
       ) : (
         <>
-          <TableHeader
+          <TableHeaderSearch
             title="Payment Methods"
             buttonText="Add New Payment Method" 
             onAddClick={() => setIsCreateModalOpen(true)}

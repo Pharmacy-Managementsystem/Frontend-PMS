@@ -57,7 +57,7 @@ export default function UserManage() {
 
 const { data: userResponse, isLoading, refetch } = useGet<DataResponse>({
   endpoint: `/api/user/?page=${page}&search=${search}`,
-  queryKey: ["all-users", page, search], // مهم نضيف search للـ queryKey عشان react-query يعمل cache صح
+  queryKey: ["all-users", page, search], 
 });
 
 
@@ -118,7 +118,6 @@ const formFields = [
     setShowInfo(null);
   };
 
-  // ✅ نعمل map للـ branches_id array
   const tableData =
     userResponse?.results?.map((user) => {
       const branchNames =
