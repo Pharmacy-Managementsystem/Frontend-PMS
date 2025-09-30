@@ -1,14 +1,16 @@
 import { createBrowserRouter } from 'react-router-dom';
-import Layout from './Components/Layout/Layout';
-import Dashboard from './Pages/Dashboards/Dashboard';
-import Login from './Pages/Login/Login';
-import NotFoundPage from './Pages/NotFound/NotFoundPage';
-import Setting from './Pages/Setting/Setting';
-import Management from './Pages/Management/Management';
-import Inventory from './Pages/Inventory/Inventory';
-import Purchase from './Pages/Purchase/Purchase';
-import Sales from './Pages/Sales/Sales';
-import Contacts from './Pages/Contacts/Contacts';
+import { lazy } from 'react';
+
+const Layout = lazy(() => import('./Components/Layout/Layout'));
+const Dashboard = lazy(() => import('./Pages/Dashboards/Dashboard'));
+const Login = lazy(() => import('./Pages/Login/Login'));
+const NotFoundPage = lazy(() => import('./Pages/NotFound/NotFoundPage'));
+const Setting = lazy(() => import('./Pages/Setting/Setting'));
+const Management = lazy(() => import('./Pages/Management/Management'));
+const Inventory = lazy(() => import('./Pages/Inventory/Inventory'));
+const Purchase = lazy(() => import('./Pages/Purchase/Purchase'));
+const Sales = lazy(() => import('./Pages/Sales/Sales'));
+const Contacts = lazy(() => import('./Pages/Contacts/Contacts'));
 
 
 const routers = createBrowserRouter([

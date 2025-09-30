@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import { TableHeaderSearch } from "../Table/TableHeaderSearch";
 import { DataTable } from "../Table/DataTable";
 import { TableRow } from '../Table/TableRow';
@@ -73,26 +73,38 @@ interface DataResponse {
 
 export default function BranchesManage() {
   const [page, setPage] = useState(1);
-  const [branchAction , setBranchAction] = useState<string | null>(null);
+  const [branchAction, setBranchAction] = useState<string | null>(null);
   const [pageSize] = useState(4);
-  const[id, setId] = useState<number | null>(null);
- 
-  
+  const [id, setId] = useState<number | null>(null);
+  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState("");
+
+  // استخدم search في useGet مع debouncing
   const { data: branchResponse, isLoading, error, refetch } = useGet<DataResponse>({
-    endpoint: `/api/branch/?page=${page}&page_size=${pageSize}`,
-    queryKey: ['all-branches', page],
+    endpoint: `/api/branch/?page=${page}&page_size=${pageSize}&name__icontains=${search}`,
+    queryKey: ['all-branches', page, search],
   });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
   
-    const handleBack = () => {
+  const handleBack = () => {
     setBranchAction(null);
   };
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 500);
+    
+    return () => clearTimeout(handler);
+  }, [searchInput]);
 
- 
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
+  };
 
   const handleDelete = async (id: string | number) => {
     const result = await Swal.fire({
@@ -147,19 +159,6 @@ export default function BranchesManage() {
  
 
  
-
-  if (isLoading) {
-    return (
-      <div className="max-w-screen-2xl px-14 py-8 mb-5 bg-white shadow-xl rounded-xl mx-auto mt-5">
-        <div className="flex justify-center items-center h-64">
-          <CircularProgress />
-        </div>
-      </div>
-    );
-  }
-
-  if (error) return <div className="p-6">Error loading branches: {error.message}</div>;
-
   const hasBranches = branchResponse && branchResponse.results && branchResponse.results.length > 0;
 
   return (
@@ -173,31 +172,51 @@ export default function BranchesManage() {
             />
         </div>
       ) : (
-    <div className="">
-      {!hasBranches ? (
-        <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-          <div className="bg-gray-100 p-6 rounded-full mb-4">
-            <PackagePlus size={48} className="text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No branches yet</h3>
-          <p className="text-gray-500 mb-6 max-w-md">
-            Get started by creating your first branch for your business.
-          </p>
-          <button 
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              onClick={() => setBranchAction("Add New Branch")}  // Changed from "Add New Branches"
-            >
-              Create Branch
-            </button>
-        </div>
-      ) : (
-        <>
+          
+          <div className="">
           <TableHeaderSearch 
             title="Branches Management"
             buttonText="Add New Branches"
             onAddClick={() => setBranchAction("Add New Branch")}
+            value={searchInput}
+            onSearchChange={handleSearchChange}
           />
-          
+      {error ? (
+        <div className="p-6">Error loading branches: {error.message}</div>
+      ) : isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <CircularProgress />
+        </div>
+      ) : !hasBranches ? (
+        searchInput.trim() ? (
+          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <div className="bg-gray-100 p-6 rounded-full mb-4">
+              <PackagePlus size={48} className="text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Not found</h3>
+            <p className="text-gray-500 max-w-md">
+              Try a different search term or clear the search.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <div className="bg-gray-100 p-6 rounded-full mb-4">
+              <PackagePlus size={48} className="text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No branches yet</h3>
+            <p className="text-gray-500 mb-6 max-w-md">
+              Get started by creating your first branch for your business.
+            </p>
+            <button 
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                onClick={() => setBranchAction("Add New Branch")}  
+              >
+                Create Branch
+              </button>
+          </div>
+        )
+      ) : (
+        <>
           <DataTable
             columns={columns}
             data={tableData}
