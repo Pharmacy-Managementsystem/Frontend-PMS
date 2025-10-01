@@ -22,7 +22,10 @@ interface User {
   username: string;
   phone_number: string;
   address: string;
-  branches_id: number[]; 
+  user_branches: Array<{
+    id: number;
+    name: string;
+  }>; 
   role_name: string;
 }
 
@@ -120,11 +123,7 @@ const formFields = [
 
   const tableData =
     userResponse?.results?.map((user) => {
-      const branchNames =
-        user.branches_id?.map((branchId) =>
-          branchResponse?.results?.find((branch) => branch.id === branchId)
-            ?.name
-        ) || [];
+      const branchNames = user.user_branches?.map(branch => branch.name) || [];
 
       return {
         id: user.id.toString(),
@@ -223,3 +222,6 @@ const formFields = [
     </>
   );
 }
+
+
+
