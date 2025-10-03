@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { useGet } from '../../Hook/API/useApiGet';
 import { useMutate } from '../../Hook/API/useApiMutate';
@@ -10,8 +12,12 @@ interface DataResponse {
   username?: string;
   phone_number: string;
   address: string;
-  branches_id: string[];
+  user_branches: Array<{  
+    id: number;
+    name: string;
+  }>;
   role_name: string;
+  branches_id?: string[]; 
 }
 
 interface UserInfoProps {
@@ -19,6 +25,7 @@ interface UserInfoProps {
   onBack?: () => void;
   editMode?: 'full' | 'limited';
 }
+
 
 interface Branch {
   id: number;
@@ -37,7 +44,7 @@ const getInitials = (name: string) => name.split(' ').map(word => word.charAt(0)
 const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack, editMode = 'limited' }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
-    username: '', email: '', phone_number: '', address: '', branches_id: [] as string[], role_name: ''
+    username: '', email: '', phone_number: '', address: '', branches_id: [] as string[], role: ''
   });
 
   const { data: userData, isLoading, error, refetch } = useGet<DataResponse>({
@@ -45,41 +52,46 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack, editMode = 'limited
     queryKey: ['User', userId],
   });
 
-  const { data: branchResponse } = useGet<{ results: Branch[] }>({
+ const { data: rolesResponse } = useGet<{ results: { id: number; name: string }[] }>({
+    endpoint: `/api/business/roles/`,
+    queryKey: ["all-roles"],
+  });
+
+    const { data: branchResponse } = useGet<{ results: Branch[] }>({
     endpoint: `/api/branch/?minimal=true`,
     queryKey: ["all-branches"],
   });
 
+
   const { mutate: updateUser, isLoading: isUpdating } = useMutate({
     endpoint: `/api/user/${userId}/`,
-    method: 'put',
+    method: 'patch',
     onSuccess: () => {
       setIsEditing(false);
       refetch();
     },
-    onError: (error) => console.error('Error updating user:', error)
   });
 
   useEffect(() => {
-    if (userData) setEditData({
-      username: userData.username || '',
-      email: userData.email,
-      phone_number: userData.phone_number,
-      address: userData.address,
-      branches_id: userData.branches_id,
-      role_name: userData.role_name
-    });
+    if (userData) {
+      // Extract branch IDs from user_branches objects
+      const branchIds = userData.user_branches?.map(branch => branch.id.toString()) || [];
+      
+      setEditData({
+        username: userData.username || '',
+        email: userData.email,
+        phone_number: userData.phone_number,
+        address: userData.address,
+        branches_id: branchIds,
+        role: userData.role_name
+      });
+    }
   }, [userData]);
 
   const canEditField = (fieldName: string): boolean => 
     editMode === 'full' 
       ? ['username', 'phone_number', 'email', 'address'].includes(fieldName)
-      : ['branches_id', 'role_name'].includes(fieldName);
-
-  const getBranchNames = (branchIds: string[]): string[] => 
-    branchIds.map(branchId => 
-      branchResponse?.results.find(b => b.id.toString() === branchId.toString())?.name || `Unknown Branch (ID: ${branchId})`
-    );
+      : ['branches_id', 'role'].includes(fieldName);
 
   const handleSave = async () => {
     if (!editData.email || !editData.phone_number) {
@@ -88,26 +100,42 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack, editMode = 'limited
     }
 
     const updateData = editMode === 'limited' 
-      ? { username: editData.username, email: editData.email, phone_number: editData.phone_number, address: editData.address, role_name: editData.role_name }
+      ? { 
+          username: editData.username, 
+          email: editData.email, 
+          phone_number: editData.phone_number, 
+          address: editData.address, 
+          role: editData.role,
+          branches_id: editData.branches_id // Make sure to include branches_id
+        }
       : { ...editData };
 
     updateUser(updateData);
   };
 
   const handleCancel = () => {
-    if (userData) setEditData({
-      username: userData.username || '',
-      email: userData.email,
-      phone_number: userData.phone_number,
-      address: userData.address,
-      branches_id: userData.branches_id,
-      role_name: userData.role_name
-    });
+    if (userData) {
+      const branchIds = userData.user_branches?.map(branch => branch.id.toString()) || [];
+      
+      setEditData({
+        username: userData.username || '',
+        email: userData.email,
+        phone_number: userData.phone_number,
+        address: userData.address,
+        branches_id: branchIds,
+        role: userData.role_name
+      });
+    }
     setIsEditing(false);
   };
 
   const handleInputChange = (field: string, value: string) => {
     setEditData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setEditData(prev => ({ ...prev, branches_id: selectedOptions }));
   };
 
   if (isLoading) return (
@@ -130,7 +158,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack, editMode = 'limited
   );
 
   const displayName = userData.username || 'Unknown User';
-  const branchNames = getBranchNames(userData.branches_id);
+  const userBranches = userData.user_branches || [];
 
   return (
     <div className="max-w-7xl mx-auto flex flex-col gap-6 h-full relative">
@@ -211,26 +239,53 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack, editMode = 'limited
                     ))}
                   </>
                 ) : (
+                    <>    
+                  <div className='ps-3 pb-3'>
+                        {isEditing && canEditField('role') && (
+                          <>
+                    <label className="block text-base text-gray-500 mb-2">Role</label>
+                      <select 
+                        value={editData.role}
+                        onChange={(e) => handleInputChange('role', e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded text-sm"
+                          title='Select role'
+                      >
+                        {rolesResponse?.results.map(role => (
+                          <option key={role.id} value={role.id}>{role.name}</option>
+                        ))}
+                      </select>
+                          </>
+                    )}
+                      </div>
                   <div className='ps-3 pb-3'>
                     <label className="block text-base text-gray-500 mb-2">Branch Assigned</label>
                     {isEditing && canEditField('branches_id') ? (
                       <select 
-                          multiple
+                        multiple
                         value={editData.branches_id}
-                        onChange={(e) => setEditData(prev => ({ ...prev, branches_id: Array.from(e.target.selectedOptions, option => option.value) }))}
-                          className="w-full p-2 border border-gray-300 rounded text-sm"
-                        
+                        onChange={handleBranchChange}
+                        className="w-full p-2 border border-gray-300 rounded text-sm"
+                          size={5} // Show 5 options at once
+                          title='Select Branches'
                       >
                         {branchResponse?.results.map(branch => (
                           <option key={branch.id} value={branch.id.toString()}>{branch.name}</option>
                         ))}
                       </select>
                     ) : (
-                      <p className="text-sm grid grid-cols-2 text-gray-700 capitalize">
-                        {branchNames.length ? branchNames.map((name, index) => <span key={index}>- {name}</span>) : 'No branches assigned'}
+                      <p className="text-sm text-gray-700 capitalize">
+                        {userBranches.length ? 
+                          userBranches.map((branch) => (
+                            <span key={branch.id} className="block">
+                              - {branch.name}
+                            </span>
+                          )) 
+                          : 'No branches assigned'
+                        }
                       </p>
                     )}
-                  </div>
+                      </div>
+                      </>
                 )}
               </div>
             </div>
