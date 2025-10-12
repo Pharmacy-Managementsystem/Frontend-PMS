@@ -1,4 +1,5 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 const data = [
   { month: 'Jan', sales: 2500, purchase: 5000 },
@@ -10,10 +11,12 @@ const data = [
 ];
 
 export default function ChartTrend() {
+  const { t } = useTranslation();
+  
   return (
     <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
       <div className='bg-white rounded-lg p-4 shadow-lg'>
-        <h2 className="text-header  font-light mb-4">Sales Trend</h2>
+        <h2 className="text-header  font-light mb-4">{t('charts.salesTrend')}</h2>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart
             data={data}
@@ -32,7 +35,7 @@ export default function ChartTrend() {
             <Tooltip formatter={(value) => [`$${value}`, '']} />
             <Legend verticalAlign="top" height={36} />
             <Line 
-              name="Sales" 
+              name={t('charts.sales')} 
               type="monotone" 
               dataKey="sales" 
               stroke="#8884d8" 
@@ -46,7 +49,7 @@ export default function ChartTrend() {
 
       {/* Purchase Trend Chart */}
       <div className='bg-white rounded-lg p-4 shadow-lg'>
-        <h4 className="text-header  font-light mb-4">Purchase Trend</h4>
+        <h4 className="text-header  font-light mb-4">{t('charts.purchaseTrend')}</h4>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart
             data={data}
@@ -65,7 +68,7 @@ export default function ChartTrend() {
             <Tooltip formatter={(value) => [`$${value}`, '']} />
             <Legend verticalAlign="top" height={36} />
             <Line 
-              name="Purchase" 
+              name={t('charts.purchase')} 
               type="monotone" 
               dataKey="purchase" 
               stroke="#82ca9d" 

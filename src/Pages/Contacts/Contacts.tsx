@@ -6,12 +6,12 @@ import Suppliers from '../../Components/Contacts/Suppliers';
 
 export default function Contacts() {
   // const decodedToken = useDecodedToken();
-  const [activeTab, setActiveTab] = useState<string>('Customers');
+  const [activeTab, setActiveTab] = useState<string>('customers');
   
   const renderActiveComponent = () => {
     switch(activeTab) {
-      case 'Customers': return <Customers />;
-      case 'Suppliers': return <Suppliers />;
+      case 'customers': return <Customers />;
+      case 'suppliers': return <Suppliers />;
       default: return <Customers />;
     }
   }

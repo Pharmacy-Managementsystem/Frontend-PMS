@@ -1,5 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 interface DecodedToken {
   token_type: string;
@@ -13,10 +14,10 @@ interface DecodedToken {
 }
 
 const dropdownContent = {
-  management: ['Business Management','User Management', 'Subscriptions Management' ,"Roles", 'Branches Management', 'Package Management'],
-  settings: ['Business','User', 'Payment Methods', 'Tax Rates', 'Currencies'],
-  contacts: ['Customers', 'Suppliers'],
-  inventory: ['Products', 'Purchase', 'Stock Transfers'],
+  management: ['businessManagement','userManagement', 'subscriptionsManagement' ,"roles", 'branchesManagement', 'packageManagement'],
+  settings: ['business','user', 'paymentMethods', 'taxRates', 'currencies'],
+  contacts: ['customers', 'suppliers'],
+  inventory: ['products', 'purchase', 'stockTransfers'],
 
 } as const;
 
@@ -33,6 +34,9 @@ export default function MinNav({
   activeTab, 
   onTabChange 
 }: MinNavProps) {
+  const { t, i18n } = useTranslation();
+  const language = i18n.language;
+  const isRTL = language === 'ar';
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
 
   useEffect(() => {
@@ -52,9 +56,9 @@ export default function MinNav({
   const filteredItems = items.filter(item => {
     if (navItems === 'management') {
       if (decodedToken?.is_superuser) {
-        return item === 'Business Management' || item === 'Package Management' || item === 'Subscriptions Management';
+        return item === 'businessManagement' || item === 'packageManagement' || item === 'subscriptionsManagement';
       }
-      return item === 'User Management' || item === 'Branches Management' || item === 'Roles';
+      return item === 'userManagement' || item === 'branchesManagement' || item === 'roles';
     }
     return true;
   });
@@ -92,31 +96,32 @@ export default function MinNav({
     if (decodedToken && navItems === 'management') {
       const isSuperuser = decodedToken.is_superuser;
       const isAccessingRestrictedTab = isSuperuser 
-        ? (activeTab === 'User Management' || activeTab === 'Branches Management')
-        : (activeTab === 'Business Management' || activeTab === 'Package Management');
+        ? (activeTab === 'userManagement' || activeTab === 'branchesManagement')
+        : (activeTab === 'businessManagement' || activeTab === 'packageManagement');
       
       if (isAccessingRestrictedTab) {
-        const appropriateTab = isSuperuser ? 'Business Management' : 'User Management';
+        const appropriateTab = isSuperuser ? 'businessManagement' : 'userManagement';
         onTabChange(appropriateTab);
       }
     }
   }, [decodedToken, activeTab, navItems, onTabChange]);
 
+
   return (
-    <div>
+    <div key={language}>
         <div className='top-16 left-0 sticky right-0 z-40 mt-8'>
           <div className="max-w-screen-xl mx-auto">
-            <div className='flex flex-wrap md-nowrap items-center justify-center space-x-12 h-16 '> 
+            <div className={`flex flex-wrap md-nowrap items-center justify-center h-16 ${isRTL ? 'space-x-reverse space-x-12' : 'space-x-12'}`}> 
             {filteredItems.map((item, index) => (
               <div 
-                key={index}
+                key={`${item}-${language}-${index}`}
                 className='flex items-center cursor-pointer'
                 onClick={() => onTabChange(item)}
               >
-                <span className={`text-sm font-medium capitalize pb-3 px-6 ${currentActiveTab === item 
+                <span className={`text-sm font-medium pb-3 px-6 ${currentActiveTab === item 
                   ? 'text-black border-b-1 border-primary' 
                   : 'text-gray-500 hover:text-primary'}`}>
-                  {item}
+                  {t(`minNav.${item}`)}
                 </span>
               </div>
             ))}

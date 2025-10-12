@@ -6,13 +6,13 @@ import StockTransfers from '../../Components/Inventory/StockTransfers';
 
 export default function Inventory() {
   // const decodedToken = useDecodedToken();
-  const [activeTab, setActiveTab] = useState<string>('Products');
+  const [activeTab, setActiveTab] = useState<string>('products');
   
   const renderActiveComponent = () => {
     switch(activeTab) {
-      case 'Products': return <Products />;
-      case 'Purchase': return <Products />;
-      case 'Stock Transfers': return <StockTransfers />;
+      case 'products': return <Products />;
+      case 'purchase': return <Products />;
+      case 'stockTransfers': return <StockTransfers />;
       default: return <Products />;
     }
   }
