@@ -14,14 +14,8 @@ import Box from '@mui/material/Box';
 import { X } from 'lucide-react';
 import api from "../../Hook/API/api";
 import Swal from 'sweetalert2';
-import { PackagePlus } from "lucide-react"; 
-
-
-const columns = [
-  "Payment Name",
-  "Country", 
-  "Tax rate",
-];
+import { PackagePlus } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 interface PaymentMethod {
   id: string;
@@ -38,6 +32,14 @@ interface DataResponse {
 }
 
 const PaymentMethods = () => {
+  const { t } = useTranslation();
+  
+  const columns = [
+    t('settings.paymentMethods.paymentName'),
+    t('settings.paymentMethods.country'),
+    t('settings.paymentMethods.taxRate'),
+  ];
+
   const [page, setPage] = useState(1);
   const [pageSize] = useState(4);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -50,14 +52,13 @@ const PaymentMethods = () => {
   });
 
  const formFields = [
-  { name: 'name', label: 'Payment Name', required: true },
-  { name: 'country', label: 'Country', required: true },
+  { name: 'name', label: t('settings.paymentMethods.paymentName'), required: true },
+  { name: 'country', label: t('settings.paymentMethods.country'), required: true },
   { 
     name: 'tax_rate', 
-    label: 'Tax Rate', 
-    type: 'number',  // Change to number type
+    label: t('settings.paymentMethods.taxRate'), 
+    type: 'number',
     required: false,
-    // Add conversion to handle string/number conversion
     formatValue: (value: string | number | null) => value ? Number(value) : null,
     parseValue: (value: number | string | null) => value?.toString()
   }
@@ -76,13 +77,13 @@ const PaymentMethods = () => {
 
   const handleDelete = async (id: string) => {
   const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
+    title: t('settings.swal.areYouSure'),
+    text: t('settings.swal.cantRevert'),
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
+    confirmButtonText: t('settings.swal.yesDelete')
   });
 
   if (result.isConfirmed) {
@@ -90,8 +91,8 @@ const PaymentMethods = () => {
       const response = await api.delete(`/api/business/settings/payment-methods/${id}/`);
       if (response.status === 204) {
         Swal.fire(
-          'Deleted!',
-          'Your payment method has been deleted.',
+          t('settings.swal.deleted'),
+          t('settings.swal.paymentMethodDeleted'),
           'success'
         );
         refetch();
@@ -99,8 +100,8 @@ const PaymentMethods = () => {
     } catch (error) {
       console.error('Error deleting payment method:', error);
       Swal.fire(
-        'Error!',
-        'There was an error deleting the payment method.',
+        t('settings.swal.error'),
+        t('settings.swal.errorDeleting'),
         'error'
       );
     }
@@ -117,9 +118,9 @@ const PaymentMethods = () => {
 
  const transformedData = PaymentResponse?.results?.map((method) => ({
   id: method.id,
-  "Payment Name": method.name,
-  "Country": method.country,
-  "Tax rate": method.tax_rate?.toString(),  // Convert to string
+  [columns[0]]: method.name,
+  [columns[1]]: method.country,
+  [columns[2]]: method.tax_rate?.toString(),  
 })) || [];
 
   if (isLoading) {
@@ -132,7 +133,7 @@ const PaymentMethods = () => {
     );
   }
 
-  if (error) return <div className="p-6">Error loading payment methods: {error.message}</div>;
+  if (error) return <div className="p-6">{t('settings.paymentMethods.errorLoading')}: {error.message}</div>;
 
   const hasPaymentMethods = PaymentResponse && PaymentResponse.results && PaymentResponse.results.length > 0;
 
@@ -143,22 +144,22 @@ const PaymentMethods = () => {
           <div className="bg-gray-100 p-6 rounded-full mb-4">
             <PackagePlus size={48} className="text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No payment methods yet</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('settings.paymentMethods.noPaymentMethods')}</h3>
           <p className="text-gray-500 mb-6 max-w-md">
-            Get started by creating your first payment method for your business.
+            {t('settings.paymentMethods.getStarted')}
           </p>
           <button 
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             onClick={() => setIsCreateModalOpen(true)}
           >
-            Create Payment Method
+            {t('settings.paymentMethods.createPaymentMethod')}
           </button>
         </div>
       ) : (
         <>
           <TableHeaderSearch
-            title="Payment Methods"
-            buttonText="Add New Payment Method" 
+            title={t('settings.paymentMethods.title')}
+            buttonText={t('settings.paymentMethods.addNewPaymentMethod')} 
             onAddClick={() => setIsCreateModalOpen(true)}
           />
           <DataTable
@@ -182,13 +183,13 @@ const PaymentMethods = () => {
       {/* Create Modal */}
       {isCreateModalOpen && (
         <ReusableForm
-          title="Payment Method"
+          title={t('settings.paymentMethods.title')}
           fields={formFields}
           endpoint="/api/business/settings/payment-methods/"
           method="post"
           onClose={() => setIsCreateModalOpen(false)}
           onSuccess={handleCreateSuccess}
-          submitButtonText="Create Payment Method"
+          submitButtonText={t('settings.paymentMethods.createPaymentMethod')}
           key="create-form"
         />
       )}
@@ -220,7 +221,7 @@ const PaymentMethods = () => {
             <X />
           </IconButton>
           <ReusableForm
-            title="Payment Method"
+            title={t('settings.paymentMethods.title')}
             fields={formFields}
             endpoint={`/api/business/settings/payment-methods/${editingPayment.id}/`}
             method="patch"
@@ -233,7 +234,7 @@ const PaymentMethods = () => {
               setEditingPayment(null);
             }}
             onSuccess={handleEditSuccess}
-            submitButtonText="Update Payment Method"
+            submitButtonText={t('settings.paymentMethods.updatePaymentMethod')}
             key={`edit-form-${editingPayment.id}`}
           />
         </Dialog>

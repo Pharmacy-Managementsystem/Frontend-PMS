@@ -14,9 +14,10 @@ import Box from '@mui/material/Box';
 import { X } from 'lucide-react';
 import api from "../../Hook/API/api";
 import Swal from 'sweetalert2';
-import { PackagePlus } from "lucide-react"; 
+import { PackagePlus } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
-const columns = ['Currency Name', 'Currency Code', 'Symbol', 'Decimal Point', 'Is Default'];
+// Columns will be defined inside component to use translations
 
 interface Currency {
   id: number;
@@ -24,7 +25,7 @@ interface Currency {
   symbol: string;
   name: string;
   decimal_point: string;
-  is_default: boolean;
+  is_default: boolean ;
 }
 
 interface DataResponse {
@@ -35,6 +36,16 @@ interface DataResponse {
 }
 
 const Currencies = () => {
+  const { t } = useTranslation();
+  
+  const columns = [
+    t('settings.currencies.currencyName'),
+    t('settings.currencies.currencyCode'),
+    t('settings.currencies.symbol'),
+    t('settings.currencies.decimalPoint'),
+    t('settings.currencies.isDefault')
+  ];
+  
   const [page, setPage] = useState(1);
   const [pageSize] = useState(4);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -57,12 +68,12 @@ const Currencies = () => {
   const formFields = [
     { 
       name: 'currency', 
-      label: 'Currency', 
+      label: t('settings.currencies.currency'), 
       type: 'select', 
       required: true,
       options: currencyOptions 
     },
-    { name: 'is_default', label: 'Is Default', type: 'checkbox', required: false }
+    { name: 'is_default', label: t('settings.currencies.isDefault'), type: 'checkbox', required: false }
   ];
   
   const handleCreateSuccess = () => {
@@ -78,13 +89,13 @@ const Currencies = () => {
 
   const handleDelete = async (id: string | number) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
+      title: t('settings.swal.areYouSure'),
+      text: t('settings.swal.cantRevert'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: t('settings.swal.yesDelete')
     });
 
     if (result.isConfirmed) {
@@ -92,8 +103,8 @@ const Currencies = () => {
         const response = await api.delete(`/api/business/settings/currencies/${id}/`);
         if (response.status === 204) {
           Swal.fire(
-            'Deleted!',
-            'Your currency has been deleted.',
+            t('settings.swal.deleted'),
+            t('settings.swal.currencyDeleted'),
             'success'
           );
           refetch();
@@ -101,8 +112,8 @@ const Currencies = () => {
       } catch (error) {
         console.error('Error deleting currency:', error);
         Swal.fire(
-          'Error!',
-          'There was an error deleting the currency.',
+          t('settings.swal.error'),
+          t('settings.swal.errorDeleting'),
           'error'
         );
       }
@@ -121,11 +132,11 @@ const Currencies = () => {
   // Fixed the transformedData mapping to match table column expectations
   const transformedData = currencyResponse?.results?.map((currency) => ({
     id: currency.id,
-    'Currency Name': currency.name,
-    'Currency Code': currency.code,
-    'Symbol': currency.symbol,
-    'Decimal Point': currency.decimal_point,
-    'Is Default': currency.is_default 
+    [columns[0]]: currency.name,
+    [columns[1]]: currency.code,
+    [columns[2]]: currency.symbol,
+    [columns[3]]: currency.decimal_point,
+    [columns[4]]: currency.is_default 
   })) || [];
 
   if (isLoading) {
@@ -138,7 +149,7 @@ const Currencies = () => {
     );
   }
 
-  if (error) return <div className="p-6">Error loading currencies: {error.message}</div>;
+  if (error) return <div className="p-6">{t('settings.currencies.errorLoading')}: {error.message}</div>;
 
   const hasCurrency = currencyResponse && currencyResponse.results && currencyResponse.results.length > 0;
 
@@ -149,23 +160,23 @@ const Currencies = () => {
           <div className="bg-gray-100 p-6 rounded-full mb-4">
             <PackagePlus size={48} className="text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No currencies yet</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('settings.currencies.noCurrencies')}</h3>
           <p className="text-gray-500 mb-6 max-w-md">
-            Get started by creating your first currency for your business.
+            {t('settings.currencies.getStarted')}
           </p>
           <button 
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             onClick={() => setIsCreateModalOpen(true)}
           >
-            Create currency
+            {t('settings.currencies.createCurrency')}
           </button>
         </div>
       ) : (
         <>
           
             <TableHeaderSearch
-              title='Currencies'
-              buttonText='Add New Currency' 
+              title={t('settings.currencies.title')}
+              buttonText={t('settings.currencies.addNewCurrency')} 
               onAddClick={() => setIsCreateModalOpen(true)}
             />
           <DataTable
@@ -189,13 +200,13 @@ const Currencies = () => {
       {/* Create Modal */}
         {isCreateModalOpen && (
         <ReusableForm
-          title="Currency"
+          title={t('settings.currencies.currency')}
           fields={formFields}
           endpoint="/api/business/settings/currencies/"
           method="post"
           onClose={() => setIsCreateModalOpen(false)}
           onSuccess={handleCreateSuccess}
-          submitButtonText="Create Currency"
+          submitButtonText={t('settings.currencies.createCurrency')}
           key="create-form"
         />
       )}
@@ -227,7 +238,7 @@ const Currencies = () => {
             <X />
           </IconButton>
           <ReusableForm
-            title=" Currency"
+            title={t('settings.currencies.currency')}
             fields={formFields}
             endpoint={`/api/business/settings/currencies/${editingCurrency.id}/`}
             method="patch"
@@ -240,7 +251,7 @@ const Currencies = () => {
               setEditingCurrency(null);
             }}
             onSuccess={handleEditSuccess}
-            submitButtonText="Update Currency"
+            submitButtonText={t('settings.currencies.updateCurrency')}
             key={`edit-form-${editingCurrency.id}`}
           />
         </Dialog>

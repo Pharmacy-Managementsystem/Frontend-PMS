@@ -1,28 +1,37 @@
 import { useEffect, useRef, useState } from "react";
-import { Package, LayoutDashboard, ChartNoAxesColumnIncreasing, CircleUserRound, ShoppingCart, DollarSign, Settings, Users } from "lucide-react";
+import { Package, LayoutDashboard, ChartNoAxesColumnIncreasing, CircleUserRound, ShoppingCart, DollarSign, Settings, Users, Globe } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IoIosLogOut } from "react-icons/io";
 import { useLogout } from "../../services/Logout";
 import { HiMenu, HiX } from "react-icons/hi";
-import { useDecodedToken } from "../../Hook/useDecodedToken"
+import { useDecodedToken } from "../../Hook/useDecodedToken";
+import { useTranslation } from "react-i18next";
 
 const navItems = [
-  { Icon: LayoutDashboard, label: "Dashboard", id: "dashboard", page: "/Dashboard/home" },
+  { Icon: LayoutDashboard, labelKey: "navbar.dashboard", id: "dashboard", page: "/Dashboard/home" },
   // { Icon: ScrollText, label: "POS", id: "pos", page: "/Dashboard/pos" },
-  { Icon: Package, label: "Inventory", id: "inventory", page: "/Dashboard/inventory" },
-  { Icon: ShoppingCart, label: "Purchase", id: "purchase", page: "/Dashboard/purchase" },
-  { Icon: DollarSign, label: "Sales", id: "sales", page: "/Dashboard/sales" },
-  { Icon: Users, label: "Contacts", id: "contacts", page: "/Dashboard/contacts" },
-  { Icon: ChartNoAxesColumnIncreasing, label: "Management", id: "management", page: "/Dashboard/management" },
-  { Icon: Settings, label: "Settings", id: "settings", page: "/Dashboard/setting" },
+  { Icon: Package, labelKey: "navbar.inventory", id: "inventory", page: "/Dashboard/inventory" },
+  { Icon: ShoppingCart, labelKey: "navbar.purchase", id: "purchase", page: "/Dashboard/purchase" },
+  { Icon: DollarSign, labelKey: "navbar.sales", id: "sales", page: "/Dashboard/sales" },
+  { Icon: Users, labelKey: "navbar.contacts", id: "contacts", page: "/Dashboard/contacts" },
+  { Icon: ChartNoAxesColumnIncreasing, labelKey: "navbar.management", id: "management", page: "/Dashboard/management" },
+  { Icon: Settings, labelKey: "navbar.settings", id: "settings", page: "/Dashboard/setting" },
 ];
 
 function Navbar() {
   const decodedToken = useDecodedToken();
+  const { t, i18n } = useTranslation();
+  const language = i18n.language;
+  const isRTL = language === 'ar';
+  
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
   const [activeNavItem, setActiveNavItem] = useState<string>("dashboard");
   const [today, setToday] = useState<string>("");
   const [openUserDropdown, setOpenUserDropdown] = useState(false);
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
+  const [openLanguageDropdown, setOpenLanguageDropdown] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,8 +41,9 @@ function Navbar() {
   const userBtnRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuBtnRef = useRef<HTMLButtonElement>(null);
+  const languageDropdownRef = useRef<HTMLDivElement>(null);
+  const languageBtnRef = useRef<HTMLDivElement>(null);
 
-  // ✅ احسب التاريخ مرة واحدة عند الـ mount
   useEffect(() => {
     const date = new Date();
     const formattedDate = date.toLocaleDateString("EG", {
@@ -65,13 +75,22 @@ function Navbar() {
       ) {
         setOpenMobileMenu(false);
       }
+
+      if (
+        openLanguageDropdown &&
+        languageDropdownRef.current &&
+        !languageDropdownRef.current.contains(event.target as Node) &&
+        languageBtnRef.current &&
+        !languageBtnRef.current.contains(event.target as Node)
+      ) {
+        setOpenLanguageDropdown(false);
+      }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [openUserDropdown, openMobileMenu]);
+  }, [openUserDropdown, openMobileMenu, openLanguageDropdown]);
 
-  // ✅ حدد الـ activeNavItem بناءً على الـ path + role
   useEffect(() => {
     const currentPath = location.pathname;
     const activeItem = navItems.find((item) => item.page === currentPath);
@@ -94,7 +113,6 @@ function Navbar() {
     }
   }, [location.pathname, decodedToken, activeNavItem]);
 
-  // ✅ فلترة الـ navItems على حسب role قبل الرندر
   const visibleNavItems = navItems.filter((item) => {
     if (decodedToken?.is_superuser) {
       return item.id === "dashboard" || item.id === "management";
@@ -117,7 +135,7 @@ function Navbar() {
             const isActive = activeNavItem === item.id;
             return (
               <div
-                key={item.id}
+                key={`${item.id}-${language}`}
                 className={`
                   lg:flex items-center justify-center cursor-pointer group 
                   relative py-4 transition-colors duration-200
@@ -132,7 +150,7 @@ function Navbar() {
               >
                 <item.Icon className={`transition-colors duration-200 ${isActive ? "text-primary" : "text-icon"} group-hover:text-primary w-5 h-5`} />
                 <span className={`ml-2 text-sm font-medium transition-colors duration-200 ${isActive ? "text-primary font-semibold" : "text-text"} group-hover:text-primary`}>
-                  {item.label}
+                  {t(item.labelKey)}
                 </span>
               </div>
             );
@@ -142,6 +160,50 @@ function Navbar() {
         <div className="flex items-center lg:space-x-6">
           <span className="hidden lg:inline text-sm text-gray-500">{today}</span>
           <span className="hidden lg:inline">Dr.{decodedToken?.username || ""}</span>
+          
+          {/* Language Switcher */}
+          <div className="hidden lg:block relative">
+            <div
+              ref={languageBtnRef}
+              onClick={() => setOpenLanguageDropdown(!openLanguageDropdown)}
+              className="group cursor-pointer bg-gray-100 rounded-full w-9 h-9 flex items-center justify-center hover:bg-gray-200 transition-colors"
+            >
+              <Globe className="text-gray-600 w-5 h-5" />
+            </div>
+
+            {openLanguageDropdown && (
+              <div
+                ref={languageDropdownRef}
+                className={`absolute mt-1 w-32 bg-white rounded-lg shadow-2xl border border-gray-100 z-50 overflow-hidden ${
+                  isRTL ? 'left-0' : 'right-0'
+                }`}
+              >
+                <div
+                  className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors ${
+                    isRTL ? 'justify-end' : 'justify-start'
+                  }`}
+                  onClick={() => {
+                    changeLanguage('ar');
+                    setOpenLanguageDropdown(false);
+                  }}
+                >
+                  <span className="text-sm">العربية</span>
+                </div>
+                <div
+                  className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors ${
+                    isRTL ? 'justify-end' : 'justify-start'
+                  }`}
+                  onClick={() => {
+                    changeLanguage('en');
+                    setOpenLanguageDropdown(false);
+                  }}
+                >
+                  <span className="text-sm">English</span>
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             ref={mobileMenuBtnRef}
             onClick={() => setOpenMobileMenu(!openMobileMenu)}
@@ -163,22 +225,35 @@ function Navbar() {
             {openUserDropdown && (
               <div
                 ref={userDropdownRef}
-                className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-2xl border border-gray-100 z-50 overflow-hidden"
+                className={`absolute mt-1 w-48 bg-white rounded-lg shadow-2xl border border-gray-100 z-50 overflow-hidden ${
+                  isRTL ? 'left-0' : 'right-0'
+                }`}
               >
-                <div className="p-4 border-b border-gray-100 bg-gray-50">
-                  <p className="text-xs text-gray-500">Signed in as</p>
+                <div className={`p-4 border-b border-gray-100 bg-gray-50 ${isRTL ? 'text-right' : 'text-left'}`}>
+                  <p className="text-xs text-gray-500">{t('navbar.signedInAs')}</p>
                   <p className="font-medium text-sm truncate">Dr.{decodedToken?.username || ""}</p>
                 </div>
 
                 <div
-                  className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+                  className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors 
+                    
+                  `}
                   onClick={() => {
                     setOpenUserDropdown(false);
                     logout();
                   }}
                 >
-                  <IoIosLogOut className="text-gray-500 mr-3" />
-                  <span className="text-sm">Logout</span>
+                  {isRTL ? (
+                    <>
+                      <IoIosLogOut className="text-gray-500 ml-3" />
+                      <span className="text-sm">{t('navbar.logout')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <IoIosLogOut className="text-gray-500 mr-3" />
+                      <span className="text-sm">{t('navbar.logout')}</span>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -194,15 +269,34 @@ function Navbar() {
         >
           <div className="px-4 pt-2 pb-8 space-y-1">
             <div className="p-2 border-b border-gray-200 flex items-center justify-between">
-              <p className="text-sm text-gray-500">Welcome, Dr.{decodedToken?.username || ""}</p>
+              <p className="text-sm text-gray-500">{t('navbar.welcome')}, Dr.{decodedToken?.username || ""}</p>
               <p className="text-sm text-gray-500">{today}</p>
+            </div>
+
+            {/* Language Switcher for Mobile */}
+            <div className="p-2 border-b border-gray-200">
+              <p className="text-sm text-gray-500 mb-2">{t('common.language')}</p>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => changeLanguage('ar')}
+                  className={`px-3 py-1 rounded text-sm ${language === 'ar' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'}`}
+                >
+                  العربية
+                </button>
+                <button
+                  onClick={() => changeLanguage('en')}
+                  className={`px-3 py-1 rounded text-sm ${language === 'en' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'}`}
+                >
+                  English
+                </button>
+              </div>
             </div>
 
             {visibleNavItems.map((item) => {
               const isActive = activeNavItem === item.id;
               return (
                 <div
-                  key={item.id}
+                  key={`${item.id}-${language}-mobile`}
                   onClick={() => {
                     if (activeNavItem !== item.id) {
                       setActiveNavItem(item.id);
@@ -215,20 +309,31 @@ function Navbar() {
                   }`}
                 >
                   <item.Icon className="w-5 h-5 mr-3" />
-                  {item.label}
+                  {t(item.labelKey)}
                 </div>
               );
             })}
 
             <div
-              className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 cursor-pointer rounded-md"
+              className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 cursor-pointer rounded-md ${
+                isRTL ? 'justify-end' : ''
+              }`}
               onClick={() => {
                 setOpenMobileMenu(false);
                 logout();
               }}
             >
-              <IoIosLogOut className="text-gray-500 mr-3" />
-              <span className="text-sm">Logout</span>
+              {isRTL ? (
+                <>
+                  <IoIosLogOut className="text-gray-500 ml-3" />
+                  <span className="text-sm">{t('navbar.logout')}</span>
+                </>
+              ) : (
+                <>
+                  <IoIosLogOut className="text-gray-500 mr-3" />
+                  <span className="text-sm">{t('navbar.logout')}</span>
+                </>
+              )}
             </div>
           </div>
         </div>

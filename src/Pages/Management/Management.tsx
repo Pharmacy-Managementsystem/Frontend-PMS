@@ -22,7 +22,7 @@ interface DecodedToken {
 
 function Management() {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('Business Management');
+  const [activeTab, setActiveTab] = useState<string>('businessManagement');
   const [selectedUserId, setSelectedUserId] = useState<string>('');
 
   useEffect(() => {
@@ -34,9 +34,9 @@ function Management() {
         
         // Set initial activeTab based on user role
         if ((decoded as DecodedToken).is_superuser) {
-          setActiveTab('Business Management');
+          setActiveTab('businessManagement');
         } else {
-          setActiveTab('User Management');
+          setActiveTab('userManagement');
         }
       }
     } catch (error) {
@@ -47,9 +47,9 @@ function Management() {
   const handleBackFromUserInfo = () => {
     // Return to appropriate tab based on user role
     if (decodedToken?.is_superuser) {
-      setActiveTab('Business Management');
+      setActiveTab('businessManagement');
     } else {
-      setActiveTab('User Management');
+      setActiveTab('userManagement');
     }
     setSelectedUserId('');
   };
@@ -63,9 +63,9 @@ function Management() {
     // For superusers, allow Business Management and Package Management
     if (decodedToken.is_superuser) {
       switch(activeTab) {
-        case 'Business Management': return <BusinessManage />;
-        case 'Package Management': return <PackageManage />;
-        case 'Subscriptions Management': return <SubscriptionsManagement />;
+        case 'businessManagement': return <BusinessManage />;
+        case 'packageManagement': return <PackageManage />;
+        case 'subscriptionsManagement': return <SubscriptionsManagement />;
 
         case 'User info': return <UserInfo 
           userId={selectedUserId} 
@@ -75,9 +75,9 @@ function Management() {
       }
     } else {
       switch(activeTab) {
-        case 'User Management': return <UserManage />;
-        case 'Branches Management': return <BranchesManage />;
-        case 'Roles': return < Roles/>;
+        case 'userManagement': return <UserManage />;
+        case 'branchesManagement': return <BranchesManage />;
+        case 'roles': return < Roles/>;
         case 'User info': return <UserInfo 
           userId={selectedUserId} 
           onBack={handleBackFromUserInfo} 

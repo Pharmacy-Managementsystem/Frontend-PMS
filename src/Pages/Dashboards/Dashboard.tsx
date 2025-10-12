@@ -1,37 +1,37 @@
 // import { useGet } from '../../Hook/API/useApiGet';
+import { useTranslation } from 'react-i18next';
 import SmallCards from '../../Components/Cards/SmallCards';
 import Financial from '../../Components/Financial/Financial';
 import ChartTrend from '../../Components/ChartTrend/ChartTrend';
 
 function Dashboard() {
-
-
+  const { t } = useTranslation();
 
   const cardData = [
     {
-      title: "Daily Sales",
+      title: t('dashboard.dailySales'),
       mainNumber: "$13,048",
-      secondaryText: "Looking good!",
+      secondaryText: t('dashboard.lookingGood'),
       trendDirection: "up" as const,
       color: "#2563EB"
     },
     {
-      title: "Profit Today",
+      title: t('dashboard.profitToday'),
       mainNumber: "$5,917",
       trendDirection: "up" as const,
       color : "#22C55E"
     },
     {
-      title: "Items in Stock",
+      title: t('dashboard.itemsInStock'),
       mainNumber: "680 items",
-      secondaryText: "In total",
+      secondaryText: t('dashboard.inTotal'),
       trendDirection: "horizontal" as const,
       color : "#EAB308"
     },
     {
-      title: "Items in Stock",
+      title: t('dashboard.itemsInStock'),
       mainNumber: "200 ",
-      secondaryText: "Critical items",
+      secondaryText: t('dashboard.criticalItems'),
       trendDirection: "down" as const,
       color: "#EF4444"
     }

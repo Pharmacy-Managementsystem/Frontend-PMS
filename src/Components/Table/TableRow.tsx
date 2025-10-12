@@ -1,7 +1,7 @@
 import React from 'react';
 import { GrEdit } from "react-icons/gr";
 import { RiDeleteBin7Line } from "react-icons/ri";
-
+import { useTranslation } from 'react-i18next';
 
 
 interface TableRowProps {
@@ -9,8 +9,7 @@ interface TableRowProps {
   columns: string[];
   onEdit: (id: string) => void;
   onToggleStatus: (id: string) => void;
-    onDelete: (id: string) => void; 
-
+  onDelete: (id: string) => void; 
 }
 
 export const TableRow: React.FC<TableRowProps> = ({ 
@@ -19,6 +18,8 @@ export const TableRow: React.FC<TableRowProps> = ({
   onEdit,
   onDelete 
 }) => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   
 
   
@@ -26,7 +27,7 @@ export const TableRow: React.FC<TableRowProps> = ({
   return (
     <tr className="hover:bg-gray-50 transition-colors duration-150">
       {columns.map((col) => (
-        <td key={col} className="py-4 px-6 text-sm text-gray-900">
+        <td key={col} className={`py-4 px-6 text-sm text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
           {col === 'Status' ? (
             <span 
               className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${
@@ -35,11 +36,13 @@ export const TableRow: React.FC<TableRowProps> = ({
                   : 'bg-gray-100 text-header'
               }`}
             >
-              {data[col]}
+              {data[col] === 'Active' ? t('table.status.active') : 
+               data[col] === 'Inactive' ? t('table.status.inactive') : 
+               data[col]}
             </span>
           ) : col === 'Is Default' ? (
             <span className={`text-sm ${data[col] ? 'text-green-600' : 'text-header'}`}>
-              {data[col] ? 'Yes' : 'No'}
+              {data[col] ? t('table.yes') : t('table.no')}
             </span>
           ) : (
             <span className="text-gray-900">{data[col]}</span>
@@ -47,18 +50,18 @@ export const TableRow: React.FC<TableRowProps> = ({
         </td>
       ))}
       <td className="py-4 px-6">
-        <div className="flex items-center gap-3">
+        <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <button 
             onClick={() => onEdit(data.id)}
             className="text-blue-600 hover:text-blue-800 transition-colors duration-150"
-            title="Edit"
+            title={t('table.edit')}
           >
            <GrEdit className="text-md" />
           </button>
           <button 
             onClick={() => onDelete(data.id)} // Use the prop here
             className="text-red-600 hover:text-red-800 transition-colors duration-150"
-            title="Delete"
+            title={t('table.delete')}
           >
             <RiDeleteBin7Line className="text-md" />
           </button>

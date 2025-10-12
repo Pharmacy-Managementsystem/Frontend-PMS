@@ -9,20 +9,20 @@ import { useDecodedToken } from '../../Hook/useDecodedToken';
 
 function Setting() {
   const decodedToken = useDecodedToken();
-  const [activeTab, setActiveTab] = useState<string>('Business');
+  const [activeTab, setActiveTab] = useState<string>('business');
   
   const renderActiveComponent = () => {
     switch(activeTab) {
-      case 'Business': return <Business />;
-      case 'User': return (
+      case 'business': return <Business />;
+      case 'user': return (
         <UserInfo 
           userId={decodedToken?.user_id || ''} 
           editMode="full" 
         />
       );
-      case 'Payment Methods': return <PaymentMethods />;
-      case 'Tax Rates': return <TaxRate />;
-      case 'Currencies': return <Currencies />;
+      case 'paymentMethods': return <PaymentMethods />;
+      case 'taxRates': return <TaxRate />;
+      case 'currencies': return <Currencies />;
       default: return <Business />;
     }
   }

@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface PaginationProps {
   currentPage: number;
@@ -17,8 +18,10 @@ export default function Pagination({
   hasNext,
   hasPrevious,
 }: PaginationProps) {
+  const { t,i18n } = useTranslation();
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-
+  const language = i18n.language;
+  const isRTL = language === 'ar';
   // Generate page numbers to display
   const getPageNumbers = () => {
     const pages: number[] = [];
@@ -52,20 +55,66 @@ export default function Pagination({
   };
 
   const pageNumbers = getPageNumbers();
+  const from = ((currentPage - 1) * itemsPerPage) + 1;
+  const to = Math.min(currentPage * itemsPerPage, totalItems);
 
   return (
     <div className="flex items-center justify-between mt-8 px-4">
       <div className="text-sm text-gray-600">
-        Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} businesses
+        {t('pagination.showing', { from, to, total: totalItems })}
       </div>
       
-      <div className="flex items-center gap-2">
+
+    
+
+
+      {isRTL ? (
+        <div className="flex items-center gap-2">
         <button
           type="button" 
           className="px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={!hasPrevious}
-          aria-label="Previous page" 
+          aria-label={t('pagination.previous')} 
+        >
+          <ChevronRight size={16} />
+        </button>
+        
+        {pageNumbers.map((page) => (
+          <button
+            key={page}
+            type="button"
+            className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+              page === currentPage
+                ? 'bg-primary/10 text-primary'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+            onClick={() => onPageChange(page)}
+            disabled={page === currentPage}
+            aria-label={t('pagination.page', { page })}
+          >
+            {page}
+          </button>
+        ))}
+        
+        <button
+          type="button" 
+          className="px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={!hasNext}
+          aria-label={t('pagination.next')} 
+        >
+          <ChevronLeft size={16} />
+        </button>
+      </div>
+      ): (
+          <div className="flex items-center gap-2">
+        <button
+          type="button" 
+          className="px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={!hasPrevious}
+          aria-label={t('pagination.previous')} 
         >
           <ChevronLeft size={16} />
         </button>
@@ -81,6 +130,7 @@ export default function Pagination({
             }`}
             onClick={() => onPageChange(page)}
             disabled={page === currentPage}
+            aria-label={t('pagination.page', { page })}
           >
             {page}
           </button>
@@ -91,11 +141,12 @@ export default function Pagination({
           className="px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={!hasNext}
-          aria-label="Next page" 
+          aria-label={t('pagination.next')} 
         >
           <ChevronRight size={16} />
         </button>
       </div>
+      )}
     </div>
   );
 }

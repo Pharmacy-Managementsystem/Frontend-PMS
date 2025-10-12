@@ -1,8 +1,10 @@
 import  { useMemo } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import FormBusiness from '../Forms/FormBusiness'; 
+import { useTranslation } from 'react-i18next';
 
 const Business = () => {
+     
   const currentUserId = useMemo(() => {
     try {
       const token = localStorage.getItem('access');
@@ -20,10 +22,12 @@ const Business = () => {
     console.log('Back clicked');
   };
 
+  const { t } = useTranslation();
+
   if (!currentUserId) {
     return (
       <div className="flex justify-center items-center h-64">
-        <p className="text-gray-600">Unable to load business information. Please log in again.</p>
+        <p className="text-gray-600">{t('settings.business.unableToLoad')}</p>
       </div>
     );
   }

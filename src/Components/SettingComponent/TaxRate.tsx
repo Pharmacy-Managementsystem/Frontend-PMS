@@ -8,27 +8,14 @@ import Pagination from "../Pagination";
 import {
   CircularProgress,
   Dialog,
-  IconButton,
-  ToggleButton,
-  ToggleButtonGroup
+  IconButton
 } from '@mui/material';
 import Box from '@mui/material/Box';
 import { X } from 'lucide-react';
 import api from "../../Hook/API/api";
 import Swal from 'sweetalert2';
-import { PackagePlus } from "lucide-react"; 
-
-const countryColumns = [
-  "ID",
-  "Country",
-  "Country Tax Rate",
-];
-
-const customColumns = [
-  "ID", 
-  "Custom Name",
-  "Tax Rate",
-];
+import { PackagePlus } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 interface TaxRate {
   id: number;
@@ -37,7 +24,7 @@ interface TaxRate {
   country_id?: number;
   country_tax_rate: string;
   rate: string;
-  type?: 'country' | 'custom'; // إضافة نوع للتفرقة
+  type?: 'country' | 'custom';
 }
 
 interface DataResponse {
@@ -51,7 +38,7 @@ interface Country {
   id: number;
   name: string;
   code: string;
-  tax_rate: string; // إضافة tax_rate
+  tax_rate: string; 
 }
 
 interface CountryResponse {
@@ -59,6 +46,21 @@ interface CountryResponse {
 }
 
 const TaxRate = () => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+
+  const countryColumns = [
+    t('settings.taxRates.id'),
+    t('settings.taxRates.country'),
+    t('settings.taxRates.countryTaxRate'),
+  ];
+
+  const customColumns = [
+    t('settings.taxRates.id'),
+    t('settings.taxRates.customName'),
+    t('settings.taxRates.taxRate'),
+  ];
+
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -66,7 +68,7 @@ const TaxRate = () => {
   const [editingTaxRate, setEditingTaxRate] = useState<TaxRate | null>(null);
   const [rateType, setRateType] = useState<'country' | 'custom'>('country');
   const [createType, setCreateType] = useState<'country' | 'custom'>('country');
-  
+
   const { data: taxResponse, isLoading, error, refetch } = useGet<DataResponse>({
     endpoint: `/api/business/settings/tax-rates/?page=${page}&page_size=${pageSize}`,
     queryKey: ['tax-rates', page],
@@ -85,16 +87,16 @@ const TaxRate = () => {
 
   const filteredTaxRates = taxResponse?.results?.filter(tax => {
     if (rateType === 'country') {
-      return tax.id; // إذا كان له country_id فهو country rate
+      return tax.id; 
     } else {
-      return !tax.country_id; // إذا ماكانش له country_id فهو custom rate
+      return !tax.country_id; 
     }
   }) || [];
 
   const formFieldsEdit = [
     { 
       name: 'tax', 
-      label: 'Tax rate', 
+      label: t('settings.taxRates.taxRate'), 
       type: 'select', 
       required: true,
       options: countryOptions
@@ -104,7 +106,7 @@ const TaxRate = () => {
   const formFieldsCreateCountry = [
     { 
       name: 'tax', 
-      label: 'Country Tax', 
+      label: t('settings.taxRates.countryTax'), 
       type: 'select', 
       required: true,
       options: countryOptions
@@ -112,13 +114,13 @@ const TaxRate = () => {
   ];
 
   const formFieldsCreateCustom = [
-    { name: 'name', label: 'Custom Name', required: true },
-    { name: 'rate', label: 'Tax Rate', required: true },
+    { name: 'name', label: t('settings.taxRates.customName'), required: true },
+    { name: 'rate', label: t('settings.taxRates.taxRate'), required: true },
   ];
 
   const handleCreateSuccess = () => {
     setIsCreateModalOpen(false);
-    setCreateType('country'); // Reset to default
+    setCreateType('country'); 
     refetch();
   };
 
@@ -130,13 +132,13 @@ const TaxRate = () => {
 
   const handleDelete = async (id: string | number) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
+      title: t('settings.swal.areYouSure'),
+      text: t('settings.swal.cantRevert'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: t('settings.swal.yesDelete')
     });
 
     if (result.isConfirmed) {
@@ -144,8 +146,8 @@ const TaxRate = () => {
         const response = await api.delete(`/api/business/settings/tax-rates/${id}/`);
         if (response.status === 204) {
           Swal.fire(
-            'Deleted!',
-            'Your tax rate has been deleted.',
+            t('settings.swal.deleted'),
+            t('settings.swal.taxRateDeleted'),
             'success'
           );
           refetch();
@@ -153,8 +155,8 @@ const TaxRate = () => {
       } catch (error) {
         console.error('Error deleting tax rate:', error);
         Swal.fire(
-          'Error!',
-          'There was an error deleting the tax rate.',
+          t('settings.swal.error'),
+          t('settings.swal.errorDeleting'),
           'error'
         );
       }
@@ -170,21 +172,20 @@ const TaxRate = () => {
     }
   };
 
-  // تحويل البيانات للعرض
   const transformedData = filteredTaxRates.map((tax) => {
     if (rateType === 'country') {
       return {
         id: tax.id,
-        'ID': tax.id,
-        'Country': tax.country,
-        'Country Tax Rate': tax.country_tax_rate,
+        [countryColumns[0]]: tax.id,
+        [countryColumns[1]]: tax.country,
+        [countryColumns[2]]: tax.country_tax_rate,
       };
     } else {
       return {
         id: tax.id,
-        'ID': tax.id,
-        'Custom Name': tax.name,
-        'Tax Rate': tax.rate,
+        [customColumns[0]]: tax.id,
+        [customColumns[1]]: tax.name,
+        [customColumns[2]]: tax.rate,
       };
     }
   });
@@ -199,7 +200,7 @@ const TaxRate = () => {
     );
   }
 
-  if (error) return <div className="p-6">Error loading tax rates: {error.message}</div>;
+  if (error) return <div className="p-6">{t('settings.taxRates.errorLoading')}: {error.message}</div>;
 
   const hasTaxRates = taxResponse && taxResponse.results && taxResponse.results.length > 0;
   const hasFilteredRates = filteredTaxRates.length > 0;
@@ -207,26 +208,35 @@ const TaxRate = () => {
   return (
     <div className="container mx-auto p-6">
 
-        <h1 className="text-3xl font-bold text-title pb-3 mb-2">{rateType === 'country' ? 'Country' : 'Custom'} Tax Rates</h1>
+        <h1 className="text-3xl font-bold text-title pb-3 mb-2">{rateType === 'country' ? t('settings.taxRates.countryRates') : t('settings.taxRates.customRates')}</h1>
      
       {/* Toggle Filter */}
-      <div className="mb-6 flex justify-between items-center">
-        <ToggleButtonGroup
-          value={rateType}
-          exclusive
-          onChange={(_, newType) => newType && setRateType(newType)}
-          aria-label="tax rate type"
-        >
-          <ToggleButton value="country" aria-label="country rates">
-            Country Rates
-          </ToggleButton>
-          <ToggleButton value="custom" aria-label="custom rates">
-            Custom Rates
-          </ToggleButton>
-        </ToggleButtonGroup>
+      <div className={`mb-6 flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div className={`inline-flex rounded-lg border border-gray-300 bg-white  ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <button
+            onClick={() => setRateType('country')}
+            className={`px-6 py-2 ${isRTL ? 'rounded-l-md' : 'rounded-l-md'}  text-sm font-medium transition-all ${
+              rateType === 'country'
+                ? 'bg-[#E0E0E0] text-black'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            {t('settings.taxRates.countryRatesToggle')}
+          </button>
+          <button
+            onClick={() => setRateType('custom')}
+            className={`px-6 py-2 ${isRTL ? 'rounded-r-md' : 'rounded-r-md'} text-sm font-medium transition-all ${
+              rateType === 'custom'
+                ? 'bg-[#E0E0E0] text-black'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            {t('settings.taxRates.customRatesToggle')}
+          </button>
+        </div>
 
         {/* Add Buttons */}
-        <div className="flex gap-3">
+        <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <button 
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             onClick={() => {
@@ -234,7 +244,7 @@ const TaxRate = () => {
               setIsCreateModalOpen(true);
             }}
           >
-            Add Country Rate
+            {t('settings.taxRates.addCountryRate')}
           </button>
           <button 
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -243,19 +253,19 @@ const TaxRate = () => {
               setIsCreateModalOpen(true);
             }}
           >
-            Add Custom Rate
+            {t('settings.taxRates.addCustomRate')}
           </button>
         </div>
       </div>
 
       {!hasTaxRates ? (
         <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-          <div className="bg-gray-100 p-6 rounded-full mb-4">
+          <div className="bg-gray-100 p-6  mb-4">
             <PackagePlus size={48} className="text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No tax rates yet</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('settings.taxRates.noTaxRates')}</h3>
           <p className="text-gray-500 mb-6 max-w-md">
-            Get started by creating your first tax rate for your business.
+            {t('settings.taxRates.getStarted')}
           </p>
           <div className="flex gap-3">
             <button 
@@ -265,7 +275,7 @@ const TaxRate = () => {
                 setIsCreateModalOpen(true);
               }}
             >
-              Add Country Rate
+              {t('settings.taxRates.addCountryRate')}
             </button>
             <button 
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -274,7 +284,7 @@ const TaxRate = () => {
                 setIsCreateModalOpen(true);
               }}
             >
-              Add Custom Rate
+              {t('settings.taxRates.addCustomRate')}
             </button>
           </div>
         </div>
@@ -284,10 +294,10 @@ const TaxRate = () => {
             <PackagePlus size={48} className="text-gray-400" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No {rateType} rates yet
+            {rateType === 'country' ? t('settings.taxRates.noCountryRates') : t('settings.taxRates.noCustomRates')}
           </h3>
           <p className="text-gray-500 mb-6 max-w-md">
-            Get started by creating your first {rateType} tax rate.
+            {t('settings.taxRates.getStarted')}
           </p>
           <button 
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -296,7 +306,7 @@ const TaxRate = () => {
               setIsCreateModalOpen(true);
             }}
           >
-            Add {rateType === 'country' ? 'Country' : 'Custom'} Rate
+            {rateType === 'country' ? t('settings.taxRates.addCountryRate') : t('settings.taxRates.addCustomRate')}
           </button>
         </div>
       ) : (
@@ -324,7 +334,7 @@ const TaxRate = () => {
       {isCreateModalOpen && (
         <ReusableForm
           fields={createType === 'country' ? formFieldsCreateCountry : formFieldsCreateCustom}
-          title={`Add ${createType === 'country' ? 'Country' : 'Custom'} Tax Rate`}
+          title={createType === 'country' ? t('settings.taxRates.addCountryRate') : t('settings.taxRates.addCustomRate')}
           endpoint={createType === 'country' 
             ? "/api/business/settings/tax-rates/" 
             : "/api/business/settings/tax-rates/custom/"}
@@ -334,7 +344,7 @@ const TaxRate = () => {
             setCreateType('country');
           }}
           onSuccess={handleCreateSuccess}
-          submitButtonText={`Add ${createType === 'country' ? 'Country' : 'Custom'} Rate`}
+          submitButtonText={createType === 'country' ? t('settings.taxRates.addCountryRate') : t('settings.taxRates.addCustomRate')}
           key={`create-${createType}-form`}
         />
       )}
@@ -367,7 +377,7 @@ const TaxRate = () => {
           </IconButton>
           <ReusableForm
             fields={formFieldsEdit}
-            title="Edit Tax Rate"
+            title={t('settings.taxRates.editTaxRate')}
             endpoint={`/api/business/settings/tax-rates/${editingTaxRate.id}/`}
             method="patch"
             initialValues={{ tax: editingTaxRate.country_id }}
@@ -376,7 +386,7 @@ const TaxRate = () => {
               setEditingTaxRate(null);
             }}
             onSuccess={handleEditSuccess}
-            submitButtonText="Update Tax Rate"
+            submitButtonText={t('settings.taxRates.updateTaxRate')}
             key={`edit-form-${editingTaxRate.id}`}
           />
         </Dialog>
