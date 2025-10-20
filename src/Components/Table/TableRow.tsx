@@ -3,7 +3,6 @@ import { GrEdit } from "react-icons/gr";
 import { RiDeleteBin7Line } from "react-icons/ri";
 import { useTranslation } from 'react-i18next';
 
-
 interface TableRowProps {
   data: Record<string, string | boolean | number> & { id: string };
   columns: string[];
@@ -21,26 +20,23 @@ export const TableRow: React.FC<TableRowProps> = ({
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
   
-
-  
-
   return (
     <tr className="hover:bg-gray-50 transition-colors duration-150">
       {columns.map((col) => (
         <td key={col} className={`py-4 px-6 text-sm text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
-          {col === 'Status' ? (
+          {col === t('suppliers.status') || col === 'Status' ? ( // استخدام الترجمة
             <span 
               className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${
-                data[col] === 'Active' 
+                data[col] === t('table.status.active') || data[col] === 'Active'
                   ? 'bg-green-100 text-green-800' 
                   : 'bg-gray-100 text-header'
               }`}
             >
-              {data[col] === 'Active' ? t('table.status.active') : 
-               data[col] === 'Inactive' ? t('table.status.inactive') : 
+              {data[col] === t('table.status.active') || data[col] === 'Active' ? t('table.status.active') : 
+               data[col] === t('table.status.inactive') || data[col] === 'Inactive' ? t('table.status.inactive') : 
                data[col]}
             </span>
-          ) : col === 'Is Default' ? (
+          ) : col === t('currencies.isDefault') || col === 'Is Default' ? ( // استخدام الترجمة
             <span className={`text-sm ${data[col] ? 'text-green-600' : 'text-header'}`}>
               {data[col] ? t('table.yes') : t('table.no')}
             </span>
@@ -59,7 +55,7 @@ export const TableRow: React.FC<TableRowProps> = ({
            <GrEdit className="text-md" />
           </button>
           <button 
-            onClick={() => onDelete(data.id)} // Use the prop here
+            onClick={() => onDelete(data.id)}
             className="text-red-600 hover:text-red-800 transition-colors duration-150"
             title={t('table.delete')}
           >

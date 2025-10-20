@@ -20,7 +20,7 @@
     "packageManagement": "إدارة الحزم",
     "business": "الأعمال",
     "user": "المستخدم",
-    "paymentMethods": "طرق الدفع",
+    "paymentMethods": "طرق الدفع ",
     "taxRates": "معدلات الضرائب",
     "currencies": "العملات",
     "customers": "العملاء",
@@ -30,22 +30,33 @@
     "stockTransfers": "تحويلات المخزون"
   },
   "table": {
-    "actions": "الإجراءات",
-    "search": "بحث...",
-    "edit": "تعديل",
-    "delete": "حذف",
-    "renew": "تجديد",
-    "status": {
-      "active": "نشط",
-      "inactive": "غير نشط",
-      "expired": "منتهي الصلاحية",
-      "cancelled": "ملغي",
-      "suspended": "معلق",
-      "pending": "في الانتظار"
-    },
-    "yes": "نعم",
-    "no": "لا"
+  "actions": "الإجراءات",
+  "search": "بحث...",
+  "edit": "تعديل",
+  "delete": "حذف",
+  "renew": "تجديد",
+  "noActions": "لا توجد إجراءات متاحة",
+  "status": {
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "expired": "منتهي الصلاحية",
+    "cancelled": "ملغي",
+    "suspended": "معلق",
+    "pending": "في الانتظار"
   },
+  "yes": "نعم",
+  "no": "لا"
+},
+"form": {
+  "cancel": "إلغاء",
+  "processing": "جاري المعالجة...",
+  "fieldRequired": "{{field}} مطلوب",
+  "select": "اختر {{field}}",
+  "passwordMinLength": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+  "validNumber": "يرجى إدخال رقم صحيح",
+  "createTitle": "إنشاء {{title}}",
+  "updateTitle": "تحديث {{title}}"
+},
   "common": {
     "language": "اللغة",
     "arabic": "العربية",
@@ -214,5 +225,68 @@
     "cancelled": "ملغي",
     "suspended": "معلق",
     "pending": "قيد الانتظار"
+  },
+  "suppliers": {
+  "title": "الموردين",
+  "noSuppliers": "لا توجد موردين بعد",
+  "getStarted": "ابدأ بإنشاء أول مورد لعملك.",
+  "createSupplier": "إنشاء مورد",
+  "addNewSupplier": "إضافة مورد جديد",
+  "updateSupplier": "تحديث المورد",
+  "editSupplier": "تعديل المورد",
+  "supplierName": "اسم المورد",
+  "phone": "الهاتف",
+  "email": "البريد الإلكتروني",
+  "status": "الحالة",
+  "inactive": "غير نشط",
+  "active": "نشط",
+  "land_line": "الهاتف الأرضي",
+  "cr": "فترة الائتمان",
+  "address": "العنوان",
+  "tax_number": "الرقم الضريبي",
+  "errorLoading": "خطأ في تحميل الموردين",
+  "swal": {
+    "areYouSure": "هل أنت متأكد؟",
+    "cantRevert": "لن تتمكن من التراجع عن هذا!",
+    "yesDelete": "نعم، احذفه!",
+    "deleted": "تم الحذف!",
+    "supplierDeleted": "تم حذف المورد.",
+    "error": "خطأ!",
+    "errorDeleting": "حدث خطأ أثناء الحذف.",
+    "status": "الحالة",
+    "inactive": "غير نشط"
   }
+},
+"customers": {
+"title": "العملاء",
+"noCustomers": "لا توجد عملاء بعد",
+"getStarted": "ابدأ بإنشاء أول عميل لعملك.",
+"createCustomer": "إنشاء عميل",
+"addNewCustomer": "إضافة عميل جديد",
+"updateCustomer": "تحديث العميل",
+"editCustomer": "تعديل العميل",
+"customerName": "اسم العميل",
+"idc" : "الهوية الوطنية",
+"created_at": "تم الانشاء في",
+"phone": "الهاتف",
+"email": "البريد الإلكتروني",
+"address": "العنوان",
+"totalPurchases": "إجمالي المشتريات",
+"status": "الحالة",
+"active": "نشط",
+"errorLoading": "خطأ في تحميل العملاء",
+"statusUpdated": "تم تحديث الحالة",
+"statusUpdatedSuccessfully": "تم تحديث حالة العميل بنجاح",
+"errorUpdatingStatus": "خطأ في تحديث الحالة",
+"swal": {
+  "areYouSure": "هل أنت متأكد؟",
+  "cantRevert": "لن تتمكن من التراجع عن هذا!",
+  "yesDelete": "نعم، احذفه!",
+  "deleted": "تم الحذف!",
+  "customerDeleted": "تم حذف العميل.",
+  "error": "خطأ!",
+  "errorDeleting": "حدث خطأ أثناء الحذف."
+}
+}
+
 }

@@ -41,11 +41,11 @@ export default function TableRowUser({ data, columns, renderDropdown }: TableRow
     <tr className="hover:bg-gray-50 transition-colors duration-150 relative">
       {columns.map((col) => (
         <td key={col} className={`py-4 px-6 text-sm text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
-          {col === 'Status' ? (
+          {col === t('suppliers.status') || col === 'Status' ? ( // استخدام الترجمة
             <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full ${statusColors[data[col] as string] || 'bg-gray-100 text-gray-500'}`}>
-              <span className={`w-2 h-2 rounded-full ${data[col] === 'Active' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-              {data[col] === 'Active' ? t('table.status.active') : 
-               data[col] === 'Inactive' ? t('table.status.inactive') : 
+              <span className={`w-2 h-2 rounded-full ${data[col] === t('table.status.active') || data[col] === 'Active' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+              {data[col] === t('table.status.active') || data[col] === 'Active' ? t('table.status.active') : 
+               data[col] === t('table.status.inactive') || data[col] === 'Inactive' ? t('table.status.inactive') : 
                data[col]}
             </span>
           ) : (
@@ -72,7 +72,7 @@ export default function TableRowUser({ data, columns, renderDropdown }: TableRow
           >
             {renderDropdown ? renderDropdown(data.id) : (
               <div className="p-4 text-center text-gray-500 text-sm">
-                {t('table.noActions')}
+                {t('table.noActions', 'No actions available')} {/* إضافة ترجمة افتراضية */}
               </div>
             )}
           </div>

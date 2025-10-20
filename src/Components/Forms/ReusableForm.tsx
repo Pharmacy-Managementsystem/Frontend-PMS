@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { useMutate } from '../../Hook/API/useApiMutate';
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, X, Eye, EyeOff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface SelectOption {
   value: string | number;
@@ -37,6 +38,7 @@ export default function ReusableForm({
   submitButtonText = 'Submit',
   initialValues = {}
 }: ReusableFormProps) {
+  const { t } = useTranslation();
   
   const prevInitialValues = useRef(initialValues);
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
@@ -141,10 +143,10 @@ export default function ReusableForm({
             errors[field.name] ? 'border-red-300' : 'border-gray-300'
           }`}
           {...register(field.name, { 
-            required: field.required ? `${field.label} is required` : false
+            required: field.required ? t('form.fieldRequired', { field: field.label }) : false
           })}
         >
-          <option value="">Select {field.label}</option>
+          <option value="">{t('form.select', { field: field.label })}</option>
           {field.options?.map(option => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -162,7 +164,7 @@ export default function ReusableForm({
             errors[field.name] ? 'border-red-300' : 'border-gray-300'
           }`}
           {...register(field.name, { 
-            required: field.required ? `${field.label} is required` : false
+            required: field.required ? t('form.fieldRequired', { field: field.label }) : false
           })}
           size={3} 
         >
@@ -183,7 +185,7 @@ export default function ReusableForm({
             errors[field.name] ? 'border-red-300' : 'border-gray-300'
           }`}
           {...register(field.name, { 
-            required: field.required ? `${field.label} is required` : false
+            required: field.required ? t('form.fieldRequired', { field: field.label }) : false
           })}
         />
       );
@@ -220,10 +222,10 @@ export default function ReusableForm({
                 : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
             }`}
             {...register(field.name, { 
-              required: field.required ? `${field.label} is required` : false,
+              required: field.required ? t('form.fieldRequired', { field: field.label }) : false,
               minLength: field.required ? {
                 value: 6,
-                message: 'Password must be at least 6 characters'
+                message: t('form.passwordMinLength')
               } : undefined
             })}
           />
@@ -253,14 +255,14 @@ export default function ReusableForm({
             : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
         }`}
         {...register(field.name, { 
-          required: field.required ? `${field.label} is required` : false,
+          required: field.required ? t('form.fieldRequired', { field: field.label }) : false,
           valueAsNumber: field.type === 'number',
           validate: (value) => {
             if (field.required && !value && value !== 0) {
-              return `${field.label} is required`;
+              return t('form.fieldRequired', { field: field.label });
             }
             if (field.type === 'number' && isNaN(Number(value)) && field.required) {
-              return 'Please enter a valid number';
+              return t('form.validNumber');
             }
             return true;
           }
@@ -277,8 +279,8 @@ export default function ReusableForm({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
       <div className="p-6 relative bg-white rounded-lg shadow-lg max-w-2xl w-full mx-4">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6 pb-4 border-b border-gray-100">
-          {submitButtonText.includes('Create') ? ` Create ${title}` : `Update ${title}`}
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6 pb-4 px-6 border-b border-gray-100">
+          {  title }
         </h2>
         <X onClick={onClose} className="absolute top-4 right-4 cursor-pointer hover:text-gray-700" />
         
@@ -319,7 +321,7 @@ export default function ReusableForm({
               className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               onClick={onClose}
             >
-              Cancel
+              {t('form.cancel')}
             </button>
             <button
               type="submit"
@@ -331,7 +333,7 @@ export default function ReusableForm({
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                  Processing...
+                  {t('form.processing')}
                 </>
               ) : (
                 submitButtonText
