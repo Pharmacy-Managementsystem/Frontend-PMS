@@ -183,7 +183,7 @@ const PaymentMethods = () => {
       {/* Create Modal */}
       {isCreateModalOpen && (
         <ReusableForm
-          title={t('settings.paymentMethods.title')}
+          title={t('settings.paymentMethods.createPaymentMethod')}
           fields={formFields}
           endpoint="/api/business/settings/payment-methods/"
           method="post"
@@ -221,7 +221,7 @@ const PaymentMethods = () => {
             <X />
           </IconButton>
           <ReusableForm
-            title={t('settings.paymentMethods.title')}
+            title={t('settings.paymentMethods.updatePaymentMethod')}
             fields={formFields}
             endpoint={`/api/business/settings/payment-methods/${editingPayment.id}/`}
             method="patch"

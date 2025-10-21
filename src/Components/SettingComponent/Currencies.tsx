@@ -175,7 +175,7 @@ const Currencies = () => {
         <>
           
             <TableHeaderSearch
-              title={t('settings.currencies.title')}
+              title={t('settings.currencies.currency')}
               buttonText={t('settings.currencies.addNewCurrency')} 
               onAddClick={() => setIsCreateModalOpen(true)}
             />
@@ -200,7 +200,7 @@ const Currencies = () => {
       {/* Create Modal */}
         {isCreateModalOpen && (
         <ReusableForm
-          title={t('settings.currencies.currency')}
+          title={t('settings.currencies.createCurrency')}
           fields={formFields}
           endpoint="/api/business/settings/currencies/"
           method="post"
@@ -238,7 +238,7 @@ const Currencies = () => {
             <X />
           </IconButton>
           <ReusableForm
-            title={t('settings.currencies.currency')}
+            title={t('settings.currencies.updateCurrency')}
             fields={formFields}
             endpoint={`/api/business/settings/currencies/${editingCurrency.id}/`}
             method="patch"

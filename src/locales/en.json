@@ -29,23 +29,35 @@
     "purchase": "Purchase",
     "stockTransfers": "Stock Transfers"
   },
-  "table": {
-    "actions": "Actions",
-    "search": "Search...",
-    "edit": "Edit",
-    "delete": "Delete",
-    "renew": "Renew",
-    "status": {
-      "active": "Active",
-      "inactive": "Inactive",
-      "expired": "Expired",
-      "cancelled": "Cancelled",
-      "suspended": "Suspended",
-      "pending": "Pending"
-    },
-    "yes": "Yes",
-    "no": "No"
+ "table": {
+  "actions": "Actions",
+  "search": "Search...",
+  "edit": "Edit",
+  "delete": "Delete",
+  "renew": "Renew",
+  "noActions": "No actions available",
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "expired": "Expired",
+    "cancelled": "Cancelled",
+    "suspended": "Suspended",
+    "pending": "Pending"
   },
+  "yes": "Yes",
+  "no": "No"
+},
+"form": {
+  "cancel": "Cancel",
+  "processing": "Processing...",
+  "fieldRequired": "{{field}} is required",
+  "select": "Select {{field}}",
+  "passwordMinLength": "Password must be at least 6 characters",
+  "validNumber": "Please enter a valid number",
+  "createTitle": "Create {{title}}",
+  "updateTitle": "Update {{title}}"
+},
+
   "common": {
     "language": "Language",
     "arabic": "العربية",
@@ -214,5 +226,68 @@
     "cancelled": "Cancelled",
     "suspended": "Suspended",
     "pending": "Pending"
+  },
+  "suppliers": {
+  "title": "Suppliers",
+  "noSuppliers": "No suppliers yet",
+  "getStarted": "Get started by creating your first supplier for your business.",
+  "createSupplier": "Create Supplier",
+  "addNewSupplier": "Add New Supplier",
+  "updateSupplier": "Update Supplier",
+  "editSupplier": "Edit Supplier",
+  "supplierName": "Supplier Name",
+  "phone": "Phone",
+  "email": "Email",
+  "status": "Status",
+  "inactive": "Inactive",
+  "active": "Active",
+  "land_line": "Land Line",
+  "cr": "Credit Period",
+  "address": "Address",
+  "tax_number": "Tax Number",
+  "errorLoading": "Error loading suppliers",
+  "swal": {
+    "areYouSure": "Are you sure?",
+    "cantRevert": "You won't be able to revert this!",
+    "yesDelete": "Yes, delete it!",
+    "deleted": "Deleted!",
+    "supplierDeleted": "Your supplier has been deleted.",
+    "error": "Error!",
+    "errorDeleting": "There was an error deleting.",
+    "status": "Status",
+    "inactive": "Inactive"
   }
+
+},
+  "customers": {
+  "title": "Customers",
+  "noCustomers": "No customers yet",
+  "getStarted": "Get started by creating your first customer for your business.",
+  "createCustomer": "Create Customer",
+  "addNewCustomer": "Add New Customer",
+  "updateCustomer": "Update Customer",
+  "editCustomer": "Edit Customer",
+  "customerName": "Customer Name",
+  "idc" : "Identification Card",
+  "created_at": "Created At",
+  "phone": "Phone",
+  "email": "Email",
+  "address": "Address",
+  "totalPurchases": "Total Purchases",
+  "status": "Status",
+  "active": "Active",
+  "errorLoading": "Error loading customers",
+  "statusUpdated": "Status Updated",
+  "statusUpdatedSuccessfully": "Customer status updated successfully",
+  "errorUpdatingStatus": "Error updating status",
+  "swal": {
+    "areYouSure": "Are you sure?",
+    "cantRevert": "You won't be able to revert this!",
+    "yesDelete": "Yes, delete it!",
+    "deleted": "Deleted!",
+    "customerDeleted": "Your customer has been deleted.",
+    "error": "Error!",
+    "errorDeleting": "There was an error deleting."
+  }
+}
 }

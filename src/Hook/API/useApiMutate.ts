@@ -1,5 +1,3 @@
-
-
 // useApiMutate.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { UseMutationResult } from '@tanstack/react-query';
@@ -67,18 +65,38 @@ export function useMutate<TData = unknown, TVariables = Record<string, unknown>>
 
         return response.data;
       } catch (error: unknown) {
-        const err = error as { response?: { data?: { message?: string } }; message?: string };
-        const errorMsg = err.response?.data?.message || err.message || 'Unexpected Error';
+        const err = error as { 
+          response?: { 
+            data?: { 
+              errors?: Record<string, string[]> | string;
+              message?: string;
+            } 
+          }; 
+          message?: string;
+        };
+        
+        let errorMessage = 'Unexpected Error';
+        
+        if (err.response?.data?.errors && typeof err.response.data.errors === 'object') {
+          errorMessage = 'Please fill in all required fields correctly.';
+        } 
+        else if (err.response?.data?.message) {
+          errorMessage = err.response.data.message;
+        }
+        else if (err.message) {
+          errorMessage = err.message;
+        }
 
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: errorMsg,
+          text: errorMessage,
+          confirmButtonText: 'OK'
         });
 
-        console.log(error);
+        console.log('API Error:', error);
         
-        throw new Error(errorMsg);
+        throw new Error(errorMessage);
       }
     },
     onSuccess: (data: TData) => {
@@ -98,11 +116,8 @@ export function useMutate<TData = unknown, TVariables = Record<string, unknown>>
     },
   });
 
-  // Return the mutation with isLoading property for backward compatibility
   return {
     ...mutation,
     isLoading: mutation.isPending,
   };
 }
-
-
