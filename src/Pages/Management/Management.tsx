@@ -1,7 +1,7 @@
 import  { useState, useEffect } from 'react';
 import { jwtDecode } from "jwt-decode";
 import MinNav from '../../Components/Navbar/MinNav';
-import UserInfo from '../../Components/Info/UserInfo';
+import UserInfo from '../../Components/Info/InfoUser/UserInfo';
 import BranchesManage from '../../Components/ManageComponent/BranchesManage';
 import UserManage from '../../Components/ManageComponent/UserManage';
 import PackageManage from '../../Components/ManageComponent/PackageManage';
@@ -94,7 +94,7 @@ function Management() {
         onTabChange={setActiveTab} 
         activeTab={activeTab}
       />
-      <div className="max-w-screen-2xl px-14 py-8 mb-10 bg-white custom-card-shadow rounded-xl mx-auto">
+      <div className="max-w-screen-xl px-14 py-8 mb-10 bg-white custom-card-shadow rounded-xl mx-auto">
         {renderActiveComponent()}
       </div>
     </>

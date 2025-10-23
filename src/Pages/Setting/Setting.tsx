@@ -4,7 +4,7 @@ import Business from '../../Components/SettingComponent/Business';
 import PaymentMethods from '../../Components/SettingComponent/PaymentMethods';
 import TaxRate from '../../Components/SettingComponent/TaxRate';
 import Currencies from '../../Components/SettingComponent/Currencies'
-import UserInfo from '../../Components/Info/UserInfo';
+import UserInfo from '../../Components/Info/InfoUser/UserInfo';
 import { useDecodedToken } from '../../Hook/useDecodedToken';
 
 function Setting() {
@@ -34,7 +34,7 @@ function Setting() {
         onTabChange={setActiveTab} 
         activeTab={activeTab}
       />
-      <div className="custom-card-shadow max-w-screen-2xl px-14 py-8 mb-10 bg-white shadow rounded-xl mx-auto ">
+      <div className="custom-card-shadow max-w-screen-xl px-14 py-8 mb-10 bg-white shadow rounded-xl mx-auto ">
         {renderActiveComponent()}
       </div>
     </>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useGet } from '../../Hook/API/useApiGet';
+import { useGet } from '../../../Hook/API/useApiGet';
 import { FaCheckSquare, FaWindowClose } from "react-icons/fa";
 
 interface Permission {

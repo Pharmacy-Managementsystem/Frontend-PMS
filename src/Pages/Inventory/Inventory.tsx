@@ -24,7 +24,7 @@ export default function Inventory() {
         onTabChange={setActiveTab} 
         activeTab={activeTab}
       />
-      <div className="custom-card-shadow max-w-screen-2xl px-14 py-8 mb-10 bg-white shadow rounded-xl mx-auto ">
+      <div className="custom-card-shadow max-w-screen-xl px-14 py-8 mb-10 bg-white shadow rounded-xl mx-auto ">
         {renderActiveComponent()}
       </div>
     </>

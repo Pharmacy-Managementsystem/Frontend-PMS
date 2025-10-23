@@ -23,7 +23,7 @@ export default function Contacts() {
         onTabChange={setActiveTab} 
         activeTab={activeTab}
       />
-      <div className="custom-card-shadow max-w-screen-2xl px-14 py-8 mb-10 bg-white shadow rounded-xl mx-auto ">
+      <div className="custom-card-shadow max-w-screen-xl px-5 py-4 mb-10 bg-white shadow rounded-xl mx-auto ">
         {renderActiveComponent()}
       </div>
     </>

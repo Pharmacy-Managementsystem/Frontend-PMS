@@ -3,7 +3,7 @@ import { DataTable } from "../Table/DataTable";
 import TableRowUser from "../Table/TableRowUser";
 import DeactivateUser from "./DeactivateUser";
 import { useEffect, useState } from "react";
-import UserInfo from "../Info/UserInfo";
+import UserInfo from "../Info/InfoUser/UserInfo";
 import Pagination from "../Pagination";
 import { useGet } from "../../Hook/API/useApiGet";
 import ReusableForm from "../Forms/ReusableForm";

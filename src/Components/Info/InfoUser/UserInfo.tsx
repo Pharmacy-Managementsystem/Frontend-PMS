@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useGet } from '../../Hook/API/useApiGet';
-import { useMutate } from '../../Hook/API/useApiMutate';
+import { useGet } from '../../../Hook/API/useApiGet';
+import { useMutate } from '../../../Hook/API/useApiMutate';
 import { ArrowLeft, Edit } from 'lucide-react';
 import Permission from './Permission';
 import { useTranslation } from 'react-i18next';
@@ -73,7 +73,6 @@ const UserInfo: React.FC<UserInfoProps> = ({ userId, onBack, editMode = 'limited
 
   useEffect(() => {
     if (userData) {
-      // Extract branch IDs from user_branches objects
       const branchIds = userData.user_branches?.map(branch => branch.id.toString()) || [];
       
       setEditData({
