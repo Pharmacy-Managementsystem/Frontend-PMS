@@ -18,6 +18,7 @@ const dropdownContent = {
   settings: ['business','user', 'paymentMethods', 'taxRates', 'currencies'],
   contacts: ['customers', 'suppliers'],
   inventory: ['products', 'purchase', 'stockTransfers'],
+  purchase: ['Order Purchases', 'Receive Purchases', 'Return Purchases'],
 
 } as const;
 

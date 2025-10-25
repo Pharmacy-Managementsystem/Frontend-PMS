@@ -1,11 +1,9 @@
 import  { useState } from 'react';
 import MinNav from '../../Components/Navbar/MinNav';
-// import { useDecodedToken } from '../../Hook/useDecodedToken';
 import Products from '../../Components/Inventory/Products';
 import StockTransfers from '../../Components/Inventory/StockTransfers';
 
 export default function Inventory() {
-  // const decodedToken = useDecodedToken();
   const [activeTab, setActiveTab] = useState<string>('products');
   
   const renderActiveComponent = () => {

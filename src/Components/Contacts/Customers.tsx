@@ -6,15 +6,14 @@ import { TableRow } from '../Table/TableRow';
 import ReusableForm from "../Forms/ReusableForm";
 import Pagination from "../Pagination";
 import {
-  CircularProgress,
-  Dialog,
-  IconButton
+  CircularProgress
 } from '@mui/material';
 import Box from '@mui/material/Box';
-import { X, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import api from "../../Hook/API/api";
 import Swal from 'sweetalert2';
 import { useTranslation } from 'react-i18next';
+import CustomerInfo from '../Info/InfoContacts/CustomerInfo';
 
 interface Customer {
   id: string;
@@ -49,8 +48,8 @@ const Customers = () => {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(4);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [contactInfo, setContactInfo] = useState<string | null>(null);
+
   
   const { data: CustomersResponse, isLoading, error, refetch } = useGet<DataResponse>({
     endpoint: `/api/customer/?page=${page}&page_size=${pageSize}`,
@@ -65,17 +64,15 @@ const Customers = () => {
     { name: 'idc', label: t('customers.idc') },
    
   ];
+   const handleViewClick = (id: string) => {
+    setContactInfo(id);
+  };
 
   const handleCreateSuccess = () => {
     setIsCreateModalOpen(false);
     refetch();
   };
 
-  const handleEditSuccess = () => {
-    setIsEditModalOpen(false);
-    setEditingCustomer(null);
-    refetch();
-  };
 
   const handleDelete = async (id: string) => {
     const result = await Swal.fire({
@@ -107,14 +104,6 @@ const Customers = () => {
           'error'
         );
       }
-    }
-  };
-
-  const handleEditClick = (id: string) => {
-    const customer = CustomersResponse?.results.find(c => c.id === id);
-    if (customer) {
-      setEditingCustomer(customer);
-      setIsEditModalOpen(true);
     }
   };
 
@@ -166,6 +155,13 @@ const Customers = () => {
   const hasCustomers = CustomersResponse && CustomersResponse.results && CustomersResponse.results.length > 0;
 
   return (
+    <>
+    
+
+ {contactInfo ? (
+        <CustomerInfo CustomerInfo={contactInfo} title="customer" onClose={() => setContactInfo(null)} />
+      
+):(
     <div className="container mx-auto p-6">
       {!hasCustomers ? (
         <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
@@ -194,9 +190,10 @@ const Customers = () => {
             columns={columns}
             data={transformedData}
             RowComponent={TableRow}
-            onEdit={handleEditClick}
             onDelete={handleDelete}
             onToggleStatus={handleToggleStatus}
+            onView={handleViewClick}
+            actions={['view', 'delete']}
           />
           <Pagination
             currentPage={page}
@@ -223,51 +220,10 @@ const Customers = () => {
         />
       )}
 
-      {/* Edit Modal */}
-      {isEditModalOpen && editingCustomer && (
-        <Dialog 
-          open={isEditModalOpen} 
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setEditingCustomer(null);
-          }} 
-          maxWidth="sm" 
-          fullWidth
-        >
-          <IconButton
-            aria-label="close"
-            onClick={() => {
-              setIsEditModalOpen(false);
-              setEditingCustomer(null);
-            }}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <X />
-          </IconButton>
-          <ReusableForm
-            title={t('customers.editCustomer')}
-            fields={formFields}
-            endpoint={`/api/customer/${editingCustomer.id}/`}
-            method="patch"
-            initialValues={{
-              ...editingCustomer
-            }}
-            onClose={() => {
-              setIsEditModalOpen(false);
-              setEditingCustomer(null);
-            }}
-            onSuccess={handleEditSuccess}
-            submitButtonText={t('customers.updateCustomer')}
-            key={`edit-form-${editingCustomer.id}`}
-          />
-        </Dialog>
-      )}
+    
     </div>
+    )}
+    </>
   );
 };
 

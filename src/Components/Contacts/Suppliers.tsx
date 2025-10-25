@@ -6,12 +6,10 @@ import { TableRow } from '../Table/TableRow';
 import ReusableForm from "../Forms/ReusableForm";
 import Pagination from "../Pagination";
 import {
-  CircularProgress,
-  Dialog,
-  IconButton
+  CircularProgress
 } from '@mui/material';
 import Box from '@mui/material/Box';
-import { X, PackagePlus } from 'lucide-react';
+import {  PackagePlus } from 'lucide-react';
 import api from "../../Hook/API/api";
 import Swal from 'sweetalert2';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +21,7 @@ interface Supplier {
   email: string;
   is_active: boolean;
   phone: string;
+  modified_at: string;
 }
 
 interface DataResponse {
@@ -40,13 +39,12 @@ const Suppliers = () => {
     t('suppliers.phone'),
     t('suppliers.email'),
     t('suppliers.status'),
+    t('suppliers.lastModified'),
   ];
 
   const [page, setPage] = useState(1);
   const [pageSize] = useState(4);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [contactInfo, setContactInfo] = useState<string | null>(null);
 
   const { data: SuppliersResponse, isLoading, error, refetch } = useGet<DataResponse>({
@@ -75,11 +73,7 @@ const Suppliers = () => {
     refetch();
   };
 
-  const handleEditSuccess = () => {
-    setIsEditModalOpen(false);
-    setEditingSupplier(null);
-    refetch();
-  };
+ 
 
   const handleDelete = async (id: string) => {
     const result = await Swal.fire({
@@ -114,16 +108,8 @@ const Suppliers = () => {
     }
   };
 
-  // أضيفي هذه الدالة المفقودة
-  const handleEditClick = (id: string) => {
-    const supplier = SuppliersResponse?.results.find(s => s.id === id);
-    if (supplier) {
-      setEditingSupplier(supplier);
-      setIsEditModalOpen(true);
-    }
-  };
 
-  // أضيفي هذه الدالة للـ view
+
   const handleViewClick = (id: string) => {
     setContactInfo(id);
   };
@@ -159,6 +145,7 @@ const Suppliers = () => {
     [columns[0]]: supplier.name,
     [columns[1]]: supplier.phone,
     [columns[2]]: supplier.email,
+    [columns[4]]: new Date(supplier.modified_at).toLocaleDateString(), 
     [columns[3]]: supplier.is_active ? t('table.status.active') : t('table.status.inactive'),
   })) || [];
 
@@ -209,7 +196,6 @@ const Suppliers = () => {
                 columns={columns}
                 data={transformedData}
                 RowComponent={TableRow}
-                onEdit={handleEditClick}
                 onDelete={handleDelete}
                 onView={handleViewClick}
                 onToggleStatus={handleToggleStatus}
@@ -240,50 +226,7 @@ const Suppliers = () => {
             />
           )}
 
-          {/* Edit Modal */}
-          {isEditModalOpen && editingSupplier && (
-            <Dialog 
-              open={isEditModalOpen} 
-              onClose={() => {
-                setIsEditModalOpen(false);
-                setEditingSupplier(null);
-              }} 
-              maxWidth="sm" 
-              fullWidth
-            >
-              <IconButton
-                aria-label="close"
-                onClick={() => {
-                  setIsEditModalOpen(false);
-                  setEditingSupplier(null);
-                }}
-                sx={{
-                  position: 'absolute',
-                  right: 8,
-                  top: 8,
-                  color: (theme) => theme.palette.grey[500],
-                }}
-              >
-                <X />
-              </IconButton>
-              <ReusableForm
-                title={t('suppliers.editSupplier')}
-                fields={formFields}
-                endpoint={`/api/suppliers/${editingSupplier.id}/`}
-                method="patch"
-                initialValues={{
-                  ...editingSupplier
-                }}
-                onClose={() => {
-                  setIsEditModalOpen(false);
-                  setEditingSupplier(null);
-                }}
-                onSuccess={handleEditSuccess}
-                submitButtonText={t('suppliers.updateSupplier')}
-                key={`edit-form-${editingSupplier.id}`}
-              />
-            </Dialog>
-          )}
+         
         </div>
       )}
     </>
