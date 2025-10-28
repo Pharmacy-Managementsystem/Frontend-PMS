@@ -30,7 +30,8 @@
   "stockTransfers": "Stock Transfers",
   "Order Purchases": "Order Purchases",
   "Receive Purchases": "Receive Purchases",
-  "Return Purchases": "Return Purchases"
+  "Return Purchases": "Return Purchases",
+  "stockReceipts" : "Stock Receipts"
 },
  "table": {
   "actions": "Actions",
