@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Package, LayoutDashboard, ChartNoAxesColumnIncreasing, CircleUserRound, ShoppingCart, DollarSign, Settings, Users, Globe } from "lucide-react";
+import { Package, LayoutDashboard, ChartNoAxesColumnIncreasing, CircleUserRound, ShoppingCart, Settings, Users, Globe } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IoIosLogOut } from "react-icons/io";
 import { useLogout } from "../../services/Logout";
@@ -12,7 +12,6 @@ const navItems = [
   // { Icon: ScrollText, label: "POS", id: "pos", page: "/Dashboard/pos" },
   { Icon: Package, labelKey: "navbar.inventory", id: "inventory", page: "/Dashboard/inventory" },
   { Icon: ShoppingCart, labelKey: "navbar.purchase", id: "purchase", page: "/Dashboard/purchase" },
-  { Icon: DollarSign, labelKey: "navbar.sales", id: "sales", page: "/Dashboard/sales" },
   { Icon: Users, labelKey: "navbar.contacts", id: "contacts", page: "/Dashboard/contacts" },
   { Icon: ChartNoAxesColumnIncreasing, labelKey: "navbar.management", id: "management", page: "/Dashboard/management" },
   { Icon: Settings, labelKey: "navbar.settings", id: "settings", page: "/Dashboard/setting" },

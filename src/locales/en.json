@@ -12,28 +12,33 @@
     "welcome": "Welcome"
   },
   "minNav": {
-    "businessManagement": "Business Management",
-    "userManagement": "User Management",
-    "subscriptionsManagement": "Subscriptions Management",
-    "roles": "Roles",
-    "branchesManagement": "Branches Management",
-    "packageManagement": "Package Management",
-    "business": "Business",
-    "user": "User",
-    "paymentMethods": "Payment Methods",
-    "taxRates": "Tax Rates",
-    "currencies": "Currencies",
-    "customers": "Customers",
-    "suppliers": "Suppliers",
-    "products": "Products",
-    "purchase": "Purchase",
-    "stockTransfers": "Stock Transfers"
-  },
+  "businessManagement": "Business Management",
+  "userManagement": "User Management",
+  "subscriptionsManagement": "Subscriptions Management",
+  "roles": "Roles",
+  "branchesManagement": "Branches Management",
+  "packageManagement": "Package Management",
+  "business": "Business",
+  "user": "User",
+  "paymentMethods": "Payment Methods",
+  "taxRates": "Tax Rates",
+  "currencies": "Currencies",
+  "customers": "Customers",
+  "suppliers": "Suppliers",
+  "products": "Products",
+  "purchase": "Purchase",
+  "stockTransfers": "Stock Transfers",
+  "Order Purchases": "Order Purchases",
+  "Receive Purchases": "Receive Purchases",
+  "Return Purchases": "Return Purchases",
+  "stockReceipts" : "Stock Receipts"
+},
  "table": {
   "actions": "Actions",
   "search": "Search...",
   "edit": "Edit",
   "delete": "Delete",
+  "view": "View",
   "renew": "Renew",
   "noActions": "No actions available",
   "status": {
@@ -236,6 +241,7 @@
   "updateSupplier": "Update Supplier",
   "editSupplier": "Edit Supplier",
   "supplierName": "Supplier Name",
+  "lastModified": "Last Modified",
   "phone": "Phone",
   "email": "Email",
   "status": "Status",
@@ -289,5 +295,53 @@
     "error": "Error!",
     "errorDeleting": "There was an error deleting."
   }
+},
+  "contactInfo": {
+    "backTo": "Back to {{title}}",
+    "basicInformation": "Basic Information",
+    "editInfo": "Edit {{type}} Info",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "supplier": "Supplier",
+    "customer": "Customer",
+    "supplierName": "Supplier Name",
+    "customerName": "Customer Name",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "commercialRegistration": "Commercial Registration",
+    "landLine": "Land Line",
+    "taxNumber": "Tax Number",
+    "totalDueAmount": "Total Due Amount",
+    "createdAt": "Created At",
+    "lastModified": "Last Modified",
+    "createdBy": "Created By",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "toggleStatus": "Toggle Status",
+    "validation": {
+      "requiredField": "This field is required",
+      "invalidEmail": "Invalid email address",
+      "invalidPhone": "Invalid phone number"
+    },
+    "messages": {
+      "loading": "Loading...",
+      "errorLoading": "Error loading data",
+      "noData": "No data available",
+      "noName": "No name",
+      "notAvailable": "N/A",
+      "changesSaved": "Changes saved successfully",
+      "errorSaving": "Error saving changes",
+      "noChanges": "No changes made"
+    },
+    "fields": {
+      "identificationCard": "Identification Card",
+      "groupName": "Group Name",
+      "idcAttachment": "IDC Attachment"
+    }
+  
 }
 }

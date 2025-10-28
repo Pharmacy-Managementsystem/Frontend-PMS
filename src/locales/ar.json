@@ -12,28 +12,33 @@
     "welcome": "مرحباً"
   },
   "minNav": {
-    "businessManagement": "إدارة الأعمال",
-    "userManagement": "إدارة المستخدمين",
-    "subscriptionsManagement": "إدارة الاشتراكات",
-    "roles": "الأدوار",
-    "branchesManagement": "إدارة الفروع",
-    "packageManagement": "إدارة الحزم",
-    "business": "الأعمال",
-    "user": "المستخدم",
-    "paymentMethods": "طرق الدفع ",
-    "taxRates": "معدلات الضرائب",
-    "currencies": "العملات",
-    "customers": "العملاء",
-    "suppliers": "الموردين",
-    "products": "المنتجات",
-    "purchase": "المشتريات",
-    "stockTransfers": "تحويلات المخزون"
-  },
+  "businessManagement": "إدارة الأعمال",
+  "userManagement": "إدارة المستخدمين",
+  "subscriptionsManagement": "إدارة الاشتراكات",
+  "roles": "الأدوار",
+  "branchesManagement": "إدارة الفروع",
+  "packageManagement": "إدارة الحزم",
+  "business": "الأعمال",
+  "user": "المستخدم",
+  "paymentMethods": "طرق الدفع ",
+  "taxRates": "معدلات الضرائب",
+  "currencies": "العملات",
+  "customers": "العملاء",
+  "suppliers": "الموردين",
+  "products": "المنتجات",
+  "purchase": "المشتريات",
+  "stockTransfers": "تحويلات المخزون",
+  "stockReceipts": "استلام المخزون",
+  "Order Purchases": "طلبات الشراء",
+  "Receive Purchases": "استلام المشتريات",
+  "Return Purchases": "مرتجعات المشتريات"
+},
   "table": {
   "actions": "الإجراءات",
   "search": "بحث...",
   "edit": "تعديل",
   "delete": "حذف",
+  "view": "تفاصيل",
   "renew": "تجديد",
   "noActions": "لا توجد إجراءات متاحة",
   "status": {
@@ -245,6 +250,8 @@
   "address": "العنوان",
   "tax_number": "الرقم الضريبي",
   "errorLoading": "خطأ في تحميل الموردين",
+  "lastModified": "آخر تعديل",
+  "statusUpdated": "تم تحديث الحالة",
   "swal": {
     "areYouSure": "هل أنت متأكد؟",
     "cantRevert": "لن تتمكن من التراجع عن هذا!",
@@ -287,6 +294,54 @@
   "error": "خطأ!",
   "errorDeleting": "حدث خطأ أثناء الحذف."
 }
-}
+},
+  "contactInfo": {
+    "backTo": "العودة إلى {{title}}",
+    "basicInformation": "المعلومات الأساسية",
+    "editInfo": "تعديل معلومات {{type}}",
+    "saveChanges": "حفظ التغييرات",
+    "saving": "جاري الحفظ...",
+    "cancel": "إلغاء",
+    "supplier": "المورد",
+    "customer": "العميل",
+    "supplierName": "اسم المورد",
+    "customerName": "اسم العميل",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "address": "العنوان",
+    "commercialRegistration": "السجل التجاري",
+    "landLine": "الهاتف الأرضي",
+    "taxNumber": "الرقم الضريبي",
+    "totalDueAmount": "إجمالي المبلغ المستحق",
+    "createdAt": "تم الإنشاء في",
+    "lastModified": "آخر تعديل",
+    "createdBy": "تم الإنشاء بواسطة",
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "toggleStatus": "تبديل الحالة",
+    "validation": {
+      "requiredField": "هذا الحقل مطلوب",
+      "invalidEmail": "بريد إلكتروني غير صالح",
+      "invalidPhone": "رقم هاتف غير صالح"
+    },
+    "messages": {
+      "loading": "جاري التحميل...",
+      "errorLoading": "خطأ في تحميل البيانات",
+      "noData": "لا توجد بيانات",
+      "noName": "لا يوجد اسم",
+      "notAvailable": "غير متوفر",
+      "changesSaved": "تم حفظ التغييرات بنجاح",
+      "errorSaving": "خطأ في حفظ التغييرات",
+      "noChanges": "لم تقم بإجراء أي تغييرات"
+    },
+    "fields": {
+      "identificationCard": "بطاقة الهوية",
+      "groupName": "اسم المجموعة",
+      "idcAttachment": "مرفق بطاقة الهوية"
+    }
+  }
+
 
 }

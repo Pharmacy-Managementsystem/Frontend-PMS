@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+export type TableAction = 'view' | 'edit' | 'delete' | 'toggleStatus' | 'custom';
 
 interface DataTableProps {
   columns: string[];
@@ -11,8 +12,9 @@ interface DataTableProps {
   onToggleStatus?: (id: string) => void;
   onActionsClick?: (id: string) => void;
   renderDropdown?: (id: string) => React.ReactNode;
-    onDelete?: (id: string) => void; // Add this line
-
+  onDelete?: (id: string) => void;
+  onView?: (id: string) => void; // أضيفي هذا السطر
+  actions?: TableAction[];
 }
 
 export const DataTable: React.FC<DataTableProps> = ({
@@ -20,11 +22,12 @@ export const DataTable: React.FC<DataTableProps> = ({
   data,
   RowComponent,
   onEdit,
+  onDelete,
   onToggleStatus,
   onActionsClick,
+  onView, // أضيفي هذا
   renderDropdown,
-  onDelete, 
-
+  actions
 }) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
@@ -51,10 +54,12 @@ export const DataTable: React.FC<DataTableProps> = ({
               data={row}
               columns={columns}
               onEdit={onEdit}
-               onDelete={onDelete} 
+              onDelete={onDelete}
               onToggleStatus={onToggleStatus}
+              onView={onView} // أضيفي هذا
               onActionsClick={onActionsClick}
               renderDropdown={renderDropdown}
+              actions={actions}
             />
           ))}
         </tbody>

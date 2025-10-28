@@ -9,7 +9,6 @@ const Setting = lazy(() => import('./Pages/Setting/Setting'));
 const Management = lazy(() => import('./Pages/Management/Management'));
 const Inventory = lazy(() => import('./Pages/Inventory/Inventory'));
 const Purchase = lazy(() => import('./Pages/Purchase/Purchase'));
-const Sales = lazy(() => import('./Pages/Sales/Sales'));
 const Contacts = lazy(() => import('./Pages/Contacts/Contacts'));
 
 
@@ -28,7 +27,6 @@ const routers = createBrowserRouter([
       { path: 'management', element: <Management /> },
       { path: 'inventory', element: <Inventory /> },
       { path: 'purchase', element: <Purchase /> },
-      { path: 'sales', element: <Sales /> },
       { path: 'contacts', element: <Contacts /> },
       
     ],
