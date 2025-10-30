@@ -2,14 +2,14 @@ import  { useState } from 'react';
 import MinNav from '../../Components/Navbar/MinNav';
 import Products from '../../Components/Inventory/Products';
 import StockTransfers from '../../Components/Inventory/StockTransfers';
-import FormProducts from '../../Components/Forms/FormProducts';
 
 export default function Inventory() {
   const [activeTab, setActiveTab] = useState<string>('products');
   
   const renderActiveComponent = () => {
     switch(activeTab) {
-      case 'products': return <FormProducts mode="add" onBack={() => setActiveTab('products')} />;
+      case 'products': return <Products />;
+
       // case 'purchase': return <Products />;
       case 'stockTransfers': return <StockTransfers />;
       default: return <Products />;

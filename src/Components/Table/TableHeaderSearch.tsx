@@ -3,7 +3,7 @@ import { FaPlus } from "react-icons/fa6";
 import { useTranslation } from 'react-i18next';
 
 interface TableHeaderProps {
-  title: string;
+  title?: string; // جعل title اختياري
   buttonText: string;
   onAddClick: () => void;
   onSearchChange?: (value: string) => void;
@@ -31,11 +31,13 @@ export const TableHeaderSearch: React.FC<TableHeaderProps> = ({
   };
 
   return (
-    <div className={`flex flex-col md:flex-row justify-between pb-6 gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-      <h1 className={`text-3xl font-bold text-title ${isRTL ? 'text-right' : 'text-left'}`}>{title}</h1>
+    <div className={`flex flex-col md:flex-row ${title ? 'justify-between' : 'justify-end'} pb-6 gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+      {title && (
+        <h1 className={`text-3xl font-bold text-title ${isRTL ? 'text-right' : 'text-left'}`}>{title}</h1>
+      )}
       
-      <div className={`flex flex-col sm:flex-row gap-4 items-start sm:items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-        <div className={`relative transition-all ${isSearchFocused ? 'w-full sm:w-64' : 'w-full sm:w-48'}`}>
+      <div className={`flex flex-col sm:flex-row ${!title ? 'justify-between w-full' : ''} gap-4 items-start sm:items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div className={`relative transition-all ${isSearchFocused ? 'w-full sm:w-64' : 'w-full sm:w-48'} ${!title ? 'flex-1' : ''}`}>
           <input
             type="text"
             placeholder={searchPlaceholder || t('table.search')}

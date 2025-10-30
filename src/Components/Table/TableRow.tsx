@@ -131,8 +131,8 @@ export const TableRow: React.FC<TableRowProps> = ({
           )}
         </td>
       ))}
-      <td className="py-4 px-6">
-        <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+      <td className="py-4 px-3">
+        <div className={`flex items-center gap-2 `}>
           {displayActions.map((action) => (
             <button 
               key={action}
