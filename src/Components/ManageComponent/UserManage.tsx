@@ -7,14 +7,7 @@ import UserInfo from "../Info/InfoUser/UserInfo";
 import Pagination from "../Pagination";
 import { useGet } from "../../Hook/API/useApiGet";
 import ReusableForm from "../Forms/ReusableForm";
-
-const columns = [
-  "User Name",
-  "Email Address",
-  "Phone Number",
-  "Branch Assigned", 
-  "Role",
-];
+import { useTranslation } from 'react-i18next';
 
 interface User {
   id: number;
@@ -49,20 +42,20 @@ interface BranchResponse {
 }
 
 export default function UserManage() {
+  const { t } = useTranslation();
+  
   const [page, setPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [deactivateId, setDeactivateId] = useState<string | null>(null);
   const [showInfo, setShowInfo] = useState<string | null>(null);
   const [pageSize] = useState(10);
   const [search, setSearch] = useState("");
-    const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState('');
 
-
-const { data: userResponse, isLoading, refetch } = useGet<DataResponse>({
-  endpoint: `/api/user/?page=${page}&search=${search}`,
-  queryKey: ["all-users", page, search], 
-});
-
+  const { data: userResponse, isLoading, refetch } = useGet<DataResponse>({
+    endpoint: `/api/user/?page=${page}&search=${search}`,
+    queryKey: ["all-users", page, search], 
+  });
 
   const { data: rolesResponse } = useGet<BranchResponse>({
     endpoint: `/api/business/roles/`,
@@ -79,38 +72,38 @@ const { data: userResponse, isLoading, refetch } = useGet<DataResponse>({
     queryKey: ["all-branches"],
   });
 
-   const branchesOptions = branchResponse?.results.map(branch => ({
+  const branchesOptions = branchResponse?.results.map(branch => ({
     value: branch.id,
     label: `${branch.name}`
-   })) || [];
+  })) || [];
   
-const formFields = [
-  { name: 'username', label: 'User Name', required: true },
-  { name: 'email', label: 'Email Address', required: true },
-  { name: 'phone_number', label: 'Phone Number', required: true },
-  { name: 'address', label: 'Address', required: true },
-  { name: 'password', label: 'Password', required: true, type: 'password' },
-  { name: 'confirmPassword', label: 'Confirm Password', required: true, type: 'password' },
-  { 
-    name: 'branches', 
-    label: 'Branches', 
-    type: 'multiselect', 
-    required: true,
-    options: branchesOptions,
-  },
-  { 
-    name: 'role', 
-    label: 'Role', 
-    type: 'select', 
-    required: true,
-    options: rolesOptions,
-  },
+  const formFields = [
+    { name: 'username', label: t('userManagement.userName'), required: true },
+    { name: 'email', label: t('userManagement.emailAddress'), required: true },
+    { name: 'phone_number', label: t('userManagement.phoneNumber'), required: true },
+    { name: 'address', label: t('userManagement.address'), required: true },
+    { name: 'password', label: t('userManagement.password'), required: true, type: 'password' },
+    { name: 'confirmPassword', label: t('userManagement.confirmPassword'), required: true, type: 'password' },
+    { 
+      name: 'branches', 
+      label: t('userManagement.branches'), 
+      type: 'multiselect', 
+      required: true,
+      options: branchesOptions,
+    },
+    { 
+      name: 'role', 
+      label: t('userManagement.role'), 
+      type: 'select', 
+      required: true,
+      options: rolesOptions,
+    },
   ];
 
   useEffect(() => {
-  const handler = setTimeout(() => setSearch(searchInput), 500);
-  return () => clearTimeout(handler);
-}, [searchInput]);
+    const handler = setTimeout(() => setSearch(searchInput), 500);
+    return () => clearTimeout(handler);
+  }, [searchInput]);
 
   const handleCreateSuccess = () => {
     setIsCreateModalOpen(false);
@@ -127,29 +120,28 @@ const formFields = [
 
       return {
         id: user.id.toString(),
-        "User Name": user.username,
-        "Email Address": user.email,
-        "Phone Number": user.phone_number,
-        "Branch Assigned":
-          branchNames.length > 0 ? branchNames.join(", ") : "—",
-        "Role": user.role_name,
+        [t('userManagement.userName')]: user.username,
+        [t('userManagement.emailAddress')]: user.email,
+        [t('userManagement.phoneNumber')]: user.phone_number,
+        [t('userManagement.branchAssigned')]:
+          branchNames.length > 0 ? branchNames.join(", ") : t('userInfo.noBranchesAssigned'),
+        [t('userManagement.role')]: user.role_name,
       };
     }) || [];
 
   return (
     <>
       {showInfo ? (
-<UserInfo 
-  userId={showInfo}  
-  onBack={handleBack}
-  editMode="limited" 
-/>
+        <UserInfo 
+          userId={showInfo}  
+          onBack={handleBack}
+          editMode="limited" 
+        />
       ) : (
         <div>
-          
           <TableHeaderSearch
-            title="User Management"
-            buttonText="Add New User"
+            title={t('userManagement.title')}
+            buttonText={t('userManagement.addNewUser')}
             onAddClick={() => setIsCreateModalOpen(true)}
             value={searchInput}
             onSearchChange={(value) => {
@@ -166,22 +158,28 @@ const formFields = [
           ) : (
             <>
               <DataTable
-                columns={columns}
+                columns={[
+                  t('userManagement.userName'),
+                  t('userManagement.emailAddress'),
+                  t('userManagement.phoneNumber'),
+                  t('userManagement.branchAssigned'),
+                  t('userManagement.role')
+                ]}
                 data={tableData}
                 RowComponent={TableRowUser}
                 renderDropdown={(id: string) => (
                   <div>
                     <button
                       onClick={() => setShowInfo(id)}
-                      className="block w-full text-left text-label  text-base px-4 py-2 hover:bg-gray-50"
+                      className="block w-full text-left text-label text-base px-4 py-2 hover:bg-gray-50"
                     >
-                      Show User Info
+                      {t('userManagement.showUserInfo')}
                     </button>
                     <button
                       onClick={() => setDeactivateId(id)}
                       className="block w-full text-left text-label text-base px-4 py-2 hover:bg-gray-50"
                     >
-                      Deactivate User
+                      {t('userManagement.deactivateUser')}
                     </button>
                   </div>
                 )}
@@ -199,22 +197,22 @@ const formFields = [
             </>
           )}
 
-             {isCreateModalOpen && (
-                      <ReusableForm
-                          title="User"
-                          fields={formFields}
-                          endpoint="/api/user/"
-                          method="post"
-                          onClose={() => setIsCreateModalOpen(false)}
-                          onSuccess={handleCreateSuccess}
-                          submitButtonText="Create User"
-                          key="create-form"
-                        />
-                  )}
+          {isCreateModalOpen && (
+            <ReusableForm
+              title={t('userManagement.user')}
+              fields={formFields}
+              endpoint="/api/user/"
+              method="post"
+              onClose={() => setIsCreateModalOpen(false)}
+              onSuccess={handleCreateSuccess}
+              submitButtonText={t('userManagement.createUser')}
+              key="create-form"
+            />
+          )}
           {deactivateId && (
             <DeactivateUser
               onClose={() => setDeactivateId(null)}
-                id={deactivateId}
+              id={deactivateId}
             />
           )}
         </div>
@@ -222,6 +220,3 @@ const formFields = [
     </>
   );
 }
-
-
-
