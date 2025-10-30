@@ -183,19 +183,7 @@ export default function ContactBaseInfo({
     address: { 
       label: t('contactInfo.address'), 
       type: 'textarea' 
-    },
-    cr: { 
-      label: t('contactInfo.commercialRegistration'), 
-      type: 'text' 
-    },
-    land_line: { 
-      label: t('contactInfo.landLine'), 
-      type: 'text' 
-    },
-    tax_number: { 
-      label: t('contactInfo.taxNumber'), 
-      type: 'text' 
-    },
+    }
   };
 
   // دالة لعرض الحقول الديناميكية
@@ -328,10 +316,7 @@ export default function ContactBaseInfo({
                   </div>
                 ))}
 
-                <div>
-                  <label className="text-sm text-gray-500">{t('contactInfo.totalDueAmount')}</label>
-                  <p className="text-gray-900">{contact?.total_due_amount || "0"}</p>
-                </div>
+               
               </div>
 
               {/* العمود الثالث - معلومات النظام */}

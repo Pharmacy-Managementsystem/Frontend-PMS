@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { PackagePlus, Trash2, SquareChartGantt, Users } from 'lucide-react';
 import AddRole from '../Forms/AddRole';
 import EditRoleView from '../Forms/EditRoleView'; 
+import { useTranslation } from 'react-i18next';
 
 interface role {
   id: number;
@@ -23,12 +24,12 @@ interface DataResponse {
   results: role[];
 }
 
-
 const Roles = () => {
+  const { t } = useTranslation();
+  
   const [page, setPage] = useState(1);
   const [pageSize] = useState(8);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
   const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
   const [selectedRoleForPermissions, setSelectedRoleForPermissions] = useState<string>('');
   
@@ -39,13 +40,13 @@ const Roles = () => {
 
   const handleDelete = async (id: string | number) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
+      title: t('roles.swal.areYouSure'),
+      text: t('roles.swal.cantRevert'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: t('roles.swal.yesDelete')
     });
 
     if (result.isConfirmed) {
@@ -53,8 +54,8 @@ const Roles = () => {
         const response = await api.delete(`/api/business/roles/${id}/`);
         if (response.status === 204) {
           Swal.fire(
-            'Deleted!',
-            'Your role has been deleted.',
+            t('roles.swal.deleted'),
+            t('roles.swal.roleDeleted'),
             'success'
           );
           refetch();
@@ -62,8 +63,8 @@ const Roles = () => {
       } catch (error) {
         console.error('Error deleting role:', error);
         Swal.fire(
-          'Error!',
-          'There was an error deleting the role.',
+          t('roles.swal.error'),
+          t('roles.swal.errorDeleting'),
           'error'
         );
       }
@@ -96,7 +97,7 @@ const Roles = () => {
     );
   }
 
-  if (error) return <div className="p-6">Error loading roles: {error.message}</div>;
+  if (error) return <div className="p-6">{t('roles.errorLoading')}: {error.message}</div>;
 
   const hasrole = roleResponse && roleResponse.results && roleResponse.results.length > 0;
 
@@ -109,23 +110,25 @@ const Roles = () => {
           <div className="bg-blue-50 p-8 rounded-full mb-6">
             <Users size={64} className="text-blue-500" />
           </div>
-          <h3 className="text-2xl font-semibold text-gray-800 mb-3">No roles yet</h3>
+          <h3 className="text-2xl font-semibold text-gray-800 mb-3">
+            {t('roles.noRoles')}
+          </h3>
           <p className="text-gray-600 mb-8 max-w-md text-lg">
-            Get started by creating your first role for your business.
+            {t('roles.getStarted')}
           </p>
           <button 
             className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl font-medium flex items-center gap-2"
             onClick={() => setIsCreateModalOpen(true)}
           >
             <PackagePlus size={20} />
-            Create First Role
+            {t('roles.createFirstRole')}
           </button>
         </div>
       ) : (
         <>
           <TableHeaderSearch
-            title="Roles"
-            buttonText="Add New Role" 
+            title={t('roles.title')}
+            buttonText={t('roles.addNewRole')} 
             onAddClick={() => setIsCreateModalOpen(true)}
           />
           
@@ -147,16 +150,15 @@ const Roles = () => {
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         onClick={() => handleManagePermissions(role.name)}
-                          title="Manage Permissions"
+                          title={t('roles.managePermissions')}
                         >
-                          
                           <SquareChartGantt size={18} />
                         </button>
                         
                         <button 
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           onClick={() => handleDelete(role.id)}
-                          title="Delete Role"
+                          title={t('roles.deleteRole')}
                         >
                           <Trash2 size={18} />
                         </button>
@@ -165,7 +167,7 @@ const Roles = () => {
                     
                     <div className="mt-4 pt-4 border-t border-gray-100">
                       <div className="flex justify-between text-sm text-gray-500">
-                        <span>Permissions:</span>
+                        <span>{t('roles.permissions')}:</span>
                         <span className="font-medium text-blue-600">
                           {role.permissions?.length || 0}
                         </span>
@@ -186,12 +188,14 @@ const Roles = () => {
               hasNext={!!roleResponse.next}
               hasPrevious={!!roleResponse.previous}
             />
-              </div>
+          </div>
 
-              { isPermissionsModalOpen && selectedRoleForPermissions && (<EditRoleView 
-        role_name={selectedRoleForPermissions}
-        onBack={handleBackFromPermissions}
-      />)}
+          {isPermissionsModalOpen && selectedRoleForPermissions && (
+            <EditRoleView 
+              role_name={selectedRoleForPermissions}
+              onBack={handleBackFromPermissions}
+            />
+          )}
         </>
       )}
     </div>
@@ -199,5 +203,3 @@ const Roles = () => {
 };
 
 export default Roles;
-
-

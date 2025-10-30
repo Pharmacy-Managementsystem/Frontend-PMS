@@ -6,15 +6,8 @@ import  { useState } from "react";
 import { useGet } from "../../Hook/API/useApiGet";
 import Pagination from "../Pagination";
 import FormBusiness from "../Forms/FormBusiness";
+import { useTranslation } from 'react-i18next';
 
-const columns = [
-  "Business Name",
-  "Owner Email",
-  "Subscription Status",
-  "Subscription Period",
-  "Contact Number",
-  "Package"
-];
 
 interface Business {
   id: number;
@@ -38,6 +31,8 @@ interface DataResponse {
 }
 
 export default function BusinessManage() {
+  const { t } = useTranslation();
+  
   const [page, setPage] = useState(1);
   const [deactivateId, setDeactivateId] = useState<string | null>(null);
   const [pageSize] = useState(10);
@@ -50,8 +45,6 @@ export default function BusinessManage() {
   const handleBack = () => {
     setBusinessAction(null);
   };
-
-  
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
@@ -74,22 +67,35 @@ export default function BusinessManage() {
     }
   };
 
+  const getTranslatedStatus = (status: string) => {
+    switch (status) {
+      case 'active':
+        return t('table.status.active');
+      case 'inactive':
+        return t('table.status.inactive');
+      case 'pending':
+        return t('table.status.pending');
+      default:
+        return status;
+    }
+  };
+
   // Transform API data to match table structure
   const tableData = businessResponse?.results?.map(business => ({
     id: business.id.toString(),
-    "Business Name": business.name,
-    "Owner Email": business.owner_user_email,
-    "Subscription Status": (
+    [t('businessManagement.businessName')]: business.name,
+    [t('businessManagement.ownerEmail')]: business.owner_user_email,
+    [t('businessManagement.subscriptionStatus')]: (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(business.subscription_status)}`}>
-        {business.subscription_status}
+        {getTranslatedStatus(business.subscription_status)}
       </span>
     ),
-    "Subscription Period": formatSubscriptionPeriod(
+    [t('businessManagement.subscriptionPeriod')]: formatSubscriptionPeriod(
       business.subscription_start_date,
       business.subscription_end_date
     ),
-    "Contact Number": business.contact_number || 'N/A',
-    "Package": business.package_name
+    [t('businessManagement.contactNumber')]: business.contact_number || t('contactInfo.messages.notAvailable'),
+    [t('businessManagement.package')]: business.package_name
   })) || [];
 
   if (isLoading) {
@@ -102,38 +108,42 @@ export default function BusinessManage() {
     );
   }
 
-  
-
   return (
     <>
       {businessAction ? (
-<div >
+        <div>
           <FormBusiness 
-            mode={businessAction === "Add New Business" ? "add" : "edit"}
-            businessId={businessAction === "Add New Business" ? null : businessAction}
+            mode={businessAction === t('businessManagement.addNewBusiness') ? "add" : "edit"}
+            businessId={businessAction === t('businessManagement.addNewBusiness') ? null : businessAction}
             onBack={handleBack}
           />
         </div>
       ) : (
-      <div>
+        <div>
           <TableHeaderSearch 
-            title="Business Management"
-            buttonText="Add New Business"
-            onAddClick={() => setBusinessAction("Add New Business")}
+            title={t('businessManagement.title')}
+            buttonText={t('businessManagement.addNewBusiness')}
+            onAddClick={() => setBusinessAction(t('businessManagement.addNewBusiness'))}
           />
           
           <DataTable
-            columns={columns}
+            columns={[
+              t('businessManagement.businessName'),
+              t('businessManagement.ownerEmail'),
+              t('businessManagement.subscriptionStatus'),
+              t('businessManagement.subscriptionPeriod'),
+              t('businessManagement.contactNumber'),
+              t('businessManagement.package')
+            ]}
             data={tableData}
             RowComponent={TableRowUser}
             renderDropdown={(id: string) => (
               <div className="p-2">
-                
                 <button 
                   onClick={() => setDeactivateId(id)} 
                   className="block w-full text-left text-gray-700 text-sm px-3 py-2 hover:bg-gray-50 rounded-md transition-colors"
                 >
-                  Deactivate Business
+                  {t('businessManagement.deactivateBusiness')}
                 </button>
               </div>
             )}
@@ -153,11 +163,11 @@ export default function BusinessManage() {
           {deactivateId && (
             <DeactivateUser
               onClose={() => setDeactivateId(null)}
-                id={deactivateId}
+              id={deactivateId}
             />
           )}
         </div>
       )}
     </>
   );
-}
+}          

@@ -9,6 +9,7 @@ export default function Inventory() {
   const renderActiveComponent = () => {
     switch(activeTab) {
       case 'products': return <Products />;
+
       // case 'purchase': return <Products />;
       case 'stockTransfers': return <StockTransfers />;
       default: return <Products />;
@@ -28,6 +29,30 @@ export default function Inventory() {
     </>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

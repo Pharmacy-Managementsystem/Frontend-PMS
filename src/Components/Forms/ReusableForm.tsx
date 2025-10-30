@@ -87,31 +87,37 @@ export default function ReusableForm({
       fields.forEach(field => {
         const value = data[field.name];
         
-        if (field.type === 'multiselect') {
-          if (Array.isArray(value)) {
-            formData[field.name] = value;
-          } else if (value) {
-            formData[field.name] = [value.toString()];
-          } else {
-            formData[field.name] = [];
-          }
-        }
-        else if (field.type === 'checkbox') {
-          formData[field.name] = Boolean(value);
-        } else if (value !== undefined && value !== null) {
-          if (field.type === 'number') {
-            formData[field.name] = typeof value === 'number' ? value : Number(value);
-          } else if (field.type === 'file') {
-            if (value instanceof FileList && value.length > 0) {
-              formData[field.name] = value[0];
+        // ✅ التعديل الجديد: لا ترسل الحقول الفارغة إذا كانت غير مطلوبة
+        if (field.required || (value !== undefined && value !== null && value !== '' && value !== 0)) {
+          if (field.type === 'multiselect') {
+            if (Array.isArray(value)) {
+              formData[field.name] = value;
+            } else if (value) {
+              formData[field.name] = [value.toString()];
+            } else {
+              formData[field.name] = [];
             }
-          } else if (typeof value === 'string' || typeof value === 'number') {
-            formData[field.name] = value;
+          }
+          else if (field.type === 'checkbox') {
+            formData[field.name] = Boolean(value);
+          } else if (value !== undefined && value !== null) {
+            if (field.type === 'number') {
+              formData[field.name] = typeof value === 'number' ? value : Number(value);
+            } else if (field.type === 'file') {
+              if (value instanceof FileList && value.length > 0) {
+                formData[field.name] = value[0];
+              }
+            } else if (typeof value === 'string' || typeof value === 'number') {
+              // ✅ لا ترسل الحقول الفارغة إذا كانت غير مطلوبة
+              if (field.required || (value !== '' && value !== 0)) {
+                formData[field.name] = value;
+              }
+            } else if (field.required) {
+              formData[field.name] = field.type === 'number' ? 0 : '';
+            }
           } else if (field.required) {
             formData[field.name] = field.type === 'number' ? 0 : '';
           }
-        } else if (field.required) {
-          formData[field.name] = field.type === 'number' ? 0 : '';
         }
       });
     }
@@ -120,6 +126,7 @@ export default function ReusableForm({
     mutate(formData);
   };
 
+  // ... باقي الكود بدون تغيير ...
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const value = e.target.value;
     if (value === '' || !isNaN(Number(value))) {
@@ -146,7 +153,7 @@ export default function ReusableForm({
             required: field.required ? t('form.fieldRequired', { field: field.label }) : false
           })}
         >
-          <option value="">{t('form.select', { field: field.label })}</option>
+          <option value="">{field.required ? `${t('form.select', { field: field.label })} *` : t('form.select', { field: field.label })}</option>
           {field.options?.map(option => (
             <option key={option.value} value={option.value}>
               {option.label}
