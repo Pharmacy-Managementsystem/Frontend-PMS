@@ -1,0 +1,98 @@
+name: Build and Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: pharmacy-managementsystem/frontend-pms
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image-tag: ${{ steps.vars.outputs.TAG }}
+      compose-file: ${{ steps.compose-file.outputs.COMPOSE_B64 }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set the docker-compose.yml file output (base64)
+        id: compose-file
+        run: |
+          content=$(base64 -w0 "${{ github.workspace }}/docker-compose.frontend.yml" || base64 "${{ github.workspace }}/docker-compose.frontend.yml" | tr -d '\n')
+          echo "COMPOSE_B64=$content" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set tag value from short git commit SHA
+        id: vars
+        run: |
+          TAG=$(git rev-parse --short ${{ github.sha }})
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "TAG=$TAG" >> $GITHUB_OUTPUT
+          ls -l
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+
+  deploy:
+    needs: build
+    runs-on: frontend
+    steps:
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Deploy to Docker Compose
+        run: |
+          cd /home/github-runner/pms_frontend
+          echo "${{ secrets.PROD_ENV }}" > .env
+          docker compose down
+          echo "${{ needs.build.outputs.compose-file }}" | base64 -d > docker-compose.yml
+          sed -i "s|\(image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:\).*|\1${{ needs.build.outputs.image-tag }}|" docker-compose.yml
+          docker compose up -d
+
+      # - name: Run database migrations
+      #   run: |
+      #     cd /home/github-runner
+      #     docker compose exec -T pms python manage.py makemigrations
+      #     docker compose exec -T pms python manage.py migrate
+
+      - name: Cleanup old Docker images
+        run: |
+          KEEP=5  # number of latest images to keep
+          BACKEND_REPO=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          echo "🧹 Cleaning up old Docker images for $BACKEND_REPO, keeping $KEEP latest..."
+          # Remove dangling images for backend
+          docker images "$BACKEND_REPO" --filter "dangling=true" --quiet | xargs -r docker rmi || true
+          # Sort images by creation date, keep the latest $KEEP, remove the rest
+          docker images --format '{{.Repository}}:{{.Tag}} {{.CreatedAt}}' \
+              | grep "^$BACKEND_REPO" \
+              | sort -rk2 \
+              | tail -n +$((KEEP+1)) \
+              | awk '{print $1}' \
+              | xargs -r docker rmi || true
+          echo "✅ Backend cleanup complete."

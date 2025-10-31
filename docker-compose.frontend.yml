@@ -1,0 +1,27 @@
+name: PMS
+
+services:
+  frontend:
+    image: ghcr.io/pharmacy-managementsystem/frontend-pms:latest
+    container_name: pms_frontend_prod
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - pms-network
+    labels:
+      - "com.pms.description=PMS Frontend Application"
+      - "com.pms.version=1.0.0"
+
+networks:
+  pms-network:
+    external: true
+    name: pms_pms-network
