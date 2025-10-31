@@ -70,8 +70,8 @@ jobs:
         run: |
           cd /home/github-runner/pms_frontend
           echo "${{ secrets.PROD_ENV }}" > .env
-          docker compose down
           echo "${{ needs.build.outputs.compose-file }}" | base64 -d > docker-compose.yml
+          docker compose down
           sed -i "s|\(image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:\).*|\1${{ needs.build.outputs.image-tag }}|" docker-compose.yml
           docker compose up -d
 
