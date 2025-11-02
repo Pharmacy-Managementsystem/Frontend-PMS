@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
 import { TableHeaderSearch } from "../Table/TableHeaderSearch";
 import { DataTable } from "../Table/DataTable";
-import { TableRow } from '../Table/TableRow';
+import { TableRow } from "../Table/TableRow";
 import { useGet } from "../../Hook/API/useApiGet";
 import Pagination from "../Pagination";
-import {
-  CircularProgress,
-} from '@mui/material';
-import { PackagePlus } from 'lucide-react';
+import { CircularProgress } from "@mui/material";
+import { PackagePlus } from "lucide-react";
 import api from "../../Hook/API/api";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import FormBranch from "../Forms/FormBranch";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 interface Currency {
   pk: number;
@@ -65,32 +63,37 @@ interface DataResponse {
 
 export default function BranchesManage() {
   const { t } = useTranslation();
-  
+
   const columns = [
-    t('branchesManagement.branchName'),
-    t('branchesManagement.country'),
-    t('branchesManagement.contactNumber'),
-    t('branchesManagement.createdDate'),
-    t('branchesManagement.taxRate')
+    t("branchesManagement.branchName"),
+    t("branchesManagement.country"),
+    t("branchesManagement.contactNumber"),
+    t("branchesManagement.createdDate"),
+    t("branchesManagement.taxRate"),
   ];
 
   const [page, setPage] = useState(1);
   const [branchAction, setBranchAction] = useState<string | null>(null);
   const [pageSize] = useState(4);
   const [id, setId] = useState<number | null>(null);
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
 
   // استخدم search في useGet مع debouncing
-  const { data: branchResponse, isLoading, error, refetch } = useGet<DataResponse>({
+  const {
+    data: branchResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useGet<DataResponse>({
     endpoint: `/api/branch/?page=${page}&page_size=${pageSize}&name__icontains=${search}`,
-    queryKey: ['all-branches', page, search],
+    queryKey: ["all-branches", page, search],
   });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
-  
+
   const handleBack = () => {
     setBranchAction(null);
   };
@@ -100,7 +103,7 @@ export default function BranchesManage() {
       setSearch(searchInput);
       setPage(1);
     }, 500);
-    
+
     return () => clearTimeout(handler);
   }, [searchInput]);
 
@@ -110,13 +113,13 @@ export default function BranchesManage() {
 
   const handleDelete = async (id: string | number) => {
     const result = await Swal.fire({
-      title: t('branchesManagement.swal.areYouSure'),
-      text: t('branchesManagement.swal.cantRevert'),
-      icon: 'warning',
+      title: t("branchesManagement.swal.areYouSure"),
+      text: t("branchesManagement.swal.cantRevert"),
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: t('branchesManagement.swal.yesDelete')
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: t("branchesManagement.swal.yesDelete"),
     });
 
     if (result.isConfirmed) {
@@ -124,62 +127,79 @@ export default function BranchesManage() {
         const response = await api.delete(`/api/branch/${id}/`);
         if (response.status === 204) {
           Swal.fire(
-            t('branchesManagement.swal.deleted'),
-            t('branchesManagement.swal.branchDeleted'),
-            'success'
+            t("branchesManagement.swal.deleted"),
+            t("branchesManagement.swal.branchDeleted"),
+            "success",
           );
           refetch();
         }
       } catch (error) {
-        console.error('Error deleting branch:', error);
+        console.error("Error deleting branch:", error);
         Swal.fire(
-          t('branchesManagement.swal.error'),
-          t('branchesManagement.swal.errorDeleting'),
-          'error'
+          t("branchesManagement.swal.error"),
+          t("branchesManagement.swal.errorDeleting"),
+          "error",
         );
       }
     }
   };
 
   const handleEditClick = (id: string | number) => {
-    const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
-    setBranchAction(t('branchesManagement.editBranch')); 
+    const numericId = typeof id === "string" ? parseInt(id, 10) : id;
+    setBranchAction(t("branchesManagement.editBranch"));
     setId(numericId);
   };
 
   // Transform API data to match table structure
-  const tableData = branchResponse?.results?.map(branch => ({
-    id: branch.id.toString(),
-    [columns[0]]: branch.name,
-    [columns[1]]: branch.country || t('contactInfo.messages.notAvailable'),
-    [columns[2]]: branch.mobile || branch.landline || t('contactInfo.messages.notAvailable'),
-    [columns[3]]: formatDate(branch.created_at),
-    [columns[4]]: `${branch.tax_rate}%`
-  })) || [];
+  const tableData =
+    branchResponse?.results?.map((branch) => ({
+      id: branch.id.toString(),
+      [columns[0]]: branch.name,
+      [columns[1]]: branch.country || t("contactInfo.messages.notAvailable"),
+      [columns[2]]:
+        branch.mobile ||
+        branch.landline ||
+        t("contactInfo.messages.notAvailable"),
+      [columns[3]]: formatDate(branch.created_at),
+      [columns[4]]: `${branch.tax_rate}%`,
+    })) || [];
 
-  const hasBranches = branchResponse && branchResponse.results && branchResponse.results.length > 0;
+  const hasBranches =
+    branchResponse &&
+    branchResponse.results &&
+    branchResponse.results.length > 0;
 
   return (
     <>
       {branchAction ? (
         <div>
-          <FormBranch 
-            mode={branchAction === t('branchesManagement.addNewBranch') ? "add" : "edit"}
-            branchId={branchAction === t('branchesManagement.addNewBranch') ? null : id}
+          <FormBranch
+            mode={
+              branchAction === t("branchesManagement.addNewBranch")
+                ? "add"
+                : "edit"
+            }
+            branchId={
+              branchAction === t("branchesManagement.addNewBranch") ? null : id
+            }
             onBack={handleBack}
           />
         </div>
       ) : (
         <div className="">
-          <TableHeaderSearch 
-            title={t('branchesManagement.title')}
-            buttonText={t('branchesManagement.addNewBranch')}
-            onAddClick={() => setBranchAction(t('branchesManagement.addNewBranch'))}
+          <TableHeaderSearch
+            title={t("branchesManagement.title")}
+            buttonText={t("branchesManagement.addNewBranch")}
+            onAddClick={() =>
+              setBranchAction(t("branchesManagement.addNewBranch"))
+            }
             value={searchInput}
             onSearchChange={handleSearchChange}
           />
           {error ? (
-            <div className="p-6">{t('branchesManagement.errorLoading')}: {error.message}</div>
+            <div className="p-6">
+              {t("branchesManagement.errorLoading")}: {error.message}
+            </div>
           ) : isLoading ? (
             <div className="flex justify-center items-center h-64">
               <CircularProgress />
@@ -191,10 +211,10 @@ export default function BranchesManage() {
                   <PackagePlus size={48} className="text-gray-400" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {t('table.search.notFound')}
+                  {t("table.search.notFound")}
                 </h3>
                 <p className="text-gray-500 max-w-md">
-                  {t('table.search.tryDifferent')}
+                  {t("table.search.tryDifferent")}
                 </p>
               </div>
             ) : (
@@ -203,16 +223,18 @@ export default function BranchesManage() {
                   <PackagePlus size={48} className="text-gray-400" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {t('branchesManagement.noBranches')}
+                  {t("branchesManagement.noBranches")}
                 </h3>
                 <p className="text-gray-500 mb-6 max-w-md">
-                  {t('branchesManagement.getStarted')}
+                  {t("branchesManagement.getStarted")}
                 </p>
-                <button 
+                <button
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  onClick={() => setBranchAction(t('branchesManagement.addNewBranch'))}  
+                  onClick={() =>
+                    setBranchAction(t("branchesManagement.addNewBranch"))
+                  }
                 >
-                  {t('branchesManagement.createBranch')}
+                  {t("branchesManagement.createBranch")}
                 </button>
               </div>
             )

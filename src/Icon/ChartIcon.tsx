@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 
 interface ChartIconProps {
   size?: number;
   color?: string;
   strokeWidth?: number;
-  variant?: 'up' | 'down' | 'horizontal'; // إضافة نوع جديد
+  variant?: "up" | "down" | "horizontal"; // إضافة نوع جديد
   className?: string;
 }
 
@@ -12,7 +12,7 @@ export const ChartIcon: React.FC<ChartIconProps> = ({
   size = 21,
   color = "#2563EB",
   strokeWidth = 2,
-  variant = 'down', // قيمة افتراضية
+  variant = "down", // قيمة افتراضية
   className,
   ...props
 }) => {
@@ -65,7 +65,7 @@ export const ChartIcon: React.FC<ChartIconProps> = ({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-    )
+    ),
   };
 
   return (

@@ -1,6 +1,11 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-export type TableAction = 'view' | 'edit' | 'delete' | 'toggleStatus' | 'custom';
+import React from "react";
+import { useTranslation } from "react-i18next";
+export type TableAction =
+  | "view"
+  | "edit"
+  | "delete"
+  | "toggleStatus"
+  | "custom";
 
 interface DataTableProps {
   columns: string[];
@@ -27,23 +32,28 @@ export const DataTable: React.FC<DataTableProps> = ({
   onActionsClick,
   onView, // أضيفي هذا
   renderDropdown,
-  actions
+  actions,
 }) => {
   const { t, i18n } = useTranslation();
-  const isRTL = i18n.language === 'ar';
-  
+  const isRTL = i18n.language === "ar";
+
   return (
     <div className="overflow-x-auto relative">
       <table className="w-full">
         <thead className="bg-gray-200 rounded-lg">
           <tr>
             {columns.map((column) => (
-              <th key={column} className={`py-4 px-6 text-sm font-medium text-gray-700  ${isRTL ? 'text-right first:rounded-r-lg last:rounded-l-lg' : 'text-left first:rounded-l-lg last:rounded-r-lg '}`}>
+              <th
+                key={column}
+                className={`py-4 px-6 text-sm font-medium text-gray-700  ${isRTL ? "text-right first:rounded-r-lg last:rounded-l-lg" : "text-left first:rounded-l-lg last:rounded-r-lg "}`}
+              >
                 {column}
               </th>
             ))}
-            <th className={`py-4 px-6 text-sm font-medium text-gray-700  relative z-10 ${isRTL ? 'text-right last:rounded-l-lg' : 'text-left last:rounded-r-lg'}`}>
-              {t('table.actions')}
+            <th
+              className={`py-4 px-6 text-sm font-medium text-gray-700  relative z-10 ${isRTL ? "text-right last:rounded-l-lg" : "text-left last:rounded-r-lg"}`}
+            >
+              {t("table.actions")}
             </th>
           </tr>
         </thead>

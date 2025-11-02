@@ -1,15 +1,15 @@
 import { TableHeaderSearch } from "../Table/TableHeaderSearch";
-import { useState } from 'react';
-import { useGet } from '../../Hook/API/useApiGet';
+import { useState } from "react";
+import { useGet } from "../../Hook/API/useApiGet";
 import Pagination from "../Pagination";
-import { CircularProgress } from '@mui/material';
-import Box from '@mui/material/Box';
+import { CircularProgress } from "@mui/material";
+import Box from "@mui/material/Box";
 import api from "../../Hook/API/api";
-import Swal from 'sweetalert2';
-import { PackagePlus, Trash2, SquareChartGantt, Users } from 'lucide-react';
-import AddRole from '../Forms/AddRole';
-import EditRoleView from '../Forms/EditRoleView'; 
-import { useTranslation } from 'react-i18next';
+import Swal from "sweetalert2";
+import { PackagePlus, Trash2, SquareChartGantt, Users } from "lucide-react";
+import AddRole from "../Forms/AddRole";
+import EditRoleView from "../Forms/EditRoleView";
+import { useTranslation } from "react-i18next";
 
 interface role {
   id: number;
@@ -26,27 +26,33 @@ interface DataResponse {
 
 const Roles = () => {
   const { t } = useTranslation();
-  
+
   const [page, setPage] = useState(1);
   const [pageSize] = useState(8);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
-  const [selectedRoleForPermissions, setSelectedRoleForPermissions] = useState<string>('');
-  
-  const { data: roleResponse, isLoading, error, refetch } = useGet<DataResponse>({
+  const [selectedRoleForPermissions, setSelectedRoleForPermissions] =
+    useState<string>("");
+
+  const {
+    data: roleResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useGet<DataResponse>({
     endpoint: `/api/business/roles/?page=${page}&page_size=${pageSize}`,
-    queryKey: ['all-roles', page],
+    queryKey: ["all-roles", page],
   });
 
   const handleDelete = async (id: string | number) => {
     const result = await Swal.fire({
-      title: t('roles.swal.areYouSure'),
-      text: t('roles.swal.cantRevert'),
-      icon: 'warning',
+      title: t("roles.swal.areYouSure"),
+      text: t("roles.swal.cantRevert"),
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: t('roles.swal.yesDelete')
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: t("roles.swal.yesDelete"),
     });
 
     if (result.isConfirmed) {
@@ -54,18 +60,18 @@ const Roles = () => {
         const response = await api.delete(`/api/business/roles/${id}/`);
         if (response.status === 204) {
           Swal.fire(
-            t('roles.swal.deleted'),
-            t('roles.swal.roleDeleted'),
-            'success'
+            t("roles.swal.deleted"),
+            t("roles.swal.roleDeleted"),
+            "success",
           );
           refetch();
         }
       } catch (error) {
-        console.error('Error deleting role:', error);
+        console.error("Error deleting role:", error);
         Swal.fire(
-          t('roles.swal.error'),
-          t('roles.swal.errorDeleting'),
-          'error'
+          t("roles.swal.error"),
+          t("roles.swal.errorDeleting"),
+          "error",
         );
       }
     }
@@ -75,11 +81,11 @@ const Roles = () => {
     setIsCreateModalOpen(false);
     refetch();
   };
-  
+
   const handleBackFromPermissions = () => {
     setIsPermissionsModalOpen(false);
-    setSelectedRoleForPermissions('');
-    refetch(); 
+    setSelectedRoleForPermissions("");
+    refetch();
   };
 
   const handleManagePermissions = (roleName: string) => {
@@ -97,9 +103,15 @@ const Roles = () => {
     );
   }
 
-  if (error) return <div className="p-6">{t('roles.errorLoading')}: {error.message}</div>;
+  if (error)
+    return (
+      <div className="p-6">
+        {t("roles.errorLoading")}: {error.message}
+      </div>
+    );
 
-  const hasrole = roleResponse && roleResponse.results && roleResponse.results.length > 0;
+  const hasrole =
+    roleResponse && roleResponse.results && roleResponse.results.length > 0;
 
   return (
     <div className="container mx-auto p-6">
@@ -111,27 +123,27 @@ const Roles = () => {
             <Users size={64} className="text-blue-500" />
           </div>
           <h3 className="text-2xl font-semibold text-gray-800 mb-3">
-            {t('roles.noRoles')}
+            {t("roles.noRoles")}
           </h3>
           <p className="text-gray-600 mb-8 max-w-md text-lg">
-            {t('roles.getStarted')}
+            {t("roles.getStarted")}
           </p>
-          <button 
+          <button
             className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl font-medium flex items-center gap-2"
             onClick={() => setIsCreateModalOpen(true)}
           >
             <PackagePlus size={20} />
-            {t('roles.createFirstRole')}
+            {t("roles.createFirstRole")}
           </button>
         </div>
       ) : (
         <>
           <TableHeaderSearch
-            title={t('roles.title')}
-            buttonText={t('roles.addNewRole')} 
+            title={t("roles.title")}
+            buttonText={t("roles.addNewRole")}
             onAddClick={() => setIsCreateModalOpen(true)}
           />
-          
+
           <div className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {roleResponse.results.map((role) => (
@@ -146,28 +158,29 @@ const Roles = () => {
                           {role.name}
                         </span>
                       </div>
-                      
+
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        onClick={() => handleManagePermissions(role.name)}
-                          title={t('roles.managePermissions')}
+                        <button
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          onClick={() => handleManagePermissions(role.name)}
+                          title={t("roles.managePermissions")}
                         >
                           <SquareChartGantt size={18} />
                         </button>
-                        
-                        <button 
+
+                        <button
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           onClick={() => handleDelete(role.id)}
-                          title={t('roles.deleteRole')}
+                          title={t("roles.deleteRole")}
                         >
                           <Trash2 size={18} />
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="mt-4 pt-4 border-t border-gray-100">
                       <div className="flex justify-between text-sm text-gray-500">
-                        <span>{t('roles.permissions')}:</span>
+                        <span>{t("roles.permissions")}:</span>
                         <span className="font-medium text-blue-600">
                           {role.permissions?.length || 0}
                         </span>
@@ -191,7 +204,7 @@ const Roles = () => {
           </div>
 
           {isPermissionsModalOpen && selectedRoleForPermissions && (
-            <EditRoleView 
+            <EditRoleView
               role_name={selectedRoleForPermissions}
               onBack={handleBackFromPermissions}
             />

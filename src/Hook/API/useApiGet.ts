@@ -1,9 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
-import type { UseQueryResult } from '@tanstack/react-query';
-import api from './api';
-import Swal from 'sweetalert2';
+import { useQuery } from "@tanstack/react-query";
+import type { UseQueryResult } from "@tanstack/react-query";
+import api from "./api";
+import Swal from "sweetalert2";
 
-interface UseGetOptions{
+interface UseGetOptions {
   endpoint: string;
   queryKey: unknown[];
   params?: Record<string, unknown>;
@@ -24,12 +24,16 @@ export function useGet<T = unknown>({
         const response = await api.get<T>(endpoint, { params });
         return response.data;
       } catch (error: unknown) {
-        const err = error as { response?: { data?: { message?: string } }; message?: string };
-        const errorMsg = err.response?.data?.message || err.message || 'Unexpected Error';
+        const err = error as {
+          response?: { data?: { message?: string } };
+          message?: string;
+        };
+        const errorMsg =
+          err.response?.data?.message || err.message || "Unexpected Error";
 
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
+          icon: "error",
+          title: "Error",
           text: errorMsg,
         });
 

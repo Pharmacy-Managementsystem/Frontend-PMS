@@ -1,18 +1,16 @@
 import { useState, useEffect } from "react";
 import { TableHeaderSearch } from "../Table/TableHeaderSearch";
 import { DataTable } from "../Table/DataTable";
-import { TableRow } from '../Table/TableRow';
+import { TableRow } from "../Table/TableRow";
 import { useGet } from "../../Hook/API/useApiGet";
 import Pagination from "../Pagination";
-import {
-  CircularProgress,
-} from '@mui/material';
-import { Ruler } from 'lucide-react';
+import { CircularProgress } from "@mui/material";
+import { Ruler } from "lucide-react";
 import api from "../../Hook/API/api";
-import Swal from 'sweetalert2';
-import { useTranslation } from 'react-i18next';
+import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 import ReusableForm from "../Forms/ReusableForm";
-import ViewTypeOrUnit from "../Info/ViewTypeOrUnit"; 
+import ViewTypeOrUnit from "../Info/ViewTypeOrUnit";
 
 interface ProductUnit {
   id: number;
@@ -32,17 +30,16 @@ export default function ProductsUnit() {
   const [action, setAction] = useState<string | null>(null);
   const [id, setId] = useState<number | null>(null);
   const { t } = useTranslation();
-  
-  const columns = [
-    t('productsUnit.name'),
-    t('productsUnit.parent'),
-  ];
+
+  const columns = [t("productsUnit.name"), t("productsUnit.parent")];
 
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
-  const [parentUnits, setParentUnits] = useState<{value: number; label: string}[]>([]);
+  const [parentUnits, setParentUnits] = useState<
+    { value: number; label: string }[]
+  >([]);
 
   // Build query parameters based on available search options
   const buildQueryParams = () => {
@@ -52,25 +49,32 @@ export default function ProductsUnit() {
     });
 
     if (search.trim()) {
-      params.append('name__icontains', search.trim());
+      params.append("name__icontains", search.trim());
     }
 
     return params.toString();
   };
 
-  const { data: unitResponse, isLoading, error, refetch } = useGet<DataResponse>({
+  const {
+    data: unitResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useGet<DataResponse>({
     endpoint: `/api/inventory/products/units/?${buildQueryParams()}`,
-    queryKey: ['productUnits', page, search],
+    queryKey: ["productUnits", page, search],
   });
 
- 
   useEffect(() => {
     if (unitResponse?.results) {
-      const options = unitResponse.results.map(unit => ({
+      const options = unitResponse.results.map((unit) => ({
         value: unit.id,
-        label: unit.name
+        label: unit.name,
       }));
-      setParentUnits([{ value: 0, label: t('productsUnit.noParent') }, ...options]);
+      setParentUnits([
+        { value: 0, label: t("productsUnit.noParent") },
+        ...options,
+      ]);
     }
   }, [unitResponse, t]);
 
@@ -79,7 +83,7 @@ export default function ProductsUnit() {
       setSearch(searchInput);
       setPage(1);
     }, 500);
-    
+
     return () => clearTimeout(handler);
   }, [searchInput]);
 
@@ -89,38 +93,37 @@ export default function ProductsUnit() {
 
   const handleDelete = async (id: string | number) => {
     const result = await Swal.fire({
-      title: t('productsUnit.swal.areYouSure'),
-      text: t('productsUnit.swal.cantRevert'),
-      icon: 'warning',
+      title: t("productsUnit.swal.areYouSure"),
+      text: t("productsUnit.swal.cantRevert"),
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: t('productsUnit.swal.yesDelete')
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: t("productsUnit.swal.yesDelete"),
     });
 
     if (result.isConfirmed) {
       try {
-        const response = await api.delete(`/api/inventory/products/units/${id}/`);
+        const response = await api.delete(
+          `/api/inventory/products/units/${id}/`,
+        );
         if (response.status === 204) {
           Swal.fire(
-            t('productsUnit.swal.deleted'),
-            t('productsUnit.swal.unitDeleted'),
-            'success'
+            t("productsUnit.swal.deleted"),
+            t("productsUnit.swal.unitDeleted"),
+            "success",
           );
           refetch();
         }
       } catch (error) {
-        console.error('Error deleting product unit:', error);
-        
-        const errorMessage = error instanceof Error 
-          ? error.message 
-          : t('productsUnit.swal.errorDeleting');
-        
-        Swal.fire(
-          t('productsUnit.swal.error'),
-          errorMessage,
-          'error'
-        );
+        console.error("Error deleting product unit:", error);
+
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : t("productsUnit.swal.errorDeleting");
+
+        Swal.fire(t("productsUnit.swal.error"), errorMessage, "error");
       }
     }
   };
@@ -131,19 +134,19 @@ export default function ProductsUnit() {
   };
 
   const handleEditClick = (id: string | number) => {
-    const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
-    setAction('edit');
+    const numericId = typeof id === "string" ? parseInt(id, 10) : id;
+    setAction("edit");
     setId(numericId);
   };
 
   const handleViewClick = (id: string | number) => {
-    const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
-    setAction('view');
+    const numericId = typeof id === "string" ? parseInt(id, 10) : id;
+    setAction("view");
     setId(numericId);
   };
 
   const handleAddClick = () => {
-    setAction('add');
+    setAction("add");
     setId(null);
   };
 
@@ -154,88 +157,98 @@ export default function ProductsUnit() {
 
   // Get initial values for edit
   const getInitialValues = () => {
-    if (action === 'edit' && id && unitResponse?.results) {
-      const unitToEdit = unitResponse.results.find(unit => unit.id === id);
+    if (action === "edit" && id && unitResponse?.results) {
+      const unitToEdit = unitResponse.results.find((unit) => unit.id === id);
       if (unitToEdit) {
         return {
-          name: unitToEdit.name || '',
-          parent: unitToEdit.parent || 0
+          name: unitToEdit.name || "",
+          parent: unitToEdit.parent || 0,
         };
       }
     }
     return {
-      name: '',
-      parent: 0
+      name: "",
+      parent: 0,
     };
   };
 
   // Define form fields for product units
   const formFields = [
     {
-      name: 'name',
-      label: t('productsUnit.name'),
-      type: 'text',
-      required: true
+      name: "name",
+      label: t("productsUnit.name"),
+      type: "text",
+      required: true,
     },
     {
-      name: 'parent',
-      label: t('productsUnit.parent'),
-      type: 'select',
+      name: "parent",
+      label: t("productsUnit.parent"),
+      type: "select",
       required: false,
-      options: parentUnits
-    }
+      options: parentUnits,
+    },
   ];
 
   // Safe data transformation with null checks
-  const tableData = unitResponse?.results?.map(unit => {
-    // Ensure all required fields have safe fallbacks
-    const safeUnit = {
-      id: unit?.id?.toString() || '',
-      name: unit?.name || t('productsUnit.unknown'),
-      parent_name: unit?.parent_name || t('productsUnit.noParent'),
-       };
+  const tableData =
+    unitResponse?.results?.map((unit) => {
+      // Ensure all required fields have safe fallbacks
+      const safeUnit = {
+        id: unit?.id?.toString() || "",
+        name: unit?.name || t("productsUnit.unknown"),
+        parent_name: unit?.parent_name || t("productsUnit.noParent"),
+      };
 
-    return {
-      id: safeUnit.id,
-      [columns[0]]: safeUnit.name,
-      [columns[1]]: safeUnit.parent_name,
-     
-    };
-  }) || [];
+      return {
+        id: safeUnit.id,
+        [columns[0]]: safeUnit.name,
+        [columns[1]]: safeUnit.parent_name,
+      };
+    }) || [];
 
-  const hasUnits = unitResponse && unitResponse.results && unitResponse.results.length > 0;
+  const hasUnits =
+    unitResponse && unitResponse.results && unitResponse.results.length > 0;
 
   return (
     <>
-      {action === 'view' && id ? (
-        <ViewTypeOrUnit 
-          itemId={id}
-          itemType="unit"
-          onBack={handleBack}
-        />
-      ) : action === 'add' || action === 'edit' ? (
+      {action === "view" && id ? (
+        <ViewTypeOrUnit itemId={id} itemType="unit" onBack={handleBack} />
+      ) : action === "add" || action === "edit" ? (
         <ReusableForm
           fields={formFields}
-          title={action === 'add' ? t('productsUnit.addNewUnit') : t('productsUnit.editUnit')}
-          endpoint={action === 'add' ? '/api/inventory/products/units/' : `/api/inventory/products/units/${id}/`}
-          method={action === 'add' ? 'post' : 'patch'}
+          title={
+            action === "add"
+              ? t("productsUnit.addNewUnit")
+              : t("productsUnit.editUnit")
+          }
+          endpoint={
+            action === "add"
+              ? "/api/inventory/products/units/"
+              : `/api/inventory/products/units/${id}/`
+          }
+          method={action === "add" ? "post" : "patch"}
           onSuccess={handleSuccess}
           onClose={handleBack}
-          submitButtonText={action === 'add' ? t('productsUnit.createUnit') : t('productsUnit.updateUnit')}
+          submitButtonText={
+            action === "add"
+              ? t("productsUnit.createUnit")
+              : t("productsUnit.updateUnit")
+          }
           initialValues={getInitialValues()}
         />
       ) : (
         <div className="">
-          <TableHeaderSearch 
-            buttonText={t('productsUnit.addNewUnit')}
+          <TableHeaderSearch
+            buttonText={t("productsUnit.addNewUnit")}
             onAddClick={handleAddClick}
             value={searchInput}
             onSearchChange={handleSearchChange}
-            searchPlaceholder={t('productsUnit.searchPlaceholder')}
+            searchPlaceholder={t("productsUnit.searchPlaceholder")}
           />
           {error ? (
             <div className="p-6">
-              {t('productsUnit.errorLoading')}: {error instanceof Error ? error.message : String(error)}
+              {t("productsUnit.errorLoading")}:{" "}
+              {error instanceof Error ? error.message : String(error)}
             </div>
           ) : isLoading ? (
             <div className="flex justify-center items-center h-64">
@@ -248,10 +261,10 @@ export default function ProductsUnit() {
                   <Ruler size={48} className="text-gray-400" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {t('productsUnit.noUnitsFound')}
+                  {t("productsUnit.noUnitsFound")}
                 </h3>
                 <p className="text-gray-500 max-w-md">
-                  {t('productsUnit.tryDifferentSearch')}
+                  {t("productsUnit.tryDifferentSearch")}
                 </p>
               </div>
             ) : (
@@ -260,16 +273,16 @@ export default function ProductsUnit() {
                   <Ruler size={48} className="text-gray-400" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {t('productsUnit.noUnits')}
+                  {t("productsUnit.noUnits")}
                 </h3>
                 <p className="text-gray-500 mb-6 max-w-md">
-                  {t('productsUnit.getStarted')}
+                  {t("productsUnit.getStarted")}
                 </p>
-                <button 
+                <button
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   onClick={handleAddClick}
                 >
-                  {t('productsUnit.createUnit')}
+                  {t("productsUnit.createUnit")}
                 </button>
               </div>
             )
@@ -282,7 +295,7 @@ export default function ProductsUnit() {
                 onEdit={handleEditClick}
                 onView={handleViewClick} // أضف هذا
                 onDelete={handleDelete}
-                actions={["view",'edit', 'delete']}
+                actions={["view", "edit", "delete"]}
               />
 
               <Pagination

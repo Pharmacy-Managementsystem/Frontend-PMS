@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { Package, LayoutDashboard, ChartNoAxesColumnIncreasing, CircleUserRound, ShoppingCart, Settings, Users, Globe } from "lucide-react";
+import {
+  Package,
+  LayoutDashboard,
+  ChartNoAxesColumnIncreasing,
+  CircleUserRound,
+  ShoppingCart,
+  Settings,
+  Users,
+  Globe,
+} from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IoIosLogOut } from "react-icons/io";
 import { useLogout } from "../../services/Logout";
@@ -8,21 +17,51 @@ import { useDecodedToken } from "../../Hook/useDecodedToken";
 import { useTranslation } from "react-i18next";
 
 const navItems = [
-  { Icon: LayoutDashboard, labelKey: "navbar.dashboard", id: "dashboard", page: "/Dashboard/home" },
+  {
+    Icon: LayoutDashboard,
+    labelKey: "navbar.dashboard",
+    id: "dashboard",
+    page: "/Dashboard/home",
+  },
   // { Icon: ScrollText, label: "POS", id: "pos", page: "/Dashboard/pos" },
-  { Icon: Package, labelKey: "navbar.inventory", id: "inventory", page: "/Dashboard/inventory" },
-  { Icon: ShoppingCart, labelKey: "navbar.purchase", id: "purchase", page: "/Dashboard/purchase" },
-  { Icon: Users, labelKey: "navbar.contacts", id: "contacts", page: "/Dashboard/contacts" },
-  { Icon: ChartNoAxesColumnIncreasing, labelKey: "navbar.management", id: "management", page: "/Dashboard/management" },
-  { Icon: Settings, labelKey: "navbar.settings", id: "settings", page: "/Dashboard/setting" },
+  {
+    Icon: Package,
+    labelKey: "navbar.inventory",
+    id: "inventory",
+    page: "/Dashboard/inventory",
+  },
+  {
+    Icon: ShoppingCart,
+    labelKey: "navbar.purchase",
+    id: "purchase",
+    page: "/Dashboard/purchase",
+  },
+  {
+    Icon: Users,
+    labelKey: "navbar.contacts",
+    id: "contacts",
+    page: "/Dashboard/contacts",
+  },
+  {
+    Icon: ChartNoAxesColumnIncreasing,
+    labelKey: "navbar.management",
+    id: "management",
+    page: "/Dashboard/management",
+  },
+  {
+    Icon: Settings,
+    labelKey: "navbar.settings",
+    id: "settings",
+    page: "/Dashboard/setting",
+  },
 ];
 
 function Navbar() {
   const decodedToken = useDecodedToken();
   const { t, i18n } = useTranslation();
   const language = i18n.language;
-  const isRTL = language === 'ar';
-  
+  const isRTL = language === "ar";
+
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
   };
@@ -121,12 +160,15 @@ function Navbar() {
 
   return (
     <>
-      <nav className="z-50 w-full flex items-center justify-between 
+      <nav
+        className="z-50 w-full flex items-center justify-between 
         bg-white border-b border-gray-200 sticky top-0 left-0 right-0
-        transition-colors duration-300 px-4 py-2 lg:px-6 lg:py-0">
-        
+        transition-colors duration-300 px-4 py-2 lg:px-6 lg:py-0"
+      >
         <div className="flex items-center ">
-          <h2 className="text-xl lg:text-2xl font-bold text-primary">PharmAdmin</h2>
+          <h2 className="text-xl lg:text-2xl font-bold text-primary">
+            PharmAdmin
+          </h2>
         </div>
 
         <div className="hidden lg:flex items-center justify-center space-x-9">
@@ -147,8 +189,12 @@ function Navbar() {
                   navigate(item.page);
                 }}
               >
-                <item.Icon className={`transition-colors duration-200 ${isActive ? "text-primary" : "text-icon"} group-hover:text-primary w-5 h-5`} />
-                <span className={`ml-2 text-sm font-medium transition-colors duration-200 ${isActive ? "text-primary font-semibold" : "text-text"} group-hover:text-primary`}>
+                <item.Icon
+                  className={`transition-colors duration-200 ${isActive ? "text-primary" : "text-icon"} group-hover:text-primary w-5 h-5`}
+                />
+                <span
+                  className={`ml-2 text-sm font-medium transition-colors duration-200 ${isActive ? "text-primary font-semibold" : "text-text"} group-hover:text-primary`}
+                >
                   {t(item.labelKey)}
                 </span>
               </div>
@@ -157,9 +203,13 @@ function Navbar() {
         </div>
 
         <div className="flex items-center lg:space-x-6">
-          <span className="hidden lg:inline text-sm text-gray-500">{today}</span>
-          <span className="hidden lg:inline">Dr.{decodedToken?.username || ""}</span>
-          
+          <span className="hidden lg:inline text-sm text-gray-500">
+            {today}
+          </span>
+          <span className="hidden lg:inline">
+            Dr.{decodedToken?.username || ""}
+          </span>
+
           {/* Language Switcher */}
           <div className="hidden lg:block relative">
             <div
@@ -174,15 +224,15 @@ function Navbar() {
               <div
                 ref={languageDropdownRef}
                 className={`absolute mt-1 w-32 bg-white rounded-lg shadow-2xl border border-gray-100 z-50 overflow-hidden ${
-                  isRTL ? 'left-0' : 'right-0'
+                  isRTL ? "left-0" : "right-0"
                 }`}
               >
                 <div
                   className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors ${
-                    isRTL ? 'justify-end' : 'justify-start'
+                    isRTL ? "justify-end" : "justify-start"
                   }`}
                   onClick={() => {
-                    changeLanguage('ar');
+                    changeLanguage("ar");
                     setOpenLanguageDropdown(false);
                   }}
                 >
@@ -190,10 +240,10 @@ function Navbar() {
                 </div>
                 <div
                   className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors ${
-                    isRTL ? 'justify-end' : 'justify-start'
+                    isRTL ? "justify-end" : "justify-start"
                   }`}
                   onClick={() => {
-                    changeLanguage('en');
+                    changeLanguage("en");
                     setOpenLanguageDropdown(false);
                   }}
                 >
@@ -225,12 +275,18 @@ function Navbar() {
               <div
                 ref={userDropdownRef}
                 className={`absolute mt-1 w-48 bg-white rounded-lg shadow-2xl border border-gray-100 z-50 overflow-hidden ${
-                  isRTL ? 'left-0' : 'right-0'
+                  isRTL ? "left-0" : "right-0"
                 }`}
               >
-                <div className={`p-4 border-b border-gray-100 bg-gray-50 ${isRTL ? 'text-right' : 'text-left'}`}>
-                  <p className="text-xs text-gray-500">{t('navbar.signedInAs')}</p>
-                  <p className="font-medium text-sm truncate">Dr.{decodedToken?.username || ""}</p>
+                <div
+                  className={`p-4 border-b border-gray-100 bg-gray-50 ${isRTL ? "text-right" : "text-left"}`}
+                >
+                  <p className="text-xs text-gray-500">
+                    {t("navbar.signedInAs")}
+                  </p>
+                  <p className="font-medium text-sm truncate">
+                    Dr.{decodedToken?.username || ""}
+                  </p>
                 </div>
 
                 <div
@@ -245,12 +301,12 @@ function Navbar() {
                   {isRTL ? (
                     <>
                       <IoIosLogOut className="text-gray-500 ml-3" />
-                      <span className="text-sm">{t('navbar.logout')}</span>
+                      <span className="text-sm">{t("navbar.logout")}</span>
                     </>
                   ) : (
                     <>
                       <IoIosLogOut className="text-gray-500 mr-3" />
-                      <span className="text-sm">{t('navbar.logout')}</span>
+                      <span className="text-sm">{t("navbar.logout")}</span>
                     </>
                   )}
                 </div>
@@ -268,23 +324,27 @@ function Navbar() {
         >
           <div className="px-4 pt-2 pb-8 space-y-1">
             <div className="p-2 border-b border-gray-200 flex items-center justify-between">
-              <p className="text-sm text-gray-500">{t('navbar.welcome')}, Dr.{decodedToken?.username || ""}</p>
+              <p className="text-sm text-gray-500">
+                {t("navbar.welcome")}, Dr.{decodedToken?.username || ""}
+              </p>
               <p className="text-sm text-gray-500">{today}</p>
             </div>
 
             {/* Language Switcher for Mobile */}
             <div className="p-2 border-b border-gray-200">
-              <p className="text-sm text-gray-500 mb-2">{t('common.language')}</p>
+              <p className="text-sm text-gray-500 mb-2">
+                {t("common.language")}
+              </p>
               <div className="flex space-x-2">
                 <button
-                  onClick={() => changeLanguage('ar')}
-                  className={`px-3 py-1 rounded text-sm ${language === 'ar' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'}`}
+                  onClick={() => changeLanguage("ar")}
+                  className={`px-3 py-1 rounded text-sm ${language === "ar" ? "bg-primary text-white" : "bg-gray-100 text-gray-700"}`}
                 >
                   العربية
                 </button>
                 <button
-                  onClick={() => changeLanguage('en')}
-                  className={`px-3 py-1 rounded text-sm ${language === 'en' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700'}`}
+                  onClick={() => changeLanguage("en")}
+                  className={`px-3 py-1 rounded text-sm ${language === "en" ? "bg-primary text-white" : "bg-gray-100 text-gray-700"}`}
                 >
                   English
                 </button>
@@ -304,7 +364,9 @@ function Navbar() {
                     setOpenMobileMenu(false);
                   }}
                   className={`flex items-center px-4 py-3 rounded-md text-sm font-medium cursor-pointer ${
-                    isActive ? "bg-primary text-white" : "text-gray-700 hover:bg-gray-100"
+                    isActive
+                      ? "bg-primary text-white"
+                      : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
                   <item.Icon className="w-5 h-5 mr-3" />
@@ -315,7 +377,7 @@ function Navbar() {
 
             <div
               className={`flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 cursor-pointer rounded-md ${
-                isRTL ? 'justify-end' : ''
+                isRTL ? "justify-end" : ""
               }`}
               onClick={() => {
                 setOpenMobileMenu(false);
@@ -325,12 +387,12 @@ function Navbar() {
               {isRTL ? (
                 <>
                   <IoIosLogOut className="text-gray-500 ml-3" />
-                  <span className="text-sm">{t('navbar.logout')}</span>
+                  <span className="text-sm">{t("navbar.logout")}</span>
                 </>
               ) : (
                 <>
                   <IoIosLogOut className="text-gray-500 mr-3" />
-                  <span className="text-sm">{t('navbar.logout')}</span>
+                  <span className="text-sm">{t("navbar.logout")}</span>
                 </>
               )}
             </div>

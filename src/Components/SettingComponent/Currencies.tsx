@@ -1,21 +1,17 @@
-import { DataTable } from '../Table/DataTable';
-import { TableHeaderSearch } from '../Table/TableHeaderSearch';
-import { TableRow } from '../Table/TableRow';
-import  { useState } from 'react';
-import { useGet } from '../../Hook/API/useApiGet';
+import { DataTable } from "../Table/DataTable";
+import { TableHeaderSearch } from "../Table/TableHeaderSearch";
+import { TableRow } from "../Table/TableRow";
+import { useState } from "react";
+import { useGet } from "../../Hook/API/useApiGet";
 import ReusableForm from "../Forms/ReusableForm";
 import Pagination from "../Pagination";
-import {
-  CircularProgress,
-  Dialog,
-  IconButton
-} from '@mui/material';
-import Box from '@mui/material/Box';
-import { X } from 'lucide-react';
+import { CircularProgress, Dialog, IconButton } from "@mui/material";
+import Box from "@mui/material/Box";
+import { X } from "lucide-react";
 import api from "../../Hook/API/api";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import { PackagePlus } from "lucide-react";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 // Columns will be defined inside component to use translations
 
@@ -25,7 +21,7 @@ interface Currency {
   symbol: string;
   name: string;
   decimal_point: string;
-  is_default: boolean ;
+  is_default: boolean;
 }
 
 interface DataResponse {
@@ -37,45 +33,56 @@ interface DataResponse {
 
 const Currencies = () => {
   const { t } = useTranslation();
-  
+
   const columns = [
-    t('settings.currencies.currencyName'),
-    t('settings.currencies.currencyCode'),
-    t('settings.currencies.symbol'),
-    t('settings.currencies.decimalPoint'),
-    t('settings.currencies.isDefault')
+    t("settings.currencies.currencyName"),
+    t("settings.currencies.currencyCode"),
+    t("settings.currencies.symbol"),
+    t("settings.currencies.decimalPoint"),
+    t("settings.currencies.isDefault"),
   ];
-  
+
   const [page, setPage] = useState(1);
   const [pageSize] = useState(4);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingCurrency, setEditingCurrency] = useState<Currency | null>(null);
-  
-  const { data: currencyResponse, isLoading, error, refetch } = useGet<DataResponse>({
+
+  const {
+    data: currencyResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useGet<DataResponse>({
     endpoint: `/api/business/settings/currencies/?page=${page}&page_size=${pageSize}`,
-    queryKey: ['all-currencies', page],
+    queryKey: ["all-currencies", page],
   });
-  const { data: coreCurrenciesResponse} = useGet<DataResponse>({
+  const { data: coreCurrenciesResponse } = useGet<DataResponse>({
     endpoint: `/api/core/currencies/`,
-    queryKey: ['core-currencies', page],
+    queryKey: ["core-currencies", page],
   });
- const currencyOptions = coreCurrenciesResponse?.results.map(currency => ({
-    value: currency.id,
-    label: `${currency.code} - ${currency.name}`
-  })) || [];
+  const currencyOptions =
+    coreCurrenciesResponse?.results.map((currency) => ({
+      value: currency.id,
+      label: `${currency.code} - ${currency.name}`,
+    })) || [];
 
   const formFields = [
-    { 
-      name: 'currency', 
-      label: t('settings.currencies.currency'), 
-      type: 'select', 
+    {
+      name: "currency",
+      label: t("settings.currencies.currency"),
+      type: "select",
       required: true,
-      options: currencyOptions 
+      options: currencyOptions,
     },
-    { name: 'is_default', label: t('settings.currencies.isDefault'), type: 'checkbox', required: false }
+    {
+      name: "is_default",
+      label: t("settings.currencies.isDefault"),
+      type: "checkbox",
+      required: false,
+    },
   ];
-  
+
   const handleCreateSuccess = () => {
     setIsCreateModalOpen(false);
     refetch();
@@ -89,40 +96,42 @@ const Currencies = () => {
 
   const handleDelete = async (id: string | number) => {
     const result = await Swal.fire({
-      title: t('settings.swal.areYouSure'),
-      text: t('settings.swal.cantRevert'),
-      icon: 'warning',
+      title: t("settings.swal.areYouSure"),
+      text: t("settings.swal.cantRevert"),
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: t('settings.swal.yesDelete')
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: t("settings.swal.yesDelete"),
     });
 
     if (result.isConfirmed) {
       try {
-        const response = await api.delete(`/api/business/settings/currencies/${id}/`);
+        const response = await api.delete(
+          `/api/business/settings/currencies/${id}/`,
+        );
         if (response.status === 204) {
           Swal.fire(
-            t('settings.swal.deleted'),
-            t('settings.swal.currencyDeleted'),
-            'success'
+            t("settings.swal.deleted"),
+            t("settings.swal.currencyDeleted"),
+            "success",
           );
           refetch();
         }
       } catch (error) {
-        console.error('Error deleting currency:', error);
+        console.error("Error deleting currency:", error);
         Swal.fire(
-          t('settings.swal.error'),
-          t('settings.swal.errorDeleting'),
-          'error'
+          t("settings.swal.error"),
+          t("settings.swal.errorDeleting"),
+          "error",
         );
       }
     }
   };
 
   const handleEditClick = (id: string | number) => {
-    const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
-    const currency = currencyResponse?.results.find(p => p.id === numericId);
+    const numericId = typeof id === "string" ? parseInt(id, 10) : id;
+    const currency = currencyResponse?.results.find((p) => p.id === numericId);
     if (currency) {
       setEditingCurrency(currency);
       setIsEditModalOpen(true);
@@ -130,14 +139,15 @@ const Currencies = () => {
   };
 
   // Fixed the transformedData mapping to match table column expectations
-  const transformedData = currencyResponse?.results?.map((currency) => ({
-    id: currency.id,
-    [columns[0]]: currency.name,
-    [columns[1]]: currency.code,
-    [columns[2]]: currency.symbol,
-    [columns[3]]: currency.decimal_point,
-    [columns[4]]: currency.is_default 
-  })) || [];
+  const transformedData =
+    currencyResponse?.results?.map((currency) => ({
+      id: currency.id,
+      [columns[0]]: currency.name,
+      [columns[1]]: currency.code,
+      [columns[2]]: currency.symbol,
+      [columns[3]]: currency.decimal_point,
+      [columns[4]]: currency.is_default,
+    })) || [];
 
   if (isLoading) {
     return (
@@ -149,9 +159,17 @@ const Currencies = () => {
     );
   }
 
-  if (error) return <div className="p-6">{t('settings.currencies.errorLoading')}: {error.message}</div>;
+  if (error)
+    return (
+      <div className="p-6">
+        {t("settings.currencies.errorLoading")}: {error.message}
+      </div>
+    );
 
-  const hasCurrency = currencyResponse && currencyResponse.results && currencyResponse.results.length > 0;
+  const hasCurrency =
+    currencyResponse &&
+    currencyResponse.results &&
+    currencyResponse.results.length > 0;
 
   return (
     <div className="container mx-auto p-6">
@@ -160,25 +178,26 @@ const Currencies = () => {
           <div className="bg-gray-100 p-6 rounded-full mb-4">
             <PackagePlus size={48} className="text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('settings.currencies.noCurrencies')}</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            {t("settings.currencies.noCurrencies")}
+          </h3>
           <p className="text-gray-500 mb-6 max-w-md">
-            {t('settings.currencies.getStarted')}
+            {t("settings.currencies.getStarted")}
           </p>
-          <button 
+          <button
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             onClick={() => setIsCreateModalOpen(true)}
           >
-            {t('settings.currencies.createCurrency')}
+            {t("settings.currencies.createCurrency")}
           </button>
         </div>
       ) : (
         <>
-          
-            <TableHeaderSearch
-              title={t('settings.currencies.currency')}
-              buttonText={t('settings.currencies.addNewCurrency')} 
-              onAddClick={() => setIsCreateModalOpen(true)}
-            />
+          <TableHeaderSearch
+            title={t("settings.currencies.currency")}
+            buttonText={t("settings.currencies.addNewCurrency")}
+            onAddClick={() => setIsCreateModalOpen(true)}
+          />
           <DataTable
             columns={columns}
             data={transformedData}
@@ -198,28 +217,28 @@ const Currencies = () => {
       )}
 
       {/* Create Modal */}
-        {isCreateModalOpen && (
+      {isCreateModalOpen && (
         <ReusableForm
-          title={t('settings.currencies.createCurrency')}
+          title={t("settings.currencies.createCurrency")}
           fields={formFields}
           endpoint="/api/business/settings/currencies/"
           method="post"
           onClose={() => setIsCreateModalOpen(false)}
           onSuccess={handleCreateSuccess}
-          submitButtonText={t('settings.currencies.createCurrency')}
+          submitButtonText={t("settings.currencies.createCurrency")}
           key="create-form"
         />
       )}
 
       {/* Edit Modal */}
       {isEditModalOpen && editingCurrency && (
-        <Dialog 
-          open={isEditModalOpen} 
+        <Dialog
+          open={isEditModalOpen}
           onClose={() => {
             setIsEditModalOpen(false);
             setEditingCurrency(null);
-          }} 
-          maxWidth="sm" 
+          }}
+          maxWidth="sm"
           fullWidth
         >
           <IconButton
@@ -229,7 +248,7 @@ const Currencies = () => {
               setEditingCurrency(null);
             }}
             sx={{
-              position: 'absolute',
+              position: "absolute",
               right: 8,
               top: 8,
               color: (theme) => theme.palette.grey[500],
@@ -238,20 +257,20 @@ const Currencies = () => {
             <X />
           </IconButton>
           <ReusableForm
-            title={t('settings.currencies.updateCurrency')}
+            title={t("settings.currencies.updateCurrency")}
             fields={formFields}
             endpoint={`/api/business/settings/currencies/${editingCurrency.id}/`}
             method="patch"
             initialValues={{
-              currency: editingCurrency.id, 
-              is_default: editingCurrency.is_default
+              currency: editingCurrency.id,
+              is_default: editingCurrency.is_default,
             }}
             onClose={() => {
               setIsEditModalOpen(false);
               setEditingCurrency(null);
             }}
             onSuccess={handleEditSuccess}
-            submitButtonText={t('settings.currencies.updateCurrency')}
+            submitButtonText={t("settings.currencies.updateCurrency")}
             key={`edit-form-${editingCurrency.id}`}
           />
         </Dialog>

@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { tokenService } from '../../services/utils/tokenService';
+import axios from "axios";
+import { tokenService } from "../../services/utils/tokenService";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -25,13 +25,13 @@ const processQueue = (error: unknown, token: string | null = null) => {
 
 const isTokenExpiringSoon = (token: string | null): boolean => {
   if (!token) return true;
-  
+
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = JSON.parse(atob(token.split(".")[1]));
     const expTime = payload.exp * 1000; // Convert to milliseconds
     const currentTime = Date.now();
     const fiveMinutes = 5 * 60 * 1000;
-    
+
     return expTime - currentTime <= fiveMinutes;
   } catch {
     return true;
@@ -41,19 +41,19 @@ const isTokenExpiringSoon = (token: string | null): boolean => {
 // Request interceptor - يرجع زي ما كان
 api.interceptors.request.use(async (config) => {
   const token = tokenService.getAccessToken();
-  
+
   if (token) {
     if (isTokenExpiringSoon(token)) {
       if (!isRefreshing) {
         isRefreshing = true;
-        
+
         try {
           const refreshToken = tokenService.getRefreshToken();
           const { data } = await axios.post(
             `${import.meta.env.VITE_API_BASE_URL}/api/tokens/refresh/`,
-            { refresh: refreshToken }
+            { refresh: refreshToken },
           );
-          
+
           tokenService.setAccessToken(data.access);
           tokenService.setRefreshToken(data.refresh);
           config.headers.Authorization = `Bearer ${data.access}`;
@@ -62,7 +62,7 @@ api.interceptors.request.use(async (config) => {
           processQueue(error, null);
           tokenService.removeAccessToken();
           tokenService.removeRefreshToken();
-          window.location.href = '/';
+          window.location.href = "/";
           return Promise.reject(error);
         } finally {
           isRefreshing = false;
@@ -83,7 +83,7 @@ api.interceptors.request.use(async (config) => {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
-  
+
   return config;
 });
 
@@ -110,7 +110,7 @@ api.interceptors.response.use(
         const refreshToken = tokenService.getRefreshToken();
         const { data } = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}/api/tokens/refresh/`,
-          { refresh: refreshToken }
+          { refresh: refreshToken },
         );
 
         tokenService.setAccessToken(data.access);
@@ -124,7 +124,7 @@ api.interceptors.response.use(
         tokenService.removeAccessToken();
         tokenService.removeRefreshToken();
         if (failedQueue.length === 0) {
-          window.location.href = '/';
+          window.location.href = "/";
         }
         return Promise.reject(err);
       } finally {
@@ -133,7 +133,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

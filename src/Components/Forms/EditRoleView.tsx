@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { FaPen, FaSave, FaTimes } from 'react-icons/fa';
-import { useGet } from '../../Hook/API/useApiGet';
-import { useMutate } from '../../Hook/API/useApiMutate';
-import { ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { FaPen, FaSave, FaTimes } from "react-icons/fa";
+import { useGet } from "../../Hook/API/useApiGet";
+import { useMutate } from "../../Hook/API/useApiMutate";
+import { ArrowLeft } from "lucide-react";
 import { FaCheckSquare, FaWindowClose } from "react-icons/fa";
 
 interface Permission {
@@ -18,7 +18,7 @@ interface RolePermission {
 
 interface RoleProps {
   role_name: string;
-  onBack: () => void; 
+  onBack: () => void;
 }
 
 interface RolePermissionsResponse {
@@ -35,14 +35,16 @@ interface UpdateRolePermissions {
 
 const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
   const [isEditingPermissions, setIsEditingPermissions] = useState(false);
-  const [selectedPermissionIds, setSelectedPermissionIds] = useState<number[]>([]);
+  const [selectedPermissionIds, setSelectedPermissionIds] = useState<number[]>(
+    [],
+  );
 
-  const { 
-    data: roleResponse, 
-    isLoading, 
-    error 
+  const {
+    data: roleResponse,
+    isLoading,
+    error,
   } = useGet<RolePermissionsResponse>({
-    endpoint: `/api/business/roles/?role__name__icontains=${role_name || ''}`,
+    endpoint: `/api/business/roles/?role__name__icontains=${role_name || ""}`,
     queryKey: ["role-permissions", role_name],
   });
 
@@ -55,26 +57,30 @@ const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
   // Mutation for updating role permissions
   const updateRoleMutation = useMutate<RolePermission, UpdateRolePermissions>({
     endpoint: `/api/business/roles/${roleResponse?.results[0]?.id}/`,
-    method: 'patch',
-    invalidate: ['role-permissions'],
+    method: "patch",
+    invalidate: ["role-permissions"],
   });
 
   useEffect(() => {
     if (roleResponse?.results?.[0]?.permissions && allPermissionsResponse) {
-      const rolePermissionIds = roleResponse.results[0].permissions.map(permissionName => {
-        const permission = allPermissionsResponse.find(p => p.name === permissionName);
-        return permission?.id;
-      }).filter((id): id is number => id !== undefined);
-      
+      const rolePermissionIds = roleResponse.results[0].permissions
+        .map((permissionName) => {
+          const permission = allPermissionsResponse.find(
+            (p) => p.name === permissionName,
+          );
+          return permission?.id;
+        })
+        .filter((id): id is number => id !== undefined);
+
       setSelectedPermissionIds(rolePermissionIds);
     }
   }, [roleResponse, allPermissionsResponse]);
 
   // Handle permission checkbox change
   const handlePermissionChange = (permissionId: number) => {
-    setSelectedPermissionIds(prev => {
+    setSelectedPermissionIds((prev) => {
       if (prev.includes(permissionId)) {
-        return prev.filter(id => id !== permissionId);
+        return prev.filter((id) => id !== permissionId);
       } else {
         return [...prev, permissionId];
       }
@@ -85,21 +91,21 @@ const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
   const handleSelectAllSection = (section: string, select: boolean) => {
     if (!allPermissionsResponse) return;
 
-    const sectionPermissions = allPermissionsResponse.filter(permission => 
-      permission.name.startsWith(`${section}.`)
-    ).map(p => p.id);
+    const sectionPermissions = allPermissionsResponse
+      .filter((permission) => permission.name.startsWith(`${section}.`))
+      .map((p) => p.id);
 
-    setSelectedPermissionIds(prev => {
+    setSelectedPermissionIds((prev) => {
       if (select) {
         const newPermissions = [...prev];
-        sectionPermissions.forEach(id => {
+        sectionPermissions.forEach((id) => {
           if (!newPermissions.includes(id)) {
             newPermissions.push(id);
           }
         });
         return newPermissions;
       } else {
-        return prev.filter(id => !sectionPermissions.includes(id));
+        return prev.filter((id) => !sectionPermissions.includes(id));
       }
     });
   };
@@ -115,7 +121,7 @@ const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
       });
       setIsEditingPermissions(false);
     } catch (error) {
-      console.error('Error updating permissions:', error);
+      console.error("Error updating permissions:", error);
     }
   };
 
@@ -123,11 +129,15 @@ const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
   const handleCancelEditing = () => {
     // Reset to original permissions
     if (roleResponse?.results?.[0]?.permissions && allPermissionsResponse) {
-      const rolePermissionIds = roleResponse.results[0].permissions.map(permissionName => {
-        const permission = allPermissionsResponse.find(p => p.name === permissionName);
-        return permission?.id;
-      }).filter((id): id is number => id !== undefined);
-      
+      const rolePermissionIds = roleResponse.results[0].permissions
+        .map((permissionName) => {
+          const permission = allPermissionsResponse.find(
+            (p) => p.name === permissionName,
+          );
+          return permission?.id;
+        })
+        .filter((id): id is number => id !== undefined);
+
       setSelectedPermissionIds(rolePermissionIds);
     }
     setIsEditingPermissions(false);
@@ -136,9 +146,9 @@ const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
   // تجميع الصلاحيات حسب الأقسام
   const groupPermissionsBySection = (permissions: Permission[]) => {
     const grouped: { [key: string]: Permission[] } = {};
-    
-    permissions.forEach(permission => {
-      const parts = permission.name.split('.');
+
+    permissions.forEach((permission) => {
+      const parts = permission.name.split(".");
       if (parts.length >= 2) {
         const section = parts[0];
         if (!grouped[section]) {
@@ -147,7 +157,7 @@ const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
         grouped[section].push(permission);
       }
     });
-    
+
     return grouped;
   };
 
@@ -178,104 +188,132 @@ const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
   }
 
   const PermissionsDisplay = () => {
-    const groupedAllPermissions = groupPermissionsBySection(allPermissionsResponse || []);
+    const groupedAllPermissions = groupPermissionsBySection(
+      allPermissionsResponse || [],
+    );
 
     // حساب عدد الصلاحيات المختارة لكل قسم
     const getSectionSelectionStatus = (section: string) => {
       if (!allPermissionsResponse) return { selected: 0, total: 0 };
-      
-      const sectionPermissions = allPermissionsResponse.filter(p => 
-        p.name.startsWith(`${section}.`)
+
+      const sectionPermissions = allPermissionsResponse.filter((p) =>
+        p.name.startsWith(`${section}.`),
       );
-      const selectedInSection = sectionPermissions.filter(p => 
-        selectedPermissionIds.includes(p.id)
+      const selectedInSection = sectionPermissions.filter((p) =>
+        selectedPermissionIds.includes(p.id),
       ).length;
-      
+
       return {
         selected: selectedInSection,
         total: sectionPermissions.length,
         allSelected: selectedInSection === sectionPermissions.length,
-        someSelected: selectedInSection > 0 && selectedInSection < sectionPermissions.length
+        someSelected:
+          selectedInSection > 0 &&
+          selectedInSection < sectionPermissions.length,
       };
     };
 
     // Function to generate accessible permission label
     const getPermissionLabel = (permissionName: string) => {
-      return permissionName.split('.').slice(1).join(' → ').replace(/_/g, ' ');
+      return permissionName.split(".").slice(1).join(" → ").replace(/_/g, " ");
     };
 
     return (
       <div className="space-y-4">
         <div className="space-y-3 max-h-80 overflow-y-auto">
-          {Object.entries(groupedAllPermissions).map(([section, permissions]) => {
-            const sectionStatus = getSectionSelectionStatus(section);
-            
-            return (
-              <div key={section} className="p-2 border-b border-gray-200">
-                <div className="flex items-center justify-between mb-2">
-                  <h5 className="font-medium text-gray-800 capitalize">
-                    {section.replace(/_/g, ' ')}
-                  </h5>
-                  {isEditingPermissions && (
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-gray-600">
-                        {sectionStatus.selected}/{sectionStatus.total}
-                      </span>
-                      <button
-                        onClick={() => handleSelectAllSection(section, !sectionStatus.allSelected)}
-                        className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                        aria-label={`${sectionStatus.allSelected ? 'Deselect' : 'Select'} all ${section.replace(/_/g, ' ')} permissions`}
-                      >
-                        {sectionStatus.allSelected ? 'Deselect All' : 'Select All'}
-                      </button>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2">
-                  {permissions.map(permission => {
-                    const permissionLabel = getPermissionLabel(permission.name);
-                    const checkboxId = `permission-${permission.id}`;
-                    const isSelected = selectedPermissionIds.includes(permission.id);
+          {Object.entries(groupedAllPermissions).map(
+            ([section, permissions]) => {
+              const sectionStatus = getSectionSelectionStatus(section);
 
-                    return (
-                      <div key={permission.id} className="flex items-center space-x-2">
-                        {isEditingPermissions ? (
-                          <>
-                            <input
-                              id={checkboxId}
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => handlePermissionChange(permission.id)}
-                              className="h-4 w-4 text-blue-600 rounded"
-                              aria-label={`Permission: ${permissionLabel}`}
-                            />
-                            <label 
-                              htmlFor={checkboxId}
-                              className="text-sm text-gray-700 capitalize cursor-pointer"
-                            >
-                              {permissionLabel}
-                            </label>
-                          </>
-                        ) : (
-                          <>
-                            {isSelected ? (
-                              <FaCheckSquare className="text-lg text-sky-600" aria-label="Permission granted" />
-                            ) : (
-                              <FaWindowClose className="text-lg text-red-600" aria-label="Permission not granted" />
-                            )}
-                            <label className="text-sm text-gray-700 capitalize">
-                              {permissionLabel}
-                            </label>
-                          </>
-                        )}
+              return (
+                <div key={section} className="p-2 border-b border-gray-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <h5 className="font-medium text-gray-800 capitalize">
+                      {section.replace(/_/g, " ")}
+                    </h5>
+                    {isEditingPermissions && (
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs text-gray-600">
+                          {sectionStatus.selected}/{sectionStatus.total}
+                        </span>
+                        <button
+                          onClick={() =>
+                            handleSelectAllSection(
+                              section,
+                              !sectionStatus.allSelected,
+                            )
+                          }
+                          className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                          aria-label={`${sectionStatus.allSelected ? "Deselect" : "Select"} all ${section.replace(/_/g, " ")} permissions`}
+                        >
+                          {sectionStatus.allSelected
+                            ? "Deselect All"
+                            : "Select All"}
+                        </button>
                       </div>
-                    );
-                  })}
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {permissions.map((permission) => {
+                      const permissionLabel = getPermissionLabel(
+                        permission.name,
+                      );
+                      const checkboxId = `permission-${permission.id}`;
+                      const isSelected = selectedPermissionIds.includes(
+                        permission.id,
+                      );
+
+                      return (
+                        <div
+                          key={permission.id}
+                          className="flex items-center space-x-2"
+                        >
+                          {isEditingPermissions ? (
+                            <>
+                              <input
+                                id={checkboxId}
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() =>
+                                  handlePermissionChange(permission.id)
+                                }
+                                className="h-4 w-4 text-blue-600 rounded"
+                                aria-label={`Permission: ${permissionLabel}`}
+                              />
+                              <label
+                                htmlFor={checkboxId}
+                                className="text-sm text-gray-700 capitalize cursor-pointer"
+                              >
+                                {permissionLabel}
+                              </label>
+                            </>
+                          ) : (
+                            <>
+                              {isSelected ? (
+                                <FaCheckSquare
+                                  className="text-lg text-sky-600"
+                                  aria-label="Permission granted"
+                                />
+                              ) : (
+                                <FaWindowClose
+                                  className="text-lg text-red-600"
+                                  aria-label="Permission not granted"
+                                />
+                              )}
+                              <label className="text-sm text-gray-700 capitalize">
+                                {permissionLabel}
+                              </label>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            },
+          )}
         </div>
       </div>
     );
@@ -305,7 +343,7 @@ const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             {!isEditingPermissions ? (
               <button
@@ -331,7 +369,9 @@ const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
                 >
                   <FaSave className="h-4 w-4" />
                   <span>
-                    {updateRoleMutation.isPending ? 'Saving...' : 'Save Changes'}
+                    {updateRoleMutation.isPending
+                      ? "Saving..."
+                      : "Save Changes"}
                   </span>
                 </button>
               </div>
@@ -343,13 +383,14 @@ const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
         <div className="overflow-y-auto max-h-[calc(90vh-180px)]">
           <div className="mb-4">
             <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              {isEditingPermissions ? 'Edit Permissions' : 'Current Permissions'}
+              {isEditingPermissions
+                ? "Edit Permissions"
+                : "Current Permissions"}
             </h3>
             <p className="text-sm text-gray-600">
-              {isEditingPermissions 
+              {isEditingPermissions
                 ? 'Select or deselect permissions for this role. Use "Select All" to quickly manage section permissions.'
-                : `Viewing all permissions assigned to the ${currentRole.name} role.`
-              }
+                : `Viewing all permissions assigned to the ${currentRole.name} role.`}
             </p>
           </div>
 
@@ -363,7 +404,8 @@ const EditRoleView: React.FC<RoleProps> = ({ role_name, onBack }) => {
               Total permissions: {allPermissionsResponse?.length || 0}
             </span>
             <span>
-              Selected: {selectedPermissionIds.length} / {allPermissionsResponse?.length || 0}
+              Selected: {selectedPermissionIds.length} /{" "}
+              {allPermissionsResponse?.length || 0}
             </span>
           </div>
         </div>
