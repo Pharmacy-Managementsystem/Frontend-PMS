@@ -1,11 +1,11 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useGet } from '../API/useApiGet';
-import { useMutate } from '../API/useApiMutate';
+import { useGet } from "../API/useApiGet";
+import { useMutate } from "../API/useApiMutate";
 
 const steps = ["Send Code", "Verify Code", "Reset Password"] as const;
 
-export type ResetPasswordStep = typeof steps[number];
+export type ResetPasswordStep = (typeof steps)[number];
 
 export const useResetPassword = () => {
   const navigate = useNavigate();
@@ -20,30 +20,32 @@ export const useResetPassword = () => {
   // Reusable hooks
   const { mutateAsync: sendCode, isLoading: isSendingCode } = useMutate({
     endpoint: `${import.meta.env.VITE_API_URL}/user/password/send-verification-code/`,
-    method: 'post',
+    method: "post",
   });
 
   const { mutateAsync: verifyCode, isLoading: isVerifyingCode } = useMutate({
     endpoint: `${import.meta.env.VITE_API_URL}/user/password/verify-code/`,
-    method: 'post',
+    method: "post",
   });
 
-  const { mutateAsync: resetPassword, isLoading: isResettingPassword } = useMutate({
-    endpoint: `${import.meta.env.VITE_API_URL}/user/password/reset-password/`,
-    method: 'patch',
-    onSuccess: () => {
-      setMessage("Password reset successful! Redirecting to login...");
-      setTimeout(() => navigate("/"), 2000);
-    }
-  });
+  const { mutateAsync: resetPassword, isLoading: isResettingPassword } =
+    useMutate({
+      endpoint: `${import.meta.env.VITE_API_URL}/user/password/reset-password/`,
+      method: "patch",
+      onSuccess: () => {
+        setMessage("Password reset successful! Redirecting to login...");
+        setTimeout(() => navigate("/"), 2000);
+      },
+    });
 
   const { refetch: checkEmail, isLoading: isCheckingEmail } = useGet({
     endpoint: `${import.meta.env.VITE_API_URL}/user/password/forget-password/${email}/`,
-    queryKey: ['checkEmail', email],
+    queryKey: ["checkEmail", email],
     enabled: false,
   });
 
-  const loading = isSendingCode || isVerifyingCode || isResettingPassword || isCheckingEmail;
+  const loading =
+    isSendingCode || isVerifyingCode || isResettingPassword || isCheckingEmail;
 
   const validatePassword = (): boolean => {
     if (newPassword.length < 8) {
@@ -63,7 +65,9 @@ export const useResetPassword = () => {
       return false;
     }
     if (!/[!@#$%^&*]/.test(newPassword)) {
-      setError("Password must contain at least one special character (!@#$%^&*)");
+      setError(
+        "Password must contain at least one special character (!@#$%^&*)",
+      );
       return false;
     }
     if (newPassword !== confirmPassword) {
@@ -73,10 +77,14 @@ export const useResetPassword = () => {
     return true;
   };
 
-  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value);
-  const handleVerificationCodeChange = (e: ChangeEvent<HTMLInputElement>) => setVerificationCode(e.target.value);
-  const handleNewPasswordChange = (e: ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value);
-  const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value);
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) =>
+    setEmail(e.target.value);
+  const handleVerificationCodeChange = (e: ChangeEvent<HTMLInputElement>) =>
+    setVerificationCode(e.target.value);
+  const handleNewPasswordChange = (e: ChangeEvent<HTMLInputElement>) =>
+    setNewPassword(e.target.value);
+  const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) =>
+    setConfirmPassword(e.target.value);
 
   const handleSendCode = async (e: FormEvent) => {
     e.preventDefault();
@@ -90,12 +98,17 @@ export const useResetPassword = () => {
       setMessage("");
 
       const { data: checkEmailResponse } = await checkEmail();
-      await sendCode({ email: (checkEmailResponse as { email?: string })?.email || email });
+      await sendCode({
+        email: (checkEmailResponse as { email?: string })?.email || email,
+      });
 
       setMessage("Email sent successfully! Please check your inbox.");
       setActiveStep(1);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to send verification code";
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to send verification code";
       setError(errorMessage);
     }
   };
@@ -115,7 +128,8 @@ export const useResetPassword = () => {
       setMessage("Code verified successfully!");
       setActiveStep(2);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Invalid verification code";
+      const errorMessage =
+        error instanceof Error ? error.message : "Invalid verification code";
       setError(errorMessage);
     }
   };
@@ -130,7 +144,8 @@ export const useResetPassword = () => {
 
       await resetPassword({ email, new_password: newPassword });
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to reset password";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to reset password";
       setError(errorMessage);
     }
   };

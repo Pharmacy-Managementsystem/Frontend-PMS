@@ -1,27 +1,26 @@
 // src/App.tsx
-import { RouterProvider } from 'react-router-dom'
-import { Suspense } from 'react'
+import { RouterProvider } from "react-router-dom";
+import { Suspense } from "react";
 
-import routers from './Router'
-
+import routers from "./Router";
 
 function App() {
-
   return (
-    <Suspense fallback={
-      <div>
-        <div className="flex items-center justify-center h-screen">
-          <div className="relative">
-            <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200"></div>
-            <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-blue-500 animate-spin">
+    <Suspense
+      fallback={
+        <div>
+          <div className="flex items-center justify-center h-screen">
+            <div className="relative">
+              <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200"></div>
+              <div className="absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-blue-500 animate-spin"></div>
             </div>
           </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <RouterProvider router={routers} />
     </Suspense>
-  )
+  );
 }
 
-export default App
+export default App;

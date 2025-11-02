@@ -7,7 +7,7 @@ import UserInfo from "../Info/InfoUser/UserInfo";
 import Pagination from "../Pagination";
 import { useGet } from "../../Hook/API/useApiGet";
 import ReusableForm from "../Forms/ReusableForm";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 interface User {
   id: number;
@@ -18,7 +18,7 @@ interface User {
   user_branches: Array<{
     id: number;
     name: string;
-  }>; 
+  }>;
   role_name: string;
 }
 
@@ -43,18 +43,22 @@ interface BranchResponse {
 
 export default function UserManage() {
   const { t } = useTranslation();
-  
+
   const [page, setPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [deactivateId, setDeactivateId] = useState<string | null>(null);
   const [showInfo, setShowInfo] = useState<string | null>(null);
   const [pageSize] = useState(10);
   const [search, setSearch] = useState("");
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState("");
 
-  const { data: userResponse, isLoading, refetch } = useGet<DataResponse>({
+  const {
+    data: userResponse,
+    isLoading,
+    refetch,
+  } = useGet<DataResponse>({
     endpoint: `/api/user/?page=${page}&search=${search}`,
-    queryKey: ["all-users", page, search], 
+    queryKey: ["all-users", page, search],
   });
 
   const { data: rolesResponse } = useGet<BranchResponse>({
@@ -62,39 +66,55 @@ export default function UserManage() {
     queryKey: ["all-roles"],
   });
 
-  const rolesOptions = rolesResponse?.results.map(role => ({
-    value: role.id,
-    label: `${role.name}`
-  })) || [];
-  
+  const rolesOptions =
+    rolesResponse?.results.map((role) => ({
+      value: role.id,
+      label: `${role.name}`,
+    })) || [];
+
   const { data: branchResponse } = useGet<BranchResponse>({
     endpoint: `/api/branch/?minimal=true`,
     queryKey: ["all-branches"],
   });
 
-  const branchesOptions = branchResponse?.results.map(branch => ({
-    value: branch.id,
-    label: `${branch.name}`
-  })) || [];
-  
+  const branchesOptions =
+    branchResponse?.results.map((branch) => ({
+      value: branch.id,
+      label: `${branch.name}`,
+    })) || [];
+
   const formFields = [
-    { name: 'username', label: t('userManagement.userName'), required: true },
-    { name: 'email', label: t('userManagement.emailAddress'), required: true },
-    { name: 'phone_number', label: t('userManagement.phoneNumber'), required: true },
-    { name: 'address', label: t('userManagement.address'), required: true },
-    { name: 'password', label: t('userManagement.password'), required: true, type: 'password' },
-    { name: 'confirmPassword', label: t('userManagement.confirmPassword'), required: true, type: 'password' },
-    { 
-      name: 'branches', 
-      label: t('userManagement.branches'), 
-      type: 'multiselect', 
+    { name: "username", label: t("userManagement.userName"), required: true },
+    { name: "email", label: t("userManagement.emailAddress"), required: true },
+    {
+      name: "phone_number",
+      label: t("userManagement.phoneNumber"),
+      required: true,
+    },
+    { name: "address", label: t("userManagement.address"), required: true },
+    {
+      name: "password",
+      label: t("userManagement.password"),
+      required: true,
+      type: "password",
+    },
+    {
+      name: "confirmPassword",
+      label: t("userManagement.confirmPassword"),
+      required: true,
+      type: "password",
+    },
+    {
+      name: "branches",
+      label: t("userManagement.branches"),
+      type: "multiselect",
       required: true,
       options: branchesOptions,
     },
-    { 
-      name: 'role', 
-      label: t('userManagement.role'), 
-      type: 'select', 
+    {
+      name: "role",
+      label: t("userManagement.role"),
+      type: "select",
       required: true,
       options: rolesOptions,
     },
@@ -116,32 +136,31 @@ export default function UserManage() {
 
   const tableData =
     userResponse?.results?.map((user) => {
-      const branchNames = user.user_branches?.map(branch => branch.name) || [];
+      const branchNames =
+        user.user_branches?.map((branch) => branch.name) || [];
 
       return {
         id: user.id.toString(),
-        [t('userManagement.userName')]: user.username,
-        [t('userManagement.emailAddress')]: user.email,
-        [t('userManagement.phoneNumber')]: user.phone_number,
-        [t('userManagement.branchAssigned')]:
-          branchNames.length > 0 ? branchNames.join(", ") : t('userInfo.noBranchesAssigned'),
-        [t('userManagement.role')]: user.role_name,
+        [t("userManagement.userName")]: user.username,
+        [t("userManagement.emailAddress")]: user.email,
+        [t("userManagement.phoneNumber")]: user.phone_number,
+        [t("userManagement.branchAssigned")]:
+          branchNames.length > 0
+            ? branchNames.join(", ")
+            : t("userInfo.noBranchesAssigned"),
+        [t("userManagement.role")]: user.role_name,
       };
     }) || [];
 
   return (
     <>
       {showInfo ? (
-        <UserInfo 
-          userId={showInfo}  
-          onBack={handleBack}
-          editMode="limited" 
-        />
+        <UserInfo userId={showInfo} onBack={handleBack} editMode="limited" />
       ) : (
         <div>
           <TableHeaderSearch
-            title={t('userManagement.title')}
-            buttonText={t('userManagement.addNewUser')}
+            title={t("userManagement.title")}
+            buttonText={t("userManagement.addNewUser")}
             onAddClick={() => setIsCreateModalOpen(true)}
             value={searchInput}
             onSearchChange={(value) => {
@@ -159,11 +178,11 @@ export default function UserManage() {
             <>
               <DataTable
                 columns={[
-                  t('userManagement.userName'),
-                  t('userManagement.emailAddress'),
-                  t('userManagement.phoneNumber'),
-                  t('userManagement.branchAssigned'),
-                  t('userManagement.role')
+                  t("userManagement.userName"),
+                  t("userManagement.emailAddress"),
+                  t("userManagement.phoneNumber"),
+                  t("userManagement.branchAssigned"),
+                  t("userManagement.role"),
                 ]}
                 data={tableData}
                 RowComponent={TableRowUser}
@@ -173,13 +192,13 @@ export default function UserManage() {
                       onClick={() => setShowInfo(id)}
                       className="block w-full text-left text-label text-base px-4 py-2 hover:bg-gray-50"
                     >
-                      {t('userManagement.showUserInfo')}
+                      {t("userManagement.showUserInfo")}
                     </button>
                     <button
                       onClick={() => setDeactivateId(id)}
                       className="block w-full text-left text-label text-base px-4 py-2 hover:bg-gray-50"
                     >
-                      {t('userManagement.deactivateUser')}
+                      {t("userManagement.deactivateUser")}
                     </button>
                   </div>
                 )}
@@ -199,13 +218,13 @@ export default function UserManage() {
 
           {isCreateModalOpen && (
             <ReusableForm
-              title={t('userManagement.user')}
+              title={t("userManagement.user")}
               fields={formFields}
               endpoint="/api/user/"
               method="post"
               onClose={() => setIsCreateModalOpen(false)}
               onSuccess={handleCreateSuccess}
-              submitButtonText={t('userManagement.createUser')}
+              submitButtonText={t("userManagement.createUser")}
               key="create-form"
             />
           )}

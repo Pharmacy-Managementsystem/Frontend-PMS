@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom';
-import { tokenService } from './utils/tokenService';
+import { useNavigate } from "react-router-dom";
+import { tokenService } from "./utils/tokenService";
 
 export const useLogout = () => {
   const navigate = useNavigate();
@@ -7,6 +7,6 @@ export const useLogout = () => {
   return () => {
     tokenService.removeAccessToken();
     tokenService.removeRefreshToken();
-    navigate('/', { replace: true });
+    navigate("/", { replace: true });
   };
 };

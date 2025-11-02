@@ -13,67 +13,43 @@ import Swal from "sweetalert2";
 import { PackagePlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-interface PaymentMethod {
+interface StokPoint {
   id: string;
   name: string;
-  country: string;
-  tax_rate: number | string;
 }
 
 interface DataResponse {
   count: number;
   next: string | null;
   previous: string | null;
-  results: PaymentMethod[];
+  results: StokPoint[];
 }
 
-const PaymentMethods = () => {
+const StokPoint = () => {
   const { t } = useTranslation();
 
-  const columns = [
-    t("settings.paymentMethods.paymentName"),
-    t("settings.paymentMethods.country"),
-    t("settings.paymentMethods.taxRate"),
-  ];
+  const columns = [t("stockPoint.id"), t("stockPoint.name")];
 
   const [page, setPage] = useState(1);
   const [pageSize] = useState(4);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingPayment, setEditingPayment] = useState<PaymentMethod | null>(
+  const [editingStokPoint, setEditingStokPoint] = useState<StokPoint | null>(
     null,
   );
 
   const {
-    data: PaymentResponse,
+    data: StokPointResponse,
     isLoading,
     error,
     refetch,
   } = useGet<DataResponse>({
-    endpoint: `/api/business/settings/payment-methods/?page=${page}&page_size=${pageSize}`,
-    queryKey: ["all-payment-methods", page],
+    endpoint: `/api/inventory/stocks/stock-points/?page=${page}&page_size=${pageSize}`,
+    queryKey: ["all-stok-point", page],
   });
 
   const formFields = [
-    {
-      name: "name",
-      label: t("settings.paymentMethods.paymentName"),
-      required: true,
-    },
-    {
-      name: "country",
-      label: t("settings.paymentMethods.country"),
-      required: true,
-    },
-    {
-      name: "tax_rate",
-      label: t("settings.paymentMethods.taxRate"),
-      type: "number",
-      required: false,
-      formatValue: (value: string | number | null) =>
-        value ? Number(value) : null,
-      parseValue: (value: number | string | null) => value?.toString(),
-    },
+    { name: "name", label: t("stockPoint.stockPointName"), required: true },
   ];
 
   const handleCreateSuccess = () => {
@@ -83,39 +59,39 @@ const PaymentMethods = () => {
 
   const handleEditSuccess = () => {
     setIsEditModalOpen(false);
-    setEditingPayment(null);
+    setEditingStokPoint(null);
     refetch();
   };
 
   const handleDelete = async (id: string) => {
     const result = await Swal.fire({
-      title: t("settings.swal.areYouSure"),
-      text: t("settings.swal.cantRevert"),
+      title: t("stockPoint.swal.areYouSure"),
+      text: t("stockPoint.swal.cantRevert"),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: t("settings.swal.yesDelete"),
+      confirmButtonText: t("stockPoint.swal.yesDelete"),
     });
 
     if (result.isConfirmed) {
       try {
         const response = await api.delete(
-          `/api/business/settings/payment-methods/${id}/`,
+          `/api/inventory/stocks/stock-points/${id}/`,
         );
         if (response.status === 204) {
           Swal.fire(
-            t("settings.swal.deleted"),
-            t("settings.swal.paymentMethodDeleted"),
+            t("stockPoint.swal.deleted"),
+            t("stockPoint.swal.stockPointDeleted"),
             "success",
           );
           refetch();
         }
       } catch (error) {
-        console.error("Error deleting payment method:", error);
+        console.error("Error deleting stock point:", error);
         Swal.fire(
-          t("settings.swal.error"),
-          t("settings.swal.errorDeleting"),
+          t("stockPoint.swal.error"),
+          t("stockPoint.swal.errorDeleting"),
           "error",
         );
       }
@@ -123,19 +99,18 @@ const PaymentMethods = () => {
   };
 
   const handleEditClick = (id: string) => {
-    const payment = PaymentResponse?.results.find((p) => p.id === id);
-    if (payment) {
-      setEditingPayment(payment);
+    const StokPoint = StokPointResponse?.results.find((p) => p.id === id);
+    if (StokPoint) {
+      setEditingStokPoint(StokPoint);
       setIsEditModalOpen(true);
     }
   };
 
   const transformedData =
-    PaymentResponse?.results?.map((method) => ({
-      id: method.id,
-      [columns[0]]: method.name,
-      [columns[1]]: method.country,
-      [columns[2]]: method.tax_rate?.toString(),
+    StokPointResponse?.results?.map((Point) => ({
+      id: Point.id,
+      [columns[0]]: Point.id,
+      [columns[1]]: Point.name,
     })) || [];
 
   if (isLoading) {
@@ -151,40 +126,39 @@ const PaymentMethods = () => {
   if (error)
     return (
       <div className="p-6">
-        {t("settings.paymentMethods.errorLoading")}: {error.message}
+        {t("stockPoint.errorLoading")}: {error.message}
       </div>
     );
 
-  const hasPaymentMethods =
-    PaymentResponse &&
-    PaymentResponse.results &&
-    PaymentResponse.results.length > 0;
+  const hasStockPoints =
+    StokPointResponse &&
+    StokPointResponse.results &&
+    StokPointResponse.results.length > 0;
 
   return (
     <div className="container mx-auto p-6">
-      {!hasPaymentMethods ? (
+      {!hasStockPoints ? (
         <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
           <div className="bg-gray-100 p-6 rounded-full mb-4">
             <PackagePlus size={48} className="text-gray-400" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {t("settings.paymentMethods.noPaymentMethods")}
+            {t("stockPoint.noStockPoints")}
           </h3>
           <p className="text-gray-500 mb-6 max-w-md">
-            {t("settings.paymentMethods.getStarted")}
+            {t("stockPoint.getStarted")}
           </p>
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             onClick={() => setIsCreateModalOpen(true)}
           >
-            {t("settings.paymentMethods.createPaymentMethod")}
+            {t("stockPoint.createStockPoint")}
           </button>
         </div>
       ) : (
         <>
           <TableHeaderSearch
-            title={t("settings.paymentMethods.title")}
-            buttonText={t("settings.paymentMethods.addNewPaymentMethod")}
+            buttonText={t("stockPoint.addNewStockPoint")}
             onAddClick={() => setIsCreateModalOpen(true)}
           />
           <DataTable
@@ -196,11 +170,11 @@ const PaymentMethods = () => {
           />
           <Pagination
             currentPage={page}
-            totalItems={PaymentResponse.count}
+            totalItems={StokPointResponse.count}
             itemsPerPage={pageSize}
             onPageChange={(newPage) => setPage(newPage)}
-            hasNext={!!PaymentResponse.next}
-            hasPrevious={!!PaymentResponse.previous}
+            hasNext={!!StokPointResponse.next}
+            hasPrevious={!!StokPointResponse.previous}
           />
         </>
       )}
@@ -208,24 +182,24 @@ const PaymentMethods = () => {
       {/* Create Modal */}
       {isCreateModalOpen && (
         <ReusableForm
-          title={t("settings.paymentMethods.createPaymentMethod")}
+          title={t("stockPoint.createStockPoint")}
           fields={formFields}
-          endpoint="/api/business/settings/payment-methods/"
+          endpoint="/api/inventory/stocks/stock-points/"
           method="post"
           onClose={() => setIsCreateModalOpen(false)}
           onSuccess={handleCreateSuccess}
-          submitButtonText={t("settings.paymentMethods.createPaymentMethod")}
+          submitButtonText={t("stockPoint.createStockPoint")}
           key="create-form"
         />
       )}
 
       {/* Edit Modal */}
-      {isEditModalOpen && editingPayment && (
+      {isEditModalOpen && editingStokPoint && (
         <Dialog
           open={isEditModalOpen}
           onClose={() => {
             setIsEditModalOpen(false);
-            setEditingPayment(null);
+            setEditingStokPoint(null);
           }}
           maxWidth="sm"
           fullWidth
@@ -234,7 +208,7 @@ const PaymentMethods = () => {
             aria-label="close"
             onClick={() => {
               setIsEditModalOpen(false);
-              setEditingPayment(null);
+              setEditingStokPoint(null);
             }}
             sx={{
               position: "absolute",
@@ -246,21 +220,20 @@ const PaymentMethods = () => {
             <X />
           </IconButton>
           <ReusableForm
-            title={t("settings.paymentMethods.updatePaymentMethod")}
+            title={t("stockPoint.updateStockPoint")}
             fields={formFields}
-            endpoint={`/api/business/settings/payment-methods/${editingPayment.id}/`}
+            endpoint={`/api/inventory/stocks/stock-points/${editingStokPoint.id}/`}
             method="patch"
             initialValues={{
-              ...editingPayment,
-              tax_rate: editingPayment.tax_rate?.toString(),
+              ...editingStokPoint,
             }}
             onClose={() => {
               setIsEditModalOpen(false);
-              setEditingPayment(null);
+              setEditingStokPoint(null);
             }}
             onSuccess={handleEditSuccess}
-            submitButtonText={t("settings.paymentMethods.updatePaymentMethod")}
-            key={`edit-form-${editingPayment.id}`}
+            submitButtonText={t("stockPoint.updateStockPoint")}
+            key={`edit-form-${editingStokPoint.id}`}
           />
         </Dialog>
       )}
@@ -268,4 +241,4 @@ const PaymentMethods = () => {
   );
 };
 
-export default PaymentMethods;
+export default StokPoint;

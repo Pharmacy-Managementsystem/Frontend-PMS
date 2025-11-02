@@ -9,10 +9,10 @@ import { useResetPassword } from "../../Hook/ResetPass/ResetLogic";
 import { useNavigate } from "react-router-dom";
 
 interface ResetPasswordProps {
-  onBackToLogin?: () => void; 
+  onBackToLogin?: () => void;
 }
 
-const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => { 
+const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
   const {
     activeStep,
     loading,
@@ -29,7 +29,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
     handleConfirmPasswordChange,
     handleSendCode,
     handleVerifyCode,
-    handleResetPassword
+    handleResetPassword,
   } = useResetPassword();
   const navigate = useNavigate();
 
@@ -47,7 +47,10 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
         return (
           <form className="space-y-5" onSubmit={handleSendCode}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Email address
               </label>
               <input
@@ -66,7 +69,11 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
               className="w-full font-bold bg-primary text-white py-3 rounded-lg hover:bg-accent focus:ring-2 focus:ring-accent focus:ring-opacity-50 inline-flex justify-center items-center gap-2 transition"
               disabled={loading}
             >
-              {loading ? <CircularProgress size={20} color="inherit" /> : "Send Code"}
+              {loading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                "Send Code"
+              )}
             </button>
           </form>
         );
@@ -75,7 +82,10 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
         return (
           <form className="space-y-5" onSubmit={handleVerifyCode}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Email address
               </label>
               <input
@@ -89,7 +99,10 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
             </div>
 
             <div>
-              <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="code"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Verification Code
               </label>
               <input
@@ -108,7 +121,11 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
               className="w-full font-bold bg-primary text-white py-3 rounded-lg hover:bg-accent focus:ring-2 focus:ring-accent focus:ring-opacity-50 inline-flex justify-center items-center gap-2 transition"
               disabled={loading}
             >
-              {loading ? <CircularProgress size={20} color="inherit" /> : "Verify Code"}
+              {loading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                "Verify Code"
+              )}
             </button>
           </form>
         );
@@ -117,7 +134,10 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
         return (
           <form className="space-y-5" onSubmit={handleResetPassword}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Email address
               </label>
               <input
@@ -131,7 +151,10 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
             </div>
 
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="newPassword"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 New Password
               </label>
               <input
@@ -146,7 +169,10 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Confirm Password
               </label>
               <input
@@ -165,7 +191,11 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
               className="w-full font-bold bg-primary text-white py-3 rounded-lg hover:bg-accent focus:ring-2 focus:ring-accent focus:ring-opacity-50 inline-flex justify-center items-center gap-2 transition"
               disabled={loading}
             >
-              {loading ? <CircularProgress size={20} color="inherit" /> : "Reset Password"}
+              {loading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                "Reset Password"
+              )}
             </button>
           </form>
         );
@@ -178,7 +208,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
   return (
     <div>
       <div className="text-center mb-6">
-        <h1 className='text-3xl font-bold text-primary mb-6'>PharmAdmin</h1>
+        <h1 className="text-3xl font-bold text-primary mb-6">PharmAdmin</h1>
       </div>
       <div className="px-4 pb-4">
         <div className="text-center mb-6">
@@ -186,8 +216,8 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
             {activeStep === 0 ? "Forgot Password?" : "Reset Password"}
           </h1>
           <p className="text-gray-600">
-            Remember your password? 
-            <span 
+            Remember your password?
+            <span
               onClick={handleBackToLogin}
               className="text-primary hover:text-accent hover:underline font-medium ml-1 cursor-pointer transition"
             >
@@ -209,12 +239,16 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ onBackToLogin }) => {
 
           {error && (
             <Box sx={{ mt: 3 }}>
-              <Alert severity="error" className="rounded-lg">{error}</Alert>
+              <Alert severity="error" className="rounded-lg">
+                {error}
+              </Alert>
             </Box>
           )}
           {message && (
             <Box sx={{ mt: 3 }}>
-              <Alert severity="success" className="rounded-lg">{message}</Alert>
+              <Alert severity="success" className="rounded-lg">
+                {message}
+              </Alert>
             </Box>
           )}
         </div>

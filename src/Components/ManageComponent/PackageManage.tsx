@@ -1,17 +1,13 @@
 import LargeCard from "../Cards/LargeCards";
 import { useGet } from "../../Hook/API/useApiGet";
 import { useState } from "react";
-import { PackagePlus } from "lucide-react"; 
+import { PackagePlus } from "lucide-react";
 import { TableHeader } from "../Table/TableHeader";
 import ReusableForm from "../Forms/ReusableForm";
 import Pagination from "../Pagination";
-import {
-  CircularProgress,
-  Dialog,
-  IconButton
-} from '@mui/material';
-import Box from '@mui/material/Box';
-import { X } from 'lucide-react';
+import { CircularProgress, Dialog, IconButton } from "@mui/material";
+import Box from "@mui/material/Box";
+import { X } from "lucide-react";
 import api from "../../Hook/API/api";
 import Swal from "sweetalert2";
 
@@ -39,20 +35,40 @@ export default function PackageManage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
-  const { data: packageResponse, isLoading, error, refetch } = useGet<PackageResponse>({
+  const {
+    data: packageResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useGet<PackageResponse>({
     endpoint: `/api/superadmin/packages/?page=${page}&page_size=${pageSize}`,
-    queryKey: ['packages', page],
+    queryKey: ["packages", page],
   });
 
- const formFields = [
-  { name: 'name', label: 'Package Name', required: true },
-  { name: 'max_branches', label: 'Max Branches', type: 'number', required: true },
-  { name: 'max_owners', label: 'Max Owners', type: 'number', required: true },
-  { name: 'max_users', label: 'Max Users', type: 'number', required: true },
-  { name: 'price', label: 'Price', type: 'number', required: true },
-  { name: 'billing_cycle_days', label: 'Billing Cycle Days', type: 'number', required: true },
-  { name: 'description', label: 'Description', type: 'text', required: false }
-];
+  const formFields = [
+    { name: "name", label: "Package Name", required: true },
+    {
+      name: "max_branches",
+      label: "Max Branches",
+      type: "number",
+      required: true,
+    },
+    { name: "max_owners", label: "Max Owners", type: "number", required: true },
+    { name: "max_users", label: "Max Users", type: "number", required: true },
+    { name: "price", label: "Price", type: "number", required: true },
+    {
+      name: "billing_cycle_days",
+      label: "Billing Cycle Days",
+      type: "number",
+      required: true,
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "text",
+      required: false,
+    },
+  ];
 
   const handleCreateSuccess = () => {
     setIsCreateModalOpen(false);
@@ -65,40 +81,38 @@ export default function PackageManage() {
     refetch();
   };
 
- 
-
   const handleDelete = async (id: string) => {
-  const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
-  });
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-  if (result.isConfirmed) {
-    try {
-      const response = await api.delete(`/api/superadmin/packages/${id}/`);
-      if (response.status === 204) {
+    if (result.isConfirmed) {
+      try {
+        const response = await api.delete(`/api/superadmin/packages/${id}/`);
+        if (response.status === 204) {
+          Swal.fire(
+            "Deleted!",
+            "Your payment method has been deleted.",
+            "success",
+          );
+          refetch();
+        }
+      } catch (error) {
+        console.error("Error deleting payment method:", error);
         Swal.fire(
-          'Deleted!',
-          'Your payment method has been deleted.',
-          'success'
+          "Error!",
+          "There was an error deleting the payment method.",
+          "error",
         );
-        refetch();
       }
-    } catch (error) {
-      console.error('Error deleting payment method:', error);
-      Swal.fire(
-        'Error!',
-        'There was an error deleting the payment method.',
-        'error'
-      );
     }
-  }
-};
+  };
 
   const handleEditClick = (pkg: Package) => {
     const packageCopy = { ...pkg };
@@ -106,28 +120,38 @@ export default function PackageManage() {
     setIsEditModalOpen(true);
   };
 
-  if (isLoading) return <div className="p-6">
-     <Box className="flex justify-center items-center w-full h-screen">
-      <CircularProgress />
-    </Box>
-  </div>;
-  if (error) return <div className="p-6">Error loading packages: {error.message}</div>;
+  if (isLoading)
+    return (
+      <div className="p-6">
+        <Box className="flex justify-center items-center w-full h-screen">
+          <CircularProgress />
+        </Box>
+      </div>
+    );
+  if (error)
+    return <div className="p-6">Error loading packages: {error.message}</div>;
 
-  const hasPackages = packageResponse && packageResponse.results && packageResponse.results.length > 0;
+  const hasPackages =
+    packageResponse &&
+    packageResponse.results &&
+    packageResponse.results.length > 0;
 
   return (
     <div>
-      <div >
+      <div>
         {!hasPackages && (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
             <div className="bg-gray-100 p-6 rounded-full mb-4">
               <PackagePlus size={48} className="text-gray-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No packages yet</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No packages yet
+            </h3>
             <p className="text-gray-500 mb-6 max-w-md">
-              Get started by creating your first subscription package for your pharmacy system.
+              Get started by creating your first subscription package for your
+              pharmacy system.
             </p>
-            <button 
+            <button
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               onClick={() => setIsCreateModalOpen(true)}
             >
@@ -138,22 +162,22 @@ export default function PackageManage() {
 
         {hasPackages && (
           <div className="flex flex-col justify-center">
-            <TableHeader 
-              title="Packages" 
-              buttonText="Create Package" 
-              onAddClick={() => setIsCreateModalOpen(true)} 
+            <TableHeader
+              title="Packages"
+              buttonText="Create Package"
+              onAddClick={() => setIsCreateModalOpen(true)}
             />
-            <div className='flex flex-col justify-around gap-4'>
+            <div className="flex flex-col justify-around gap-4">
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4">
                 {packageResponse.results.map((pkg) => (
                   <div key={pkg.id}>
-                    <LargeCard 
+                    <LargeCard
                       id={pkg.id}
                       name={pkg.name}
                       tag=""
                       tagType="available"
                       price={pkg.price}
-                      button={['Edit', 'Delete']}
+                      button={["Edit", "Delete"]}
                       max_branches={pkg.max_branches}
                       max_owners={pkg.max_owners}
                       max_users={pkg.max_users}
@@ -181,42 +205,42 @@ export default function PackageManage() {
         {/* Create Package Modal */}
         {isCreateModalOpen && (
           <ReusableForm
-              title="Package"
-              fields={formFields}
-              endpoint="/api/superadmin/packages/"
-              method="post"
-              onClose={() => setIsCreateModalOpen(false)}
-              onSuccess={handleCreateSuccess}
-              submitButtonText="Create Package"
-              key="create-form"
-            />
-      )}
+            title="Package"
+            fields={formFields}
+            endpoint="/api/superadmin/packages/"
+            method="post"
+            onClose={() => setIsCreateModalOpen(false)}
+            onSuccess={handleCreateSuccess}
+            submitButtonText="Create Package"
+            key="create-form"
+          />
+        )}
 
-      {isEditModalOpen && editingPackage && (
-        <Dialog 
-          open={isEditModalOpen} 
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setEditingPackage(null);
-          }} 
-          maxWidth="sm" 
-          fullWidth
-        >
-          <IconButton
-            aria-label="close"
-            onClick={() => {
+        {isEditModalOpen && editingPackage && (
+          <Dialog
+            open={isEditModalOpen}
+            onClose={() => {
               setIsEditModalOpen(false);
               setEditingPackage(null);
             }}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
+            maxWidth="sm"
+            fullWidth
           >
-            <X />
-          </IconButton>
+            <IconButton
+              aria-label="close"
+              onClick={() => {
+                setIsEditModalOpen(false);
+                setEditingPackage(null);
+              }}
+              sx={{
+                position: "absolute",
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <X />
+            </IconButton>
             <ReusableForm
               title="Package"
               fields={formFields}
@@ -228,7 +252,7 @@ export default function PackageManage() {
                 max_owners: String(editingPackage.max_owners),
                 max_users: String(editingPackage.max_users),
                 price: String(editingPackage.price),
-                billing_cycle_days: String(editingPackage.billing_cycle_days)
+                billing_cycle_days: String(editingPackage.billing_cycle_days),
               }}
               onClose={() => {
                 setIsEditModalOpen(false);
@@ -238,8 +262,8 @@ export default function PackageManage() {
               submitButtonText="Update Package"
               key={`edit-form-${editingPackage.id}`}
             />
-        </Dialog>
-      )}
+          </Dialog>
+        )}
       </div>
     </div>
   );

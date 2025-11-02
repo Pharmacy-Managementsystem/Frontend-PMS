@@ -1,6 +1,3 @@
-
 export default function ReturnPurchases() {
-  return (
-    <div>ReturnPurchases</div>
-  )
+  return <div>ReturnPurchases</div>;
 }
