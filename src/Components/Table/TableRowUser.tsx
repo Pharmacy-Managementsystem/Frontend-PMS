@@ -6,11 +6,18 @@ interface TableRowUserProps {
   data: Record<string, string | boolean | number> & { id: string };
   columns: string[];
   renderDropdown?: (id: string) => React.ReactNode;
+  onView?: (id: string) => void;
 }
 
+// Extended status colors for stock transfers
 const statusColors: Record<string, string> = {
   Active: "bg-green-100 text-green-800",
   Inactive: "bg-red-100 text-red-600",
+  Completed: "bg-green-100 text-green-800",
+  Pending: "bg-yellow-100 text-yellow-800",
+  Transferring : "bg-blue-100 text-blue-800",
+  Approved: "bg-green-100 text-green-800",
+  Cancelled: "bg-red-100 text-red-800",
 };
 
 export default function TableRowUser({
@@ -41,26 +48,45 @@ export default function TableRowUser({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openDropdown]);
 
+  const getStatusColor = (status: string) => {
+    return statusColors[status] || "bg-gray-100 text-gray-500";
+  };
+
+  const getStatusDotColor = (status: string) => {
+    switch (status) {
+      case "Active":
+        case "Approved":
+      case "Completed":
+        return "bg-green-500";
+      case "In Transit":
+        return "bg-blue-500";
+      case "Pending":
+        return "bg-yellow-500";
+      case "Inactive":
+      case "Cancelled":
+        return "bg-red-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
+
   return (
-    <tr className="hover:bg-gray-50 transition-colors duration-150 relative">
+    <>
+    <tr className=" hover:bg-gray-50 transition-colors duration-150 relative">
       {columns.map((col) => (
         <td
           key={col}
           className={`py-4 px-6 text-sm text-gray-900 ${isRTL ? "text-right" : "text-left"}`}
         >
-          {col === t("suppliers.status") || col === "Status" ? ( // استخدام الترجمة
+          {col === t("transfers.status", "Status") || 
+           col === t("suppliers.status", "Status") ? (
             <span
-              className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full ${statusColors[data[col] as string] || "bg-gray-100 text-gray-500"}`}
+              className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(data[col] as string)}`}
             >
               <span
-                className={`w-2 h-2 rounded-full ${data[col] === t("table.status.active") || data[col] === "Active" ? "bg-green-500" : "bg-red-500"}`}
+                className={`w-2 h-2 rounded-full ${getStatusDotColor(data[col] as string)}`}
               ></span>
-              {data[col] === t("table.status.active") || data[col] === "Active"
-                ? t("table.status.active")
-                : data[col] === t("table.status.inactive") ||
-                    data[col] === "Inactive"
-                  ? t("table.status.inactive")
-                  : data[col]}
+              {data[col]}
             </span>
           ) : (
             <span className="text-gray-900">{data[col]}</span>
@@ -77,24 +103,21 @@ export default function TableRowUser({
           <CiMenuKebab className="text-lg" />
         </button>
 
-        {openDropdown && (
-          <div
+        {openDropdown && renderDropdown && (
+       <div
             ref={dropdownRef}
             className={`fixed mt-1 w-48 bg-white rounded-lg shadow-2xl border border-gray-100 z-50 overflow-hidden ${
-              isRTL ? "left-0" : "right-0"
+              isRTL ? "left-15" : "right-15"
             }`}
           >
-            {renderDropdown ? (
-              renderDropdown(data.id)
-            ) : (
-              <div className="p-4 text-center text-gray-500 text-sm">
-                {t("table.noActions", "No actions available")}{" "}
-                {/* إضافة ترجمة افتراضية */}
-              </div>
-            )}
-          </div>
-        )}
+          {renderDropdown(data.id)}
+        </div>
+      )}
       </td>
+       
     </tr>
+   
+    </>
+
   );
 }

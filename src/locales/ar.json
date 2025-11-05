@@ -649,6 +649,7 @@
   },
   "stockPoint": {
     "id": "المعرف",
+    "title": "نقاط المخزون",
     "name": "اسم نقطة المخزون",
     "stockPointName": "اسم نقطة المخزون",
     "noStockPoints": "لا توجد نقاط مخزون",
@@ -696,5 +697,28 @@
     "distributionSaved": "تم حفظ التوزيع بنجاح",
     "errorLoading": "خطأ في تحميل البيانات",
     "backToBatch": "العودة للدفعة"
+  },
+   "login": {
+    "title": "تسجيل الدخول",
+    "username": "اسم المستخدم",
+    "password": "كلمة المرور",
+    "usernamePlaceholder": "أدخل اسم المستخدم",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "rememberMe": "تذكرني",
+    "forgetPassword": "نسيت كلمة المرور؟",
+    "loginButton": "تسجيل الدخول",
+    "loggingIn": "جاري تسجيل الدخول...",
+    "usernameRequired": "اسم المستخدم مطلوب",
+    "passwordRequired": "كلمة المرور مطلوبة",
+    "success": {
+      "title": "تم تسجيل الدخول بنجاح!",
+      "text": "مرحباً بعودتك!"
+    },
+    "error": {
+      "invalidCredentials": "اسم المستخدم أو كلمة المرور غير صحيحة",
+      "errorCode": "خطأ {{code}}",
+      "error": "خطأ"
+    }
   }
+ 
 }

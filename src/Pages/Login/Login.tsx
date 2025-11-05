@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 import ResetPassword from "../../Components/ResetPassword/ResetPassword";
 import { useLogin } from "../../Hook/API/useLogin";
@@ -12,13 +13,14 @@ import { useNavigate } from "react-router-dom";
 import { EyeOff, Eye } from "lucide-react";
 
 const PharmAdminLogin = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [forgetPass, setForgetPass] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const loginSchema = z.object({
-    username: z.string().min(1, { message: "username is required" }),
-    password: z.string().min(1, { message: "password is required" }),
+    username: z.string().min(1, { message: t("login.usernameRequired") }),
+    password: z.string().min(1, { message: t("login.passwordRequired") }),
   });
 
   type FormData = z.infer<typeof loginSchema>;
@@ -39,8 +41,8 @@ const PharmAdminLogin = () => {
       onSuccess: () => {
         Swal.fire({
           icon: "success",
-          title: "Login Successful!",
-          text: "Welcome back!",
+          title: t("login.success.title"),
+          text: t("login.success.text"),
           timer: 2000,
           showConfirmButton: false,
         }).then(() => {
@@ -48,15 +50,13 @@ const PharmAdminLogin = () => {
         });
       },
       onError: (error) => {
-        // طريقة أفضل للتعامل مع axios errors
-        let errorMessage = "Username or Password is incorrect";
+        let errorMessage = t("login.error.invalidCredentials");
         let errorStatus = "";
 
         if (axios.isAxiosError(error)) {
-          // الآن TypeScript هيعرف إن دي axios error
           errorStatus = error.response?.status
-            ? `Error ${error.response.status}`
-            : "Error";
+            ? t("login.error.errorCode", { code: error.response.status })
+            : t("login.error.error");
           errorMessage =
             error.response?.data?.message || error.message || errorMessage;
         }
@@ -77,17 +77,17 @@ const PharmAdminLogin = () => {
         <div className="w-full max-w-md bg-white rounded-3xl custom-card-shadow p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-primary mb-6">PharmAdmin</h1>
-            <p className="text-2xl font-bold text-gray-800">Login</p>
+            <p className="text-2xl font-bold text-gray-800">{t("login.title")}</p>
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Username
+                {t("login.username")}
               </label>
               <input
                 type="text"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                placeholder="Enter your username"
+                placeholder={t("login.usernamePlaceholder")}
                 {...register("username")}
               />
               {errors.username && (
@@ -99,7 +99,7 @@ const PharmAdminLogin = () => {
 
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                {t("login.password")}
               </label>
               <input
                 type={showPassword ? "text" : "password"}
@@ -128,13 +128,13 @@ const PharmAdminLogin = () => {
                   type="checkbox"
                   className="h-4 w-4 text-primary rounded"
                 />
-                <span className="ml-2 text-sm">Remember Me</span>
+                <span className="ml-2 text-sm">{t("login.rememberMe")}</span>
               </label>
               <span
                 onClick={() => setForgetPass(true)}
                 className="text-sm font-normal text-accent hover:text-primary hover:underline cursor-pointer transition"
               >
-                Forget Password?
+                {t("login.forgetPassword")}
               </span>
             </div>
 
@@ -143,7 +143,7 @@ const PharmAdminLogin = () => {
               disabled={isPending}
               className="w-full font-bold bg-primary text-white py-3 rounded-lg hover:bg-accent focus:ring-2 focus:ring-accent focus:ring-opacity-50 transition disabled:opacity-60"
             >
-              {isPending ? "Logging in..." : "Login"}
+              {isPending ? t("login.loggingIn") : t("login.loginButton")}
             </button>
           </form>
         </div>

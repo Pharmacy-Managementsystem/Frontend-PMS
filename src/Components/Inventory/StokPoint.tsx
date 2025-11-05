@@ -158,6 +158,7 @@ const StokPoint = () => {
       ) : (
         <>
           <TableHeaderSearch
+            title={t("stockPoint.title")}
             buttonText={t("stockPoint.addNewStockPoint")}
             onAddClick={() => setIsCreateModalOpen(true)}
           />

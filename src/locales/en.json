@@ -649,6 +649,7 @@
   },
   "stockPoint": {
     "id": "ID",
+    "title": "Stock Points",
     "name": "Stock Point Name",
     "stockPointName": "Stock Point Name",
     "noStockPoints": "No Stock Points Found",
@@ -696,5 +697,28 @@
     "distributionSaved": "Distribution saved successfully",
     "errorLoading": "Error loading data",
     "backToBatch": "Back to Batch"
+  }, "login": {
+    "title": "Login",
+    "username": "Username",
+    "password": "Password",
+    "usernamePlaceholder": "Enter your username",
+    "passwordPlaceholder": "Enter your password",
+    "rememberMe": "Remember Me",
+    "forgetPassword": "Forget Password?",
+    "loginButton": "Login",
+    "loggingIn": "Logging in...",
+    "usernameRequired": "Username is required",
+    "passwordRequired": "Password is required",
+    "success": {
+      "title": "Login Successful!",
+      "text": "Welcome back!"
+    },
+    "error": {
+      "invalidCredentials": "Username or Password is incorrect",
+      "errorCode": "Error {{code}}",
+      "error": "Error"
+    }
   }
+
+ 
 }

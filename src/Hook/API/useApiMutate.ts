@@ -73,7 +73,6 @@ export function useMutate<
         });
 
         return response.data;
-        // في دالة mutationFn، استبدل جزء معالجة الأخطاء بهذا:
       } catch (error: unknown) {
         const err = error as {
           response?: {
@@ -81,6 +80,7 @@ export function useMutate<
             data?: {
               errors?: Record<string, string[] | string> | string;
               message?: string;
+              error?: string; // أضفنا هذا السطر
             };
           };
           message?: string;
@@ -89,7 +89,10 @@ export function useMutate<
         let errorMessage = "Unexpected Error";
         const statusCode = err.response?.status;
 
-        if (err.response?.data?.errors) {
+        // الأولوية لـ error ثم errors ثم message
+        if (err.response?.data?.error) {
+          errorMessage = err.response.data.error;
+        } else if (err.response?.data?.errors) {
           const errors = err.response.data.errors;
 
           if (typeof errors === "object" && !Array.isArray(errors)) {
@@ -111,13 +114,12 @@ export function useMutate<
           errorMessage = err.message;
         }
 
-        // إضافة status code للعنوان
         const errorTitle = statusCode ? `Error ${statusCode}` : "Error";
 
         Swal.fire({
           icon: "error",
           title: errorTitle,
-          html: errorMessage.replace(/\n/g, "<br>"), // لدعم أسطر متعددة
+          html: errorMessage.replace(/\n/g, "<br>"), 
           confirmButtonText: "OK",
         });
 

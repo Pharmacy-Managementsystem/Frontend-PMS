@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useMutate } from "../../Hook/API/useApiMutate";
 import { useEffect, useRef, useState } from "react";
-import { Loader2, X, Eye, EyeOff } from "lucide-react";
+import { Loader2, X, Eye, EyeOff, Check, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface SelectOption {
@@ -15,6 +15,7 @@ interface FormField {
   type?: string;
   required?: boolean;
   options?: SelectOption[];
+  placeholder?: string;
 }
 
 interface ReusableFormProps {
@@ -39,7 +40,6 @@ export default function ReusableForm({
   initialValues = {},
 }: ReusableFormProps) {
   const { t } = useTranslation();
-
   const prevInitialValues = useRef(initialValues);
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
 
@@ -78,7 +78,6 @@ export default function ReusableForm({
 
     // ✅ معالجة خاصة لإنشاء الـ permission
     if (title.toLowerCase().includes("permission")) {
-      // جمع section و subsection و action في قيمة واحدة
       const section = data.section as string;
       const subsection = data.subsection as string;
       const action = data.action as string;
@@ -87,11 +86,9 @@ export default function ReusableForm({
         formData["name"] = `${section}.${subsection}.${action}`;
       }
     } else {
-      // المعالجة العادية لباقي الحقول
       fields.forEach((field) => {
         const value = data[field.name];
 
-        // ✅ التعديل الجديد: لا ترسل الحقول الفارغة إذا كانت غير مطلوبة
         if (
           field.required ||
           (value !== undefined && value !== null && value !== "" && value !== 0)
@@ -115,7 +112,6 @@ export default function ReusableForm({
                 formData[field.name] = value[0];
               }
             } else if (typeof value === "string" || typeof value === "number") {
-              // ✅ لا ترسل الحقول الفارغة إذا كانت غير مطلوبة
               if (field.required || (value !== "" && value !== 0)) {
                 formData[field.name] = value;
               }
@@ -133,7 +129,6 @@ export default function ReusableForm({
     mutate(formData);
   };
 
-  // ... باقي الكود بدون تغيير ...
   const handleNumberChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     fieldName: string,
@@ -151,14 +146,23 @@ export default function ReusableForm({
     }));
   };
 
+  const getInputClassName = (hasError: boolean, type?: string) => {
+    const baseClasses = "block w-full rounded-lg shadow-sm transition-all duration-200 sm:text-sm p-3 ";
+    
+    if (hasError) {
+      return baseClasses + "border-2 border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200 pr-10";
+    }
+    
+    return baseClasses + "border border-gray-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 " + 
+           (type === "password" ? "pr-10" : "");
+  };
+
   const renderField = (field: FormField) => {
     if (field.type === "select") {
       return (
         <select
           id={field.name}
-          className={`block w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-            errors[field.name] ? "border-red-300" : "border-gray-300"
-          }`}
+          className={getInputClassName(!!errors[field.name])}
           {...register(field.name, {
             required: field.required
               ? t("form.fieldRequired", { field: field.label })
@@ -178,20 +182,19 @@ export default function ReusableForm({
         </select>
       );
     }
+
     if (field.type === "multiselect") {
       return (
         <select
           id={field.name}
           multiple
-          className={`block w-full  rounded-md border-gray-300 p-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-            errors[field.name] ? "border-red-300" : "border-gray-300"
-          }`}
+          className={getInputClassName(!!errors[field.name])}
           {...register(field.name, {
             required: field.required
               ? t("form.fieldRequired", { field: field.label })
               : false,
           })}
-          size={3}
+          size={4}
         >
           {field.options?.map((option) => (
             <option key={option.value} value={option.value}>
@@ -201,14 +204,14 @@ export default function ReusableForm({
         </select>
       );
     }
+
     if (field.name === "description") {
       return (
         <textarea
           id={field.name}
           rows={4}
-          className={`block w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
-            errors[field.name] ? "border-red-300" : "border-gray-300"
-          }`}
+          placeholder={field.placeholder}
+          className={getInputClassName(!!errors[field.name])}
           {...register(field.name, {
             required: field.required
               ? t("form.fieldRequired", { field: field.label })
@@ -220,22 +223,29 @@ export default function ReusableForm({
 
     if (field.type === "checkbox") {
       return (
-        <div className="flex items-center">
-          <input
-            id={field.name}
-            type="checkbox"
-            className={`h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 ${
-              errors[field.name] ? "border-red-300" : "border-gray-300"
-            }`}
-            {...register(field.name)}
-          />
-          <label
-            htmlFor={field.name}
-            className="ml-2 block text-sm text-gray-700"
-          >
-            {field.label}
-            {field.required && <span className="text-red-500 ml-1">*</span>}
-          </label>
+        <div className="flex items-start space-x-3 p-3 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
+          <div className="flex items-center h-5 mt-0.5">
+            <input
+              id={field.name}
+              type="checkbox"
+              className={`h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 transition duration-200 ${
+                errors[field.name] ? "border-red-300" : "border-gray-300"
+              }`}
+              {...register(field.name)}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label
+              htmlFor={field.name}
+              className="text-sm font-medium text-gray-700 cursor-pointer"
+            >
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            {field.placeholder && (
+              <p className="text-xs text-gray-500 mt-1">{field.placeholder}</p>
+            )}
+          </div>
         </div>
       );
     }
@@ -246,11 +256,8 @@ export default function ReusableForm({
           <input
             id={field.name}
             type={showPassword[field.name] ? "text" : "password"}
-            className={`block w-full rounded-md shadow-sm sm:text-sm p-3 pr-10 ${
-              errors[field.name]
-                ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-            }`}
+            placeholder={field.placeholder}
+            className={getInputClassName(!!errors[field.name], "password")}
             {...register(field.name, {
               required: field.required
                 ? t("form.fieldRequired", { field: field.label })
@@ -265,13 +272,13 @@ export default function ReusableForm({
           />
           <button
             type="button"
-            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center transition-colors duration-200"
             onClick={() => togglePasswordVisibility(field.name)}
           >
             {showPassword[field.name] ? (
-              <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              <EyeOff className="h-5 w-5 text-gray-500 hover:text-gray-700 transition-colors" />
             ) : (
-              <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              <Eye className="h-5 w-5 text-gray-500 hover:text-gray-700 transition-colors" />
             )}
           </button>
         </div>
@@ -283,11 +290,8 @@ export default function ReusableForm({
       <input
         id={field.name}
         type={field.type || "text"}
-        className={`block w-full rounded-md shadow-sm sm:text-sm p-3 ${
-          errors[field.name]
-            ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-        }`}
+        placeholder={field.placeholder}
+        className={getInputClassName(!!errors[field.name])}
         {...register(field.name, {
           required: field.required
             ? t("form.fieldRequired", { field: field.label })
@@ -317,95 +321,113 @@ export default function ReusableForm({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-      <div className="p-6 relative bg-white rounded-lg shadow-lg max-w-2xl w-full mx-4">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6 pb-4 px-6 border-b border-gray-100">
-          {title}
-        </h2>
-        <X
-          onClick={onClose}
-          className="absolute top-4 right-4 cursor-pointer hover:text-gray-700"
-        />
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {fields.map((field) => (
-              <div
-                key={field.name}
-                className={`${
-                  field.name === "description"
-                    ? "md:col-span-2"
-                    : field.type === "checkbox"
-                      ? "md:col-span-2"
-                      : field.type === "password"
-                        ? "md:col-span-2"
-                        : ""
-                }`}
-              >
-                <div className="space-y-2">
-                  {field.type !== "checkbox" && (
-                    <label
-                      htmlFor={field.name}
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      {field.label}
-                      {field.required && (
-                        <span className="text-red-500 ml-1">*</span>
-                      )}
-                    </label>
-                  )}
-
-                  {renderField(field)}
-
-                  {errors[field.name] && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors[field.name]?.message?.toString()}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="pt-4 mt-6 border-t border-gray-200 flex justify-end space-x-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300">
+      <div className="p-0 relative bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden border border-gray-100">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-white">{title}</h2>
             <button
               type="button"
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              aria-label="close modal"
               onClick={onClose}
+              className="text-white/80 hover:text-white transition-colors duration-200 p-1 rounded-lg hover:bg-white/10"
             >
-              {t("form.cancel")}
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                isLoading ? "opacity-75 cursor-not-allowed" : ""
-              }`}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                  {t("form.processing")}
-                </>
-              ) : (
-                submitButtonText
-              )}
+              <X className="h-5 w-5" />
             </button>
           </div>
+        </div>
 
-          {error && (
-            <div className="mt-4 p-3 bg-red-50 border-l-4 border-red-400 rounded">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <X className="h-5 w-5 text-red-400" aria-hidden="true" />
+        {/* Form Content */}
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {fields.map((field) => (
+                <div
+                  key={field.name}
+                  className={`${
+                    field.name === "description" ||
+                    field.type === "checkbox" ||
+                    field.type === "password" ||
+                    field.type === "multiselect"
+                      ? "md:col-span-2"
+                      : ""
+                  }`}
+                >
+                  <div className="space-y-2">
+                    {field.type !== "checkbox" && (
+                      <label
+                        htmlFor={field.name}
+                        className="block text-sm font-medium text-gray-700  items-center"
+                      >
+                        {field.label}
+                        {field.required && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
+                      </label>
+                    )}
+
+                    {renderField(field)}
+
+                    {errors[field.name] && (
+                      <div className="flex items-center space-x-1 mt-1">
+                        <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                        <p className="text-sm text-red-600">
+                          {errors[field.name]?.message?.toString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">{error.message}</p>
+              ))}
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-3">
+                <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-red-800">
+                    {t("form.errorTitle")}
+                  </p>
+                  <p className="text-sm text-red-700 mt-1">{error.message}</p>
                 </div>
               </div>
+            )}
+
+            {/* Actions */}
+            <div className="pt-4 mt-6 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                type="button"
+                className="px-6 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105 focus:scale-105"
+                onClick={onClose}
+              >
+                {t("form.cancel")}
+              </button>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={`inline-flex items-center px-6 py-2.5 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 transform hover:scale-105 focus:scale-105 ${
+                  isLoading
+                    ? "bg-blue-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                }`}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                    {t("form.processing")}
+                  </>
+                ) : (
+                  <>
+                    <Check className="-ml-1 mr-2 h-4 w-4" />
+                    {submitButtonText}
+                  </>
+                )}
+              </button>
             </div>
-          )}
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
