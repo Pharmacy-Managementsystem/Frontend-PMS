@@ -17,7 +17,7 @@ const ProductSchema = z.object({
   english_name: z.string().min(1, "English name is required"),
   commercial_name: z.string(),
   global_code: z.string(),
-  short_code: z.string(),
+  short_code: z.string().optional(),
   description: z.string().optional(),
   cost: z.string().min(1, "Cost must be a valid number"),
   is_expirable: z.boolean().default(false),
@@ -32,6 +32,7 @@ const ProductSchema = z.object({
         unit: z.number().min(1, "Unit is required"),
         quantity_per_parent: z.number(),
         is_main_unit: z.boolean().default(false),
+        retail_price: z.string().optional(), 
       }),
     )
     .min(1, "At least one unit is required"),
@@ -39,6 +40,7 @@ const ProductSchema = z.object({
     .array(
       z.object({
         id: z.number().optional(),
+        batch: z.number().optional(), // ← إضافة هذا الحقل
         batch_num: z.string(),
         batch_size: z.number().min(0, "Batch size must be positive"),
         exp_date: z.string().or(z.date()),
@@ -49,7 +51,10 @@ const ProductSchema = z.object({
             const num = typeof val === "string" ? parseFloat(val) : val;
             return !isNaN(num);
           }, "Price must be a valid number"),
+        barcode: z.string().optional(), 
         apply_price_to_old_batches: z.boolean().default(false),
+        discount: z.string().optional(), 
+        tax_rate: z.number().optional(), 
       }),
     )
     .min(1, "At least one batch is required"),
@@ -382,26 +387,35 @@ const FormProducts: React.FC<FormProductsProps> = ({
   }, [productData, mode, reset]);
 
   const onSubmit: SubmitHandler<ProductFormValues> = (data) => {
-    if (mode === "add") {
-      const requestData = {
-        ...data,
-        cost: typeof data.cost === "string" ? parseFloat(data.cost) : data.cost,
-        units: data.units.map((unit) => ({
-          ...unit,
-          quantity_per_parent: Number(unit.quantity_per_parent),
-        })),
-        batches: data.batches?.map((batch) => ({
-          ...batch,
-          batch_size: Number(batch.batch_size),
-          price:
-            typeof batch.price === "string"
-              ? parseFloat(batch.price)
-              : batch.price,
-        })),
-      };
+  if (mode === "add") {
+    const requestData = {
+      ...data,
+      cost: typeof data.cost === "string" ? parseFloat(data.cost) : data.cost,
+      units: data.units.map((unit) => ({
+        ...unit,
+        quantity_per_parent: Number(unit.quantity_per_parent),
+        retail_price: typeof unit.retail_price === "string" 
+          ? parseFloat(unit.retail_price) 
+          : unit.retail_price, 
+      })),
+      batches: data.batches?.map((batch) => ({
+        batch_num: batch.batch_num,
+        batch_size: Number(batch.batch_size),
+        exp_date: batch.exp_date,
+        price: typeof batch.price === "string"
+          ? parseFloat(batch.price)
+          : batch.price,
+        barcode: batch.barcode, 
+        apply_price_to_old_batches: batch.apply_price_to_old_batches,
+        discount: batch.discount , 
+        tax_rate: batch.tax_rate ,
+        // ملاحظة: لا تبعت batch و id في حالة الـ add
+      })),
+    };
 
-      console.log("Request Data:", requestData);
-      createProduct(requestData);
+    console.log("Request Data:", requestData);
+    createProduct(requestData);
+  
     } else if (mode === "edit" && productData) {
       const changedFields: Partial<ProductFormValues> = {};
 
@@ -471,19 +485,27 @@ const FormProducts: React.FC<FormProductsProps> = ({
     }
   };
 
-  const addUnit = () => {
-    appendUnit({ unit: 0, quantity_per_parent: 1, is_main_unit: false });
-  };
+ const addUnit = () => {
+  appendUnit({ 
+    unit: 0, 
+    quantity_per_parent: 1, 
+    is_main_unit: false,
+    retail_price: "" 
+  });
+};
 
   const addBatch = () => {
-    appendBatch({
-      batch_num: "",
-      batch_size: 0,
-      exp_date: new Date().toISOString().split("T")[0],
-      price: 0,
-      apply_price_to_old_batches: false,
-    });
-  };
+  appendBatch({
+    batch_num: "",
+    batch_size: 0,
+    exp_date: new Date().toISOString().split("T")[0],
+    price: 0,
+    barcode: "", // ← إضافة هذا الحقل
+    apply_price_to_old_batches: false,
+    discount: "", // ← إضافة هذا الحقل
+    tax_rate: 0, // ← إضافة هذا الحقل
+  });
+};
 
   if (isLoadingProduct) {
     return (
@@ -859,6 +881,19 @@ const FormProducts: React.FC<FormProductsProps> = ({
 
                   {/* Quantity per Parent */}
                   {index > 0 && (
+                    <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t("productsForm.retailPrice")} *
+                      </label>
+                      <input
+                        {...register(`units.${index}.retail_price`)}
+                        type="number"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="0.00"
+                      />
+                      
+                    </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         {t("productsForm.quantityPerParent")} *
@@ -873,6 +908,7 @@ const FormProducts: React.FC<FormProductsProps> = ({
                         placeholder="1"
                       />
                     </div>
+                    </>
                   )}
 
                   {/* Main Unit */}
@@ -924,26 +960,35 @@ const FormProducts: React.FC<FormProductsProps> = ({
             </button>
           </div>
 
-          <div className="overflow-hidden rounded-lg border border-gray-200">
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="py-4 px-4 text-left text-sm font-semibold text-gray-700">
+                  <th className="py-4 px-2 text-left text-sm font-semibold text-gray-700">
                     {t("productsForm.batchNumber")}
                   </th>
-                  <th className="py-4 px-4 text-left text-sm font-semibold text-gray-700">
+                  <th className="py-4 px-2 text-left text-sm font-semibold text-gray-700">
                     {t("productsForm.quantity")}
                   </th>
-                  <th className="py-4 px-4 text-left text-sm font-semibold text-gray-700">
+                  <th className="py-4 px-2 text-left text-sm font-semibold text-gray-700">
                     {t("productsForm.expirationDate")}
                   </th>
-                  <th className="py-4 px-4 text-left text-sm font-semibold text-gray-700">
+                  <th className="py-4 px-2 text-left text-sm font-semibold text-gray-700">
                     {t("productsForm.price")}
                   </th>
-                  <th className="py-4 px-4 text-left text-sm font-semibold text-gray-700">
+                  <th className="py-4 px-2 text-left text-sm font-semibold text-gray-700">
+                    {t("productsForm.barcode")}
+                  </th>
+                  <th className="py-4 px-2 text-left text-sm font-semibold text-gray-700">
+                    {t("productsForm.discount")}
+                  </th>
+                  <th className="py-4 px-2 text-left text-sm font-semibold text-gray-700">
+                    {t("productsForm.taxRate")}
+                  </th>
+                  <th className="py-4 px-2 text-left text-sm font-semibold text-gray-700">
                     {t("productsForm.applyToOld")}
                   </th>
-                  <th className="py-4 px-4 text-left text-sm font-semibold text-gray-700">
+                  <th className="py-4 px-2 text-left text-sm font-semibold text-gray-700">
                     {t("table.actions")}
                   </th>
                 </tr>
@@ -955,7 +1000,7 @@ const FormProducts: React.FC<FormProductsProps> = ({
                     className="hover:bg-gray-50 transition-colors group"
                   >
                     {/* Batch Number */}
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-2">
                       <div className="relative">
                         <input
                           {...register(`batches.${index}.batch_num`)}
@@ -972,7 +1017,7 @@ const FormProducts: React.FC<FormProductsProps> = ({
                     </td>
 
                     {/* Quantity */}
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-2">
                       <div className="relative">
                         <input
                           {...register(`batches.${index}.batch_size`, {
@@ -992,7 +1037,7 @@ const FormProducts: React.FC<FormProductsProps> = ({
                     </td>
 
                     {/* Expiration Date */}
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-2">
                       <div className="relative">
                         <input
                           {...register(`batches.${index}.exp_date`)}
@@ -1003,7 +1048,7 @@ const FormProducts: React.FC<FormProductsProps> = ({
                     </td>
 
                     {/* Price */}
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-2">
                       <div className="relative">
                         <div className="relative">
                           <input
@@ -1022,8 +1067,44 @@ const FormProducts: React.FC<FormProductsProps> = ({
                       </div>
                     </td>
 
-                    {/* Apply to Old Batches */}
-                    <td className="py-4 px-4">
+                    
+                     <td className="py-4 px-2">
+                        <div className="relative">
+                          <input
+                            {...register(`batches.${index}.barcode`)}
+                            type="text"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                          />
+                        </div>
+                      </td>
+
+                      {/* Discount */}
+                      <td className="py-4 px-2">
+                        <div className="relative">
+                          <input
+                            {...register(`batches.${index}.discount`)}
+                            type="number"
+                            step="0.01"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            placeholder="0.00"
+                          />
+                        </div>
+                      </td>
+
+                      {/* Tax Rate */}
+                      <td className="py-4 px-2">
+                        <div className="relative">
+                          <input
+                            {...register(`batches.${index}.tax_rate`, { valueAsNumber: true })}
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            placeholder="0"
+                          />
+                        </div>
+                      </td>
+                        <td className="py-4 px-2">
                       <label className="flex items-center justify-center">
                         <div className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -1037,9 +1118,8 @@ const FormProducts: React.FC<FormProductsProps> = ({
                         </div>
                       </label>
                     </td>
-
                     {/* Actions */}
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-2">
                       <div className="flex items-center gap-2">
                         {/* زر عرض تفاصيل الـ Batch */}
                         <button

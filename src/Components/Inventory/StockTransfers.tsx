@@ -5,6 +5,7 @@ import { DataTable } from "../Table/DataTable";
 import TableRowUser from "../Table/TableRowUser";
 import { useGet } from "../../Hook/API/useApiGet";
 import ReusableForm from "../Forms/ReusableForm";
+import AddStock from "../Forms/AddStock";
 
 // Interface for stock transfer data
 interface StockTransfer {
@@ -34,6 +35,7 @@ export default function StockTransfers() {
   const [searchValue, setSearchValue] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormCreate, setIsFormCreate] = useState(false);
   const [selectedTransferId, setSelectedTransferId] = useState<number | null>(null);
   const [action, setAction] = useState<"approve" | "accept" | "cancel" | null>(null);
   const { t, i18n } = useTranslation();
@@ -79,7 +81,6 @@ export default function StockTransfers() {
     );
   }) || [];
 
-  // Transform data for TableRowUser component
   const tableData = filteredData.map(transfer => ({
     id: transfer.id.toString(),
     [columns[0]]: transfer.transfer_reference,
@@ -121,7 +122,6 @@ export default function StockTransfers() {
 
   
 
-  // Render dropdown for actions
   const renderDropdown = (id: string) => {
     const transferId = parseInt(id);
     
@@ -152,7 +152,6 @@ export default function StockTransfers() {
     );
   };
 
-  // Handle filter change
   const handleFilterChange = (filter: string) => {
     if (filter === "All") {
       setActiveFilter(null);
@@ -162,14 +161,23 @@ export default function StockTransfers() {
   };
 
   return (
-    <div>
+
+    <>
+   {isFormCreate ? (
+        <AddStock
+          onClose={() => setIsFormCreate(false)}
+          onSuccess={handleCreateSuccess}
+        />
+       ):(
+         <div>
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center mb-4 justify-between">
           <h1 className={`text-3xl font-bold text-gray-900  ${isRTL ? "text-right" : "text-left"}`}>
             {t("stockTransfers.title", "Stock Transfers")}
           </h1>
-          <button className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-colors duration-200 text-sm font-medium whitespace-nowrap ml-auto ${isRTL ? "flex-row-reverse" : ""}`}>
+          <button onClick={() => setIsFormCreate(true)} 
+           className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition-colors duration-200 text-sm font-medium whitespace-nowrap ml-auto ${isRTL ? "flex-row-reverse" : ""}`}>
             <FaPlus className="text-sm" />
             {t("transfers.initiateTransfer", "Initiate Transfer")}
           </button>
@@ -298,6 +306,14 @@ export default function StockTransfers() {
           key={`${action}-form-${selectedTransferId}`}
         />
       )}
+       
+      
     </div>
+
+       )
+       
+       }
+   
+    </>
   );
 }

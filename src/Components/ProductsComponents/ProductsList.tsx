@@ -80,7 +80,6 @@ export default function ProductsList() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
 
-  // Build query parameters based on available search options
   const buildQueryParams = () => {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -180,6 +179,7 @@ export default function ProductsList() {
 
   const handleBack = () => {
     setProductsAction(null);
+    refetch();
   };
 
   const handleEditClick = (id: string | number) => {
