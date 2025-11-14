@@ -11,6 +11,17 @@ RUN npm install
 
 COPY . .
 
+# Accept build arguments for environment variables
+ARG VITE_API_BASE_URL
+ARG VITE_APP_NAME="Pharmacy Management System"
+ARG VITE_APP_VERSION=1.0.0
+
+# Set environment variables for build time
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+ENV VITE_API_URL=${VITE_API_BASE_URL}
+ENV VITE_APP_NAME=${VITE_APP_NAME}
+ENV VITE_APP_VERSION=${VITE_APP_VERSION}
+
 RUN npm run build
 
 # Stage 2: Production runner
